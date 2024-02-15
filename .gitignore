@@ -1,0 +1,6 @@
+build/*
+!build/Makefile
+
+docs/*
+!docs/config
+
