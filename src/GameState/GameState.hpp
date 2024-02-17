@@ -10,18 +10,19 @@ namespace GameState {
         State() = default;
         State(State &&) = default;
         State(const State &) = default;
-        State &operator=(State &&) = default;
-        State &operator=(const State &) = default;
-        ~State() = default;
+        virtual State<A> &operator=(State<A> &&) = 0;
+        virtual State<A> &operator=(const State<A> &) = 0;
+        virtual ~State() = default;
         
         // methods to determine winning
-        int whose_turn() const;
+        virtual int whose_turn() const = 0;
 
         // methods for move making
-        int who_won() const;
-        State<A> *succeed(const A &action) const;
-        std::vector<A> *get_actions() const;
-        void get_actions(std::vector<A> &buffer) const;
+        virtual int who_won() const = 0;
+        virtual State<A> *succeed(const A &action) const = 0;
+        virtual State<A> &succeed_in_place(const A &action) = 0;
+        virtual std::vector<A> *get_actions() const = 0;
+        virtual void get_actions(std::vector<A> &buffer) const = 0;
     };
 }
 
