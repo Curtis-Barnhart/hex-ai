@@ -2,22 +2,15 @@
 #include <iostream>
 #include <vector>
 
-#include "Games/TicTacToe/TTT_State.hpp"
-
-template<class A>
-std::size_t count_moves(const GameState::State<A> &s) {
-    std::vector<A> actions;
-    s.get_actions(actions);
-    return actions.size();
-}
+#include "Games/Hex/HexState.hpp"
+#include "Games/Hex/HexStateBase.hpp"
 
 int main(int argc, char *argv[]) {
-    GameState::TTT_State initial = GameState::TTT_State();
-    std::cout << "The number of initial moves is "
-              << count_moves<GameState::TTT_Action>(initial)
-              << "\n";
-
-    std::cout << "Works so far\n";
+    GameState::HexState<8> *initial = new GameState::HexState<8>();
+    auto action = GameState::HexAction<8>();
+    action.whose = GameState::HexVal::ONE;
+    auto next_state = initial->succeed(action);
+    std::cout << *next_state << "\n";
     return 0;
 }
 
