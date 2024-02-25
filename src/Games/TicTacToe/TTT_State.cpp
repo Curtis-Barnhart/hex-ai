@@ -196,6 +196,9 @@ void State<TA, TA>::get_actions(std::vector<TA> &buffer) const {
     }
 }
 
+/*
+* prints a tic-tac-toe board kind of like you would expect.
+*/
 std::ostream &GameState::operator<<(std::ostream &out, const GameState::State<TA, TA> &game) {
     char c;
     for (int y = 2; y >= 0; y--) {
