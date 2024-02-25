@@ -54,7 +54,7 @@ namespace GameState {
         signed char board[3][3] = { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
     };
 
-    std::ostream &operator<<(std::ostream &out, const GameState::State<TA, TA> &game);
+    std::ostream &operator<<(std::ostream &out, const GameState::State<GameState::TA, GameState::TA> &game);
 
     using TTT_State = GameState::State<GameState::TA, GameState::TA>;
 
