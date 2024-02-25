@@ -190,7 +190,7 @@ void State<TA, TA>::get_actions(std::vector<TA> &buffer) const {
     for (char x = 0; x < 3; x++) {
         for (char y = 0; y < 3; y++) {
             if (this->board[x][y] == PLAYER_NONE) {
-                buffer.emplace_back(whose_turn , x, y);
+                buffer.emplace_back(x, y, whose_turn);
             }
         }
     }

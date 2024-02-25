@@ -2,15 +2,11 @@
 #include <iostream>
 #include <vector>
 
-#include "Games/Hex/HexState.hpp"
-#include "Games/Hex/HexStateBase.hpp"
+#include "Games/TicTacToe/TTT_State.hpp"
 
 int main(int argc, char *argv[]) {
-    GameState::HexState<8> *initial = new GameState::HexState<8>();
-    auto action = GameState::HexAction<8>();
-    action.whose = GameState::HexVal::ONE;
-    auto next_state = initial->succeed(action);
-    std::cout << *next_state << "\n";
+    auto *test = new GameState::TTT_State();
+    test->get_actions();
     return 0;
 }
 

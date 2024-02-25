@@ -13,6 +13,14 @@ namespace GameState {
     * for tic-tac-toe.
     */
     struct TA {
+        /**
+        * Constructor sets memeber values according to the given parameters.
+        * @param x the x coordinate of what tile should be claimed
+        * @param y the y coordinate of what tile should be claimed
+        * @param whose 0 for the first player, 1 for the second, -1 for no player
+        */
+        TA(signed char x, signed char y, signed char whose);
+
         signed char x = 0, y = 0, whose = 0;
     };
 }
