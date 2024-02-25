@@ -196,3 +196,26 @@ void State<TA, TA>::get_actions(std::vector<TA> &buffer) const {
     }
 }
 
+std::ostream &GameState::operator<<(std::ostream &out, const GameState::State<TA, TA> &game) {
+    char c;
+    for (int y = 2; y >= 0; y--) {
+        for (int x = 0; x < 3; x++) {
+            switch (game.board[x][y]) {
+                case PLAYER_NONE:
+                    c = ' ';
+                    break;
+                case PLAYER_X:
+                    c = 'x';
+                    break;
+                case PLAYER_Y:
+                    c = 'y';
+                    break;
+            }
+            out << c;
+        }
+        out << '\n';
+    }
+
+    return out;
+}
+

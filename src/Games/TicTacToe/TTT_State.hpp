@@ -1,6 +1,8 @@
 #ifndef GAMES_TIC_TAC_TOE_TTT_STATE_HPP
 #define GAMES_TIC_TAC_TOE_TTT_STATE_HPP
 
+#include <ostream>
+
 #include "../../GameState/GameState.hpp"
 #include "TTT_Actions.hpp"
 
@@ -45,10 +47,14 @@ namespace GameState {
         
         void get_actions(std::vector<GameState::TA> &buffer) const;
 
+        friend std::ostream &operator<<(std::ostream &out, const GameState::State<TA, TA> &game);
+
     private:
         signed char turn = -1;
-        signed char board[3][3] = { -1 };
+        signed char board[3][3] = { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
     };
+
+    std::ostream &operator<<(std::ostream &out, const GameState::State<TA, TA> &game);
 
     using TTT_State = GameState::State<GameState::TA, GameState::TA>;
 

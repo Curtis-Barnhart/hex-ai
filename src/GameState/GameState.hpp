@@ -2,6 +2,7 @@
 #define GAMESTATE_GAMESTATE_HPP
 
 #include <vector>
+#include <ostream>
 
 namespace GameState {
     template<class Action, class Back>
