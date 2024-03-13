@@ -1,18 +1,36 @@
 #ifndef GAMESTATE_GAMESTATE_HPP
 #define GAMESTATE_GAMESTATE_HPP
 
-#include <vector>
+#include <iostream>
 #include <ostream>
+#include <vector>
 
 namespace GameState {
+    // Forward declaration of ostream << operator requires
+    // forward declaration of State
+    template<class Action, class Back>
+    class State;
+
+    // Friending of templated non member operator << in GameState::State
+    // requires forward declaration of that operator
+    template<class Action, class Back>
+    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back> &state);
+
     template<class Action, class Back>
     class State {
+        /*
+         * This operator is overloaded so that a game's state may be easily printed.
+         */
+        friend std::ostream &operator<<<Action, Back>(std::ostream &out, const GameState::State<Action, Back> &game);
+
     public:
         /**
         * The constructor returns an object that represents the initial state of
         * a game, before any players have made a move.
         */
-        State() = default;
+        State() {
+            std::cout << "This should not be called\n";
+        }
 
         /**
         * Constructs a new state that represents the same state as the old one.
@@ -146,6 +164,9 @@ namespace GameState {
         */
         void get_actions(std::vector<Action> &buffer) const;
     };
+
+    template<class Action, class Back>
+    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back> &game);
 }
 
 #endif // !GAMESTATE_HPP

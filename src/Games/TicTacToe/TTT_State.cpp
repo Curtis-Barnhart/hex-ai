@@ -2,9 +2,11 @@
 *
 */
 
+#include <iostream>
 #include <cstring>
 
-#include "TTT_State.hpp"
+#include "../../GameState/GameState.hpp"
+#include "TTT_Actions.hpp"
 
 using GameState::TA;
 using GameState::State;
@@ -12,6 +14,39 @@ using GameState::State;
 #define PLAYER_X 0
 #define PLAYER_Y 1
 #define PLAYER_NONE -1
+
+namespace GameState {
+    /**
+     * TTT_State is a basic implementation of a tic-tac-toe game state.
+     * For details on its interface, read GameState::State.
+     */
+    template<>
+    class State<TA, TA> {
+        friend std::ostream &operator<<<TA, TA>(std::ostream &out, const State<TA, TA> &game);
+
+    public:
+        State();
+        State(State<TA, TA> &&other);
+        State(const State<TA, TA> &other);
+        State<TA, TA> &operator=(const State<TA, TA> &other);
+        State<TA, TA> &operator=(State<TA, TA> &&other);
+        ~State<TA, TA>();
+        int whose_turn() const;
+        int who_won() const;
+        State<TA, TA> *succeed(const TA &action) const;
+        State<TA, TA> *succeed(const TA &action, TA &baction) const;
+        State<TA, TA> &succeed_in_place(const TA &action);
+        State<TA, TA> &succeed_in_place(const TA &action, TA &baction);
+        State<TA, TA> *reverse(const TA &baction) const;
+        State<TA, TA> &reverse_in_place(const TA &baction);
+        std::vector<TA> *get_actions() const;
+        void get_actions(std::vector<TA> &buffer) const;
+
+    private:
+        signed char turn = 0;
+        signed char board[3][3] = { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+    };
+}
 
 /*
 * Constructor doesn't need to do anything because private members of object
@@ -57,7 +92,7 @@ State<TA, TA> &State<TA, TA>::operator=(State<TA, TA> &&other) {
 * No memory is dynamically allocated in constructor, so constructor does
 * nothing.
 */
-State<TA, TA>::~State<TA, TA>() = default;
+GameState::State<TA, TA>::~State() = default;
 
 /*
 * Simply returns the turn number.
@@ -187,8 +222,8 @@ std::vector<TA> *State<TA, TA>::get_actions() const {
 void State<TA, TA>::get_actions(std::vector<TA> &buffer) const {
     signed char whose_turn = this->turn;
     buffer.reserve(9);
-    for (char x = 0; x < 3; x++) {
-        for (char y = 0; y < 3; y++) {
+    for (int x = 0; x < 3; x++) {
+        for (int y = 0; y < 3; y++) {
             if (this->board[x][y] == PLAYER_NONE) {
                 buffer.emplace_back(x, y, whose_turn);
             }
@@ -199,7 +234,8 @@ void State<TA, TA>::get_actions(std::vector<TA> &buffer) const {
 /*
 * prints a tic-tac-toe board kind of like you would expect.
 */
-std::ostream &GameState::operator<<(std::ostream &out, const GameState::State<TA, TA> &game) {
+template<>
+std::ostream &GameState::operator<<<TA, TA>(std::ostream &out, const GameState::State<TA, TA> &game) {
     char c;
     for (int y = 2; y >= 0; y--) {
         for (int x = 0; x < 3; x++) {
