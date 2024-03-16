@@ -8,20 +8,20 @@
 namespace GameState {
     // Forward declaration of ostream << operator requires
     // forward declaration of State
-    template<class Action, class Back>
+    template<class Action, class Back, unsigned int Players>
     class State;
 
     // Friending of templated non member operator << in GameState::State
     // requires forward declaration of that operator
-    template<class Action, class Back>
-    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back> &state);
+    template<class Action, class Back, unsigned int Players>
+    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back, Players> &state);
 
-    template<class Action, class Back>
+    template<class Action, class Back, unsigned int Players>
     class State {
         /*
          * This operator is overloaded so that a game's state may be easily printed.
          */
-        friend std::ostream &operator<<<Action, Back>(std::ostream &out, const GameState::State<Action, Back> &game);
+        friend std::ostream &operator<<<Action, Back, Players>(std::ostream &out, const GameState::State<Action, Back, Players> &game);
 
     public:
         /**
@@ -29,7 +29,7 @@ namespace GameState {
         * a game, before any players have made a move.
         */
         State() {
-            std::cout << "This should not be called\n";
+            std::cout << "Bad constructor called\n";
         }
 
         /**
@@ -50,7 +50,7 @@ namespace GameState {
         * @param other the state which you are copying into this one
         * @return a reference to the state which you have just set
         */
-        State<Action, Back> &operator=(State<Action, Back> &&other);
+        State<Action, Back, Players> &operator=(State<Action, Back, Players> &&other);
 
         /**
         * Changes the state that is being set equal so that it represents the same
@@ -58,7 +58,7 @@ namespace GameState {
         * @param other the state which you are copying into this one
         * @return a reference to the state which you have just set
         */
-        State<Action, Back> &operator=(const State<Action, Back> &other);
+        State<Action, Back, Players> &operator=(const State<Action, Back, Players> &other);
 
         /**
         * Destructor for a state.
@@ -70,7 +70,7 @@ namespace GameState {
         * current state, 1 if the second player is the next player to make a move,
         * etc.
         */
-        int whose_turn() const;
+        unsigned int whose_turn() const;
 
         /**
         * @return 0 if the first player has won the game, 1 if the second player
@@ -79,13 +79,23 @@ namespace GameState {
         int who_won() const;
 
         /**
+         * Returns the current score of the game.
+         * In a game where there is no "score" and only a win or loss at the end,
+         * this method should return 0s if the game is not over,
+         * and can use 1 to indicate victory and 0 defeat.
+         * @param score an array that can be filled with doubles,
+         *              indicating the score of each player in the current state.
+         */
+        void current_score(double score[Players]) const;
+
+        /**
         * succeed takes an action and applies it to a state of a game, returning
         * the new state that occurs as a result of that action.
         * @param action the action to simulate
         * @return a pointer to a new state that represents the state of a game
         * after the action has been applied.
         */
-        State<Action, Back> *succeed(const Action &action) const;
+        State<Action, Back, Players> *succeed(const Action &action) const;
 
         /**
          * succeed takes an action and applies it to the state of a game, returning
@@ -98,7 +108,7 @@ namespace GameState {
          * @return a pointer to a new state that represents the state of a game
          * after the action has been applied.
          */
-        State<Action, Back> *succeed(const Action &action, Back &baction) const;
+        State<Action, Back, Players> *succeed(const Action &action, Back &baction) const;
 
         /**
         * succeed_in_place takes an action and applies it to a state of a game,
@@ -108,7 +118,7 @@ namespace GameState {
         * @return a reference to the state on which succeed_in_place was called,
         * freshly mutated by the new action
         */
-        State<Action, Back> &succeed_in_place(const Action &action);
+        State<Action, Back, Players> &succeed_in_place(const Action &action);
 
         /**
         * succeed_in_place takes an action and applies it to a state of a game,
@@ -123,7 +133,7 @@ namespace GameState {
         * @return a reference to the state on which succeed_in_place was called,
         * freshly mutated by the new action
         */
-        State<Action, Back> &succeed_in_place(const Action &action, Back &baction);
+        State<Action, Back, Players> &succeed_in_place(const Action &action, Back &baction);
 
         /**
         * reverse takes a backwards action and applies it to the state of a game,
@@ -134,7 +144,7 @@ namespace GameState {
         * @return a pointer to a state representing the state preceding the current
         * state
         */
-        State<Action, Back> *reverse(const Back &baction) const;
+        State<Action, Back, Players> *reverse(const Back &baction) const;
 
         /**
         * reverse_in_place takes a backwards action and applies it ot the state of
@@ -146,7 +156,7 @@ namespace GameState {
         * @return a reference to the state on which reverse_in_place was called,
         * freshly mutated according to the backwards action
         */
-        State<Action, Back> &reverse_in_place(const Back &baction);
+        State<Action, Back, Players> &reverse_in_place(const Back &baction);
 
         /**
         * get_actions returns a pointer to a vector of all legal actions from a
@@ -165,8 +175,8 @@ namespace GameState {
         void get_actions(std::vector<Action> &buffer) const;
     };
 
-    template<class Action, class Back>
-    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back> &game);
+    template<class Action, class Back, unsigned int Players>
+    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back, Players> &game);
 }
 
 #endif // !GAMESTATE_HPP

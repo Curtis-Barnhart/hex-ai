@@ -14,6 +14,11 @@ namespace GameState {
     */
     struct TA {
         /**
+         * Constructor sets a move that is not possible (made by player -1)
+         */
+        TA();
+
+        /**
         * Constructor sets memeber values according to the given parameters.
         * @param x the x coordinate of what tile should be claimed
         * @param y the y coordinate of what tile should be claimed
