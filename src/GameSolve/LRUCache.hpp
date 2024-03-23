@@ -80,21 +80,18 @@ public:
     }
 
     /**
-    *
+    * Insert inserts a key value pair into the cache that does not currently exist.
+    * Behavior is not defined if the key is already in the cache.
+    * @param k Key to insert into the cache.
+    * @parak v Value to associate with the given key.
     */
     void insert(const Key &k, const Value &v) {
         // If it is full, delete an old item to make room first
         LLNode *placement;
         if (this->used == this->max_capacity) {
             placement = this->delete_oldest();
-            if (placement == nullptr) {
-                std::printf("Broke A\n");
-            }
         } else {
             placement = &(this->cache[this->used++]);
-            if (placement == nullptr) {
-                std::printf("Broke B\n");
-            }
         }
 
         // First put the key value pair into the cache

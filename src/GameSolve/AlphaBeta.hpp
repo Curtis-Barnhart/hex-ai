@@ -1,3 +1,4 @@
+#include <array>
 #include <cstring>
 #include <limits>
 #include <vector>
@@ -116,27 +117,29 @@ struct Maximin {
  */
 template<class Action, class Back, unsigned int Players>
 struct MaximinCached {
-    struct PTuple {
-        double values[Players];
-    };
 
     /**
-     *
+     * Creates a new instance of MaximinCached object.
+     * Constructor initializes an empty cache.
+     * @param cache_size size of the cache to use for this Maximin algorithm runner.
      */
     MaximinCached(unsigned int cache_size) {
-        this->cache = new Cache::LRUCache<GameState::State<Action, Back, Players>, PTuple>(cache_size);
+        this->cache = new Cache::LRUCache<GameState::State<Action, Back, Players>, std::array<double, Players>>(cache_size);
     }
 
     /**
-     *
+     * Destructor deletes the internal cache.
      */
     ~MaximinCached() {
         delete this->cache;
     }
 
+    // tracks how many nodes have been calculated
     long nodes_hit = 0;
+    // tracks how many terminal nodes have been calculated
     long terms_hit = 0;
-    Cache::LRUCache<GameState::State<Action, Back, Players>, PTuple> *cache = nullptr;
+    // internal cache of nodes
+    Cache::LRUCache<GameState::State<Action, Back, Players>, std::array<double, Players>> *cache = nullptr;
 
     /**
      * maximin_no_prune_recursive tells what the best possible score a player can
@@ -149,44 +152,44 @@ struct MaximinCached {
      */
     void maximin_no_prune_recursive(
         GameState::State<Action, Back, Players> &state,
-        PTuple *best_score_2
+        std::array<double, Players> &best_score
     ) {
         this->nodes_hit++;
 
         // check for the node in the cache
-        if (this->cache->lookup(state, *best_score_2)) {
+        if (this->cache->lookup(state, best_score)) {
             return;
         }
-
-        PTuple child_score_2;
 
         // if this node is terminal, then its optimal score is just its score
         std::vector<Action> actions;
         state.get_actions(actions);
         if (actions.empty()) {
             this->terms_hit++;
-            state.current_score(best_score_2->values);
+            state.current_score(best_score.data());
             return;
         }
+
+        std::array<double, Players> child_score;
 
         // Look through all the children of this state -
         // choose whichever has the highest score for you as your highest score
         unsigned int player = state.whose_turn();
-        best_score_2->values[player] = -std::numeric_limits<double>::infinity();
+        best_score[player] = -std::numeric_limits<double>::infinity();
 
         for(Action &a: actions) {
             Back back;
             state.succeed_in_place(a, back);
-            this->maximin_no_prune_recursive(state, &child_score_2);
+            this->maximin_no_prune_recursive(state, child_score);
             state.reverse_in_place(back);
 
-            if (child_score_2.values[player] > best_score_2->values[player]) {
-                std::memcpy(best_score_2->values, child_score_2.values, sizeof(double) * Players);
+            if (child_score[player] > best_score[player]) {
+                best_score = child_score;
             }
         }
 
         // enter the calculated node into the cache so we can hopefully catch it early next time
-        this->cache->insert(state, *best_score_2);
+        this->cache->insert(state, best_score);
     }
 
     /**
@@ -203,8 +206,8 @@ struct MaximinCached {
     ) {
         this->nodes_hit = 0;
         this->terms_hit = 0;
-        PTuple best_score;
-        PTuple child_score;
+        std::array<double, Players> best_score;
+        std::array<double, Players> child_score;
         this->nodes_hit++;
 
         // if this node is terminal, then there's no action to return
@@ -218,17 +221,17 @@ struct MaximinCached {
         // look through all children of this state,
         // and choose the action which results in a state with highest score
         unsigned int player = state.whose_turn();
-        best_score.values[player] = -std::numeric_limits<double>::infinity();
+        best_score[player] = -std::numeric_limits<double>::infinity();
         Action *best_action = new Action;
 
         for(Action &a: actions) {
             Back back;
             state.succeed_in_place(a, back);
-            this->maximin_no_prune_recursive(state, &child_score);
+            this->maximin_no_prune_recursive(state, child_score);
             state.reverse_in_place(back);
             
-            if (child_score.values[player] > best_score.values[player]) {
-                std::memcpy(best_score.values, child_score.values, sizeof(double) * Players);
+            if (child_score[player] > best_score[player]) {
+                best_score = child_score;
                 *best_action = a;
             }
         }
