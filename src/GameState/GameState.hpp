@@ -1,36 +1,43 @@
 #ifndef GAMESTATE_GAMESTATE_HPP
 #define GAMESTATE_GAMESTATE_HPP
 
+#include <functional>
 #include <iostream>
 #include <ostream>
 #include <vector>
 
 namespace GameState {
-    // Forward declaration of ostream << operator requires
-    // forward declaration of State
+    // Forward declaration of ostream << operator
+    // requires forward declaration of State
     template<class Action, class Back, unsigned int Players>
     class State;
+}
 
-    // Friending of templated non member operator << in GameState::State
-    // requires forward declaration of that operator
-    template<class Action, class Back, unsigned int Players>
-    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back, Players> &state);
+// Friending of templated non member operator << in GameState::State
+// requires forward declaration of that operator
+template<class Action, class Back, unsigned int Players>
+std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back, Players> &state);
 
+// Friending of templated non member struct std::hash in GameState::State
+// requires forward declaration of that operator
+template<class Action, class Back, unsigned int Players>
+struct std::hash<GameState::State<Action, Back, Players>>;
+
+namespace GameState {
     template<class Action, class Back, unsigned int Players>
     class State {
-        /*
-         * This operator is overloaded so that a game's state may be easily printed.
-         */
+        // This operator is overloaded so that a game's state may be easily printed.
         friend std::ostream &operator<<<Action, Back, Players>(std::ostream &out, const GameState::State<Action, Back, Players> &game);
+
+        // This struct is overloaded so that hash may be done on any gamestate
+        friend struct std::hash<GameState::State<Action, Back, Players>>;
 
     public:
         /**
         * The constructor returns an object that represents the initial state of
         * a game, before any players have made a move.
         */
-        State() {
-            std::cout << "Bad constructor called\n";
-        }
+        State() = default;
 
         /**
         * Constructs a new state that represents the same state as the old one.
@@ -45,16 +52,16 @@ namespace GameState {
         State(const State &other) = default;
 
         /**
-        * Changes the state that is being set equal so that it represents the same
-        * state as the state which it is being set equal to.
+        * Changes the state that is being set equal so that it represents the
+        * same state as the state which it is being set equal to.
         * @param other the state which you are copying into this one
         * @return a reference to the state which you have just set
         */
         State<Action, Back, Players> &operator=(State<Action, Back, Players> &&other);
 
         /**
-        * Changes the state that is being set equal so that it represents the same
-        * state as the state which it is being set equal to.
+        * Changes the state that is being set equal so that it represents the
+        * same state as the state which it is being set equal to.
         * @param other the state which you are copying into this one
         * @return a reference to the state which you have just set
         */
@@ -95,6 +102,7 @@ namespace GameState {
         * @return a pointer to a new state that represents the state of a game
         * after the action has been applied.
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         State<Action, Back, Players> *succeed(const Action &action) const;
 
         /**
@@ -108,6 +116,7 @@ namespace GameState {
          * @return a pointer to a new state that represents the state of a game
          * after the action has been applied.
          */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         State<Action, Back, Players> *succeed(const Action &action, Back &baction) const;
 
         /**
@@ -144,6 +153,7 @@ namespace GameState {
         * @return a pointer to a state representing the state preceding the current
         * state
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         State<Action, Back, Players> *reverse(const Back &baction) const;
 
         /**
@@ -163,6 +173,7 @@ namespace GameState {
         * current state of the game.
         * @return a vector of legal actions from the current state.
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         std::vector<Action> *get_actions();
 
         /**
@@ -174,9 +185,6 @@ namespace GameState {
         */
         void get_actions(std::vector<Action> &buffer) const;
     };
-
-    template<class Action, class Back, unsigned int Players>
-    std::ostream &operator<<(std::ostream &out, const GameState::State<Action, Back, Players> &game);
 }
 
 #endif // !GAMESTATE_HPP

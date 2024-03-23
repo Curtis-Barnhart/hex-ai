@@ -22,8 +22,8 @@ namespace GameState {
      */
     template<>
     class State<TA, TA, 2> {
-        friend std::ostream &operator<<<TA, TA>(std::ostream &out, const State<TA, TA, 2> &game);
-        friend class std::hash<State<TA, TA, 2>>;
+        friend std::ostream &operator<<<TA, TA, 2>(std::ostream &out, const State<TA, TA, 2> &game);
+        friend class std::hash<GameState::State<TA, TA, 2>>;
 
     public:
         /*
@@ -128,8 +128,8 @@ namespace GameState {
         void current_score(double score[2]) const {
             switch (this->who_won()) {
                 case PLAYER_NONE:
-                    score[0] = 0l;
-                    score[1] = 0l;
+                    score[0] = 0.5l;
+                    score[1] = 0.5l;
                     return;
                 case PLAYER_X:
                     score[0] = 1l;
@@ -146,6 +146,7 @@ namespace GameState {
         * If player P has an action at (x, y), then that tile in the board array should
         * hold their value.
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         State<TA, TA, 2> *succeed(const TA &action) const {
             auto next = new State<TA, TA, 2>(*this);
             next->board[action.x][action.y] = action.whose;
@@ -159,6 +160,7 @@ namespace GameState {
         * To tell how to undoe an action, you just need to know where a player claimed
         * a tile.
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         State<TA, TA, 2> *succeed(const TA &action, TA &baction) const {
             auto next = new State<TA, TA, 2>(*this);
             next->board[action.x][action.y] = action.whose;
@@ -197,6 +199,7 @@ namespace GameState {
         * their action.
         * Then set the current turn as belonging to that player.
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         State<TA, TA, 2> *reverse(const TA &baction) const {
             auto previous = new State<TA, TA, 2>(*this);
             previous->board[baction.x][baction.y] = PLAYER_NONE;
@@ -218,6 +221,7 @@ namespace GameState {
         /*
         * Slight wrapper around get_actions(std::vector<TA> &).
         */
+        [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
         std::vector<TA> *get_actions() const {
             std::vector<TA> *a = new std::vector<TA>();
             this->get_actions(*a);    
@@ -255,7 +259,7 @@ namespace GameState {
 * prints a tic-tac-toe board kind of like you would expect.
 */
 template<>
-std::ostream &GameState::operator<<<TA, TA>(std::ostream &out, const GameState::State<TA, TA, 2> &game) {
+std::ostream &operator<<<TA, TA, 2>(std::ostream &out, const GameState::State<TA, TA, 2> &game) {
     char c;
     for (int y = 2; y >= 0; y--) {
         for (int x = 0; x < 3; x++) {

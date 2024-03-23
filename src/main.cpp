@@ -1,4 +1,5 @@
-#include <cstdio>
+#include <iostream>
+#include <vector>
 
 #include "GameState/GameState.hpp"
 #include "Games/TicTacToe/TTT_Actions.hpp"
@@ -8,24 +9,53 @@
 using GameState::TA;
 using GameState::State;
 
+void get_p_action(TA &action) {
+    signed char x, y;
+    std::cout << "enter x coord: ";
+    std::cin >> x;
+    std::cout << "enter y coord: ";
+    std::cin >> y;
+    action.x = x - '0';
+    action.y = y - '0';
+    action.whose = 0;
+}
+
 int main(int argc, char *argv[]) {
     State<TA, TA, 2> *test = new State<TA, TA, 2>();
+    std::cout << "Current Board:\n" << *test;
 
-    // TA action(0, 0, 0);
-    // test->succeed_in_place(action);
-    // action = TA(0, 1, 0);
-    // test->succeed_in_place(action);
-    // action = TA(0, 2, 0);
-    // test->succeed_in_place(action);
-
-    // std::cout << *test << std::endl;
-    // std::cout << test->who_won() << std::endl;
-    
     GameSolve::MaximinCached<TA, TA, 2> maximin(50000);
-    delete maximin.maximin_no_prune(*test);
-    std::printf("Total nodes expanded: %ld\nTotal leaves examined: %ld\n", maximin.nodes_hit, maximin.terms_hit);
-    delete test;
 
+    TA player_action;
+    std::vector<TA> actions;
+    while (true) {
+        get_p_action(player_action);
+        test->succeed_in_place(player_action);
+        
+        std::cout << "Player moves\n" << "Current Board:\n" << *test << "\n";
+        if (test->who_won() != -1) {
+            std::cout << "Player wins!\n";
+            break;
+        }
+
+        test->get_actions(actions);
+        if (actions.empty()) {
+            std::cout << "Game over: no one wins!\n";
+            break;
+        }
+        actions.clear();
+
+        TA *computer_action = maximin.maximin_no_prune(*test);
+        test->succeed_in_place(*computer_action);
+        std::cout << "Computer moves\n" << "Current Board:\n" << *test << "\n";
+        if (test->who_won() != -1) {
+            std::cout << "Computer wins!\n";
+            break;
+        }
+        delete computer_action;
+    }
+
+    delete test;
     return 0;
 }
 
