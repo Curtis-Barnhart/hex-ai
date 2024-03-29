@@ -6,16 +6,39 @@
 #include <cstring>
 
 #include "../../GameState/GameState.hpp"
-#include "TTT_Actions.hpp"
-
-using GameState::TA;
-using GameState::State;
 
 #define PLAYER_X 0
 #define PLAYER_O 1
 #define PLAYER_NONE -1
 
 namespace GameState {
+    /**
+    * TTT_Action holds a record of a player's turn in a game of tic-tac-toe.
+    * The coordinate of the tile they mark that turn is held by `x` and `y`.
+    * The player whose turn it was is held by `whose`.
+    * Because tic-tac-toe is "monotonic" (pieces are only ever added to the
+    * board), a previous state may be determined given a current state and
+    * the action that took us from the previous state to the current one.
+    * Thus, TTT_Action suffices for both the forwards and the backwards action
+    * for tic-tac-toe.
+    */
+    struct TA {
+        signed char x = 0, y = 0, whose = PLAYER_NONE;
+
+        /**
+         * Constructor sets a move that is not possible (made by player -1)
+         */
+        TA() = default;
+
+        /**
+        * Constructor sets memeber values according to the given parameters.
+        * @param x the x coordinate of what tile should be claimed
+        * @param y the y coordinate of what tile should be claimed
+        * @param whose 0 for the first player, 1 for the second, -1 for no player
+        */
+        TA(signed char x, signed char y, signed char whose): x(x), y(y), whose(whose) {}
+    };
+
     /**
      * TTT_State is a basic implementation of a tic-tac-toe game state.
      * For details on its interface, read GameState::State.
@@ -72,6 +95,9 @@ namespace GameState {
         */
         ~State<TA, TA, 2>() = default;
         
+        /*
+         * Gotta test for equality somehow;
+         */
         bool operator==(const State<TA, TA, 2> &other) const {
             for (int x = 0; x < 3; x++) {
                 for (int y = 0; y < 3; y++) {
@@ -234,7 +260,7 @@ namespace GameState {
         */
         void get_actions(std::vector<TA> &buffer) const {
             // If someone has already won, there are no actions
-            if (this->who_won() != -1) {
+            if (this->who_won() != PLAYER_NONE) {
                 return;
             }
 
@@ -259,7 +285,7 @@ namespace GameState {
 * prints a tic-tac-toe board kind of like you would expect.
 */
 template<>
-std::ostream &operator<<<TA, TA, 2>(std::ostream &out, const GameState::State<TA, TA, 2> &game) {
+std::ostream &operator<<<GameState::TA, GameState::TA, 2>(std::ostream &out, const GameState::State<GameState::TA, GameState::TA, 2> &game) {
     char c;
     for (int y = 2; y >= 0; y--) {
         for (int x = 0; x < 3; x++) {
@@ -286,8 +312,8 @@ std::ostream &operator<<<TA, TA, 2>(std::ostream &out, const GameState::State<TA
 *
 */
 template<>
-struct std::hash<GameState::State<TA, TA, 2>> {
-    size_t operator()(const GameState::State<TA, TA, 2> &state) {
+struct std::hash<GameState::State<GameState::TA, GameState::TA, 2>> {
+    size_t operator()(const GameState::State<GameState::TA, GameState::TA, 2> &state) {
         size_t result = 0;
         int pow_three = 1;
         for (int x = 0; x < 3; x++) {
@@ -301,6 +327,10 @@ struct std::hash<GameState::State<TA, TA, 2>> {
         return result;
     }
 };
+
+#undef PLAYER_X
+#undef PLAYER_O
+#undef PLAYER_NONE
 
 #endif // !GAMES_TICTACTOE_TTT_STATE_HPP
 
