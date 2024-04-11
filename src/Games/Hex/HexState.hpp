@@ -196,7 +196,7 @@ public:
                 two_left[two_left_i++] = i;
             }
             if (this->board[MAX_SIZE][i] == PLAYER_TWO) {
-                two_left[two_right_i++] = i;
+                two_right[two_right_i++] = i;
             }
         }
 

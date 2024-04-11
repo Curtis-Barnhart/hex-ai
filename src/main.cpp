@@ -19,29 +19,10 @@ void get_p_action(Action &action) {
     action.whose = 0;
 }
 
-int main(int argc, char *argv[]) {
+void run_game() {
     std::cout << "sizeof action: " << sizeof(Action) << ", sizeof state: " << sizeof(State) << "\n";
     State *test = new State();
 
-    // Action a1 = Action(0, 0, 0);
-    // Action a2 = Action(0, 1, 0);
-    // Action a3 = Action(0, 2, 0);
-    // Action a4 = Action(1, 0, 1);
-    // Action a5 = Action(2, 0, 1);
-
-    // test->succeed_in_place(a1);
-    // test->succeed_in_place(a2);
-    // test->succeed_in_place(a3);
-    // test->succeed_in_place(a4);
-    // test->succeed_in_place(a5);
-    // std::cout << *test << "\n";
-    // std::cout << test->who_won() << "\n";
-
-    // delete test;
-
-
-    // std::cout << "sizeof action: " << sizeof(Action) << ", sizeof state: " << sizeof(State) << "\n";
-    // GameState::TTT_State *test = new GameState::TTT_State();
     std::cout << "Current Board:\n" << *test;
 
     GameSolve::MaximinCached<State, Action, Action> maximin(20000000);
@@ -80,6 +61,25 @@ int main(int argc, char *argv[]) {
     }
 
     delete test;
+
+}
+
+int main(int argc, char *argv[]) {
+    // State test;
+    // Action a1{0, 3, 1};
+    // Action a2{1, 3, 1};
+    // Action a3{2, 3, 1};
+    // Action a4{3, 3, 1};
+
+    // test.succeed_in_place(a1);
+    // test.succeed_in_place(a2);
+    // test.succeed_in_place(a3);
+    // test.succeed_in_place(a4);
+
+    // std::cout << test.who_won() << "\n";
+    
+    run_game();
+
     return 0;
 }
 
