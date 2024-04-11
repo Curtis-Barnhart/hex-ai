@@ -1,12 +1,12 @@
 /**
-*
+* TODO: make one hash object for whole thing so doesn't need to keep constructing?
 */
 
 #ifndef CURLIBS_CACHE_LRUCACHE_HPP
 #define CURLIBS_CACHE_LRUCACHE_HPP
 
-#include <cstdio>
 #include <functional>
+#include <iostream>
 
 namespace Cache {
 
@@ -25,9 +25,25 @@ public:
     unsigned int used = 0;
     LLNode *oldest = nullptr;
     LLNode *newest = nullptr;
-    LLNode *free = nullptr;
     LLNode *cache = nullptr;
     LLNode **map = nullptr;
+
+    void data_dump() {
+        std::cout << "newest: " << this->newest << "\noldest: " << this->oldest << "\n";
+
+        for (int i = 0; i < this->max_capacity; i++) {
+            std::cout << i << ": " << this->map[i] << "\n";
+        }
+
+        for (int i = 0; i < this->max_capacity; i++) {
+            std::cout << &this->cache[i] << ": " << this->cache[i].value
+                      << "{ newer: " << this->cache[i].newer
+                      << ", older: " << this->cache[i].older
+                      << ", bucket_next: " << this->cache[i].bucket_next
+                      << ", bucket_prev: " << this->cache[i].bucket_prev
+                      << " }\n";
+        }
+    }
     
     LRUCache(unsigned int capacity) {
         cache = new LLNode[capacity];
@@ -100,26 +116,23 @@ public:
         // Then hook it up to the front of the linked list
         placement->newer = nullptr;
         if (this->newest == nullptr) {
-            this->newest = placement;
             this->oldest = placement;
         } else {
             this->newest->newer = placement;
+            placement->older = this->newest;
         }
         this->newest = placement;
         // Then find the bucket it belongs to - if the bucket is empty, put a pointer to it there.
-        // If the bucket is not empty, follow the pointer trail till you get to the end
-        // and then add it there
+        // If the bucket is not empty, add placement to the front of it
         unsigned int bucket = std::hash<Key>{}(k) % this->max_capacity;
-        if (this->map[bucket] == nullptr) {
-            this->map[bucket] = placement;
-        } else {
-            LLNode *item_in_bucket = this->map[bucket];
-            while (item_in_bucket->bucket_next != nullptr) {
-                item_in_bucket = item_in_bucket->bucket_next;
-            }
-            item_in_bucket->bucket_next = placement;
+
+        placement->bucket_next = this->map[bucket];
+        this->map[bucket] = placement;
+        placement->bucket_prev = nullptr;
+
+        if (placement->bucket_next != nullptr) {
+            placement->bucket_next->bucket_prev = placement;
         }
-        placement->bucket_next = nullptr;
     }
 
     void update(LLNode *node) {
@@ -127,11 +140,12 @@ public:
         LLNode *older = node->older;
         LLNode *newer = node->newer;
         // If the node is already at the front of the linked list, there's nothing we have to do
-        if (newer != nullptr) {
-            if (older == nullptr) {
+        if (this->newest != node) {
+            if (this->oldest == node) {
                 // If the node is the oldest one in the linked list, remove and add to front
                 this->oldest = newer;
                 newer->older = nullptr;
+                this->newest->newer = node;
                 node->older = this->newest;
                 node->newer = nullptr;
                 this->newest = node;
@@ -141,6 +155,7 @@ public:
                 older->newer = newer;
                 node->newer = nullptr;
                 node->older = this->newest;
+                node->older->newer = node;
                 this->newest = node;
             }
         }
@@ -152,9 +167,7 @@ public:
     bool lookup(const Key &k, Value &v) {
         // First look up to see if there are any items with that key in the map
         LLNode *search = this->map[std::hash<Key>{}(k) % this->max_capacity];
-        if (search == nullptr) {
-            return false;
-        } else {
+        if (search != nullptr) {
             do {
                 if (k == search->key) {
                     v = search->value;

@@ -1,9 +1,7 @@
-#include <array>
 #include <cstring>
 #include <limits>
 #include <vector>
 
-#include "../GameState/GameState.hpp"
 #include "LRUCache.hpp"
 
 namespace GameSolve {
@@ -12,14 +10,23 @@ namespace GameSolve {
  * algorithm on a GameState.
  * It also records how many nodes and leaves were expanded in the state space
  * during a particular search so that performance may be measured afterwards.
+ * It is only good for two player games where the players take interchanging
+ * turns.
  */
-template<class Action, class Back, unsigned int Players>
+template<class State, class Action, class Back>
 struct Maximin {
     Maximin() = default;
     ~Maximin() = default;
 
-    long nodes_hit = 0;
-    long terms_hit = 0;
+    long nodes_hit = 0, nodes_hit_total = 0, terms_hit = 0, terms_hit_total = 0;
+
+    /**
+     *
+     */
+    void count_reset() {
+        this->nodes_hit_total = 0;
+        this->terms_hit_total = 0;
+    }
 
     /**
      * maximin_no_prune_recursive tells what the best possible score a player can
@@ -31,11 +38,11 @@ struct Maximin {
      *        force assuming all agents act ratoinally.
      */
     void maximin_no_prune_recursive(
-        GameState::State<Action, Back, Players> &state,
-        double best_score[Players]
+        State &state,
+        double best_score[2]
     ) {
         this->nodes_hit++;
-        double child_score[Players];
+        double child_score[2];
 
         // if this node is terminal, then its optimal score is just its score
         std::vector<Action> actions;
@@ -58,7 +65,7 @@ struct Maximin {
             state.reverse_in_place(back);
 
             if (child_score[player] > best_score[player]) {
-                std::memcpy(best_score, child_score, sizeof(double) * Players);
+                std::memcpy(best_score, child_score, sizeof(double) * 2);
             }
         }
     }
@@ -72,11 +79,12 @@ struct Maximin {
      * @param state the state at which you wish to find the optimal move
      * @return a pointer to an 
      */
-    Action *maximin_no_prune(GameState::State<Action, Back, Players> &state) {
+    [[nodiscard("discarding sole pointer to allocated memory would cause a leak")]]
+    Action *maximin_no_prune(State &state) {
         this->nodes_hit = 0;
         this->terms_hit = 0;
-        double best_score[Players];
-        double child_score[Players];
+        double best_score[2];
+        double child_score[2];
         this->nodes_hit++;
 
         // if this node is terminal, then there's no action to return
@@ -100,11 +108,13 @@ struct Maximin {
             state.reverse_in_place(back);
             
             if (child_score[player] > best_score[player]) {
-                std::memcpy(best_score, child_score, sizeof(double) * Players);
+                std::memcpy(best_score, child_score, sizeof(double) * 2);
                 *best_action = a;
             }
         }
 
+        this->nodes_hit_total += this->nodes_hit;
+        this->terms_hit_total += this->terms_hit;
         return best_action;
     }
 };
@@ -114,8 +124,9 @@ struct Maximin {
  * the maximin algorithm on GameStates,
  * but it utilizes fine-tunable caching so that GameStates which are reachable
  * from multiple parents don't have to be expanded multiple times.
+ * This only works for games with two players taking alternating turns.
  */
-template<class Action, class Back, unsigned int Players>
+template<class State, class Action, class Back>
 struct MaximinCached {
 
     /**
@@ -124,7 +135,7 @@ struct MaximinCached {
      * @param cache_size size of the cache to use for this Maximin algorithm runner.
      */
     MaximinCached(unsigned int cache_size) {
-        this->cache = new Cache::LRUCache<GameState::State<Action, Back, Players>, std::array<double, Players>>(cache_size);
+        this->cache = new Cache::LRUCache<State, std::array<double, 2>>(cache_size);
     }
 
     /**
@@ -135,11 +146,11 @@ struct MaximinCached {
     }
 
     // tracks how many nodes have been calculated
-    long nodes_hit = 0;
+    long nodes_hit = 0, nodes_hit_total = 0;
     // tracks how many terminal nodes have been calculated
-    long terms_hit = 0;
+    long terms_hit = 0, terms_hit_total = 0;
     // internal cache of nodes
-    Cache::LRUCache<GameState::State<Action, Back, Players>, std::array<double, Players>> *cache = nullptr;
+    Cache::LRUCache<State, std::array<double, 2>> *cache = nullptr;
 
     /**
      * maximin_no_prune_recursive tells what the best possible score a player can
@@ -151,8 +162,8 @@ struct MaximinCached {
      *        force assuming all agents act ratoinally.
      */
     void maximin_no_prune_recursive(
-        GameState::State<Action, Back, Players> &state,
-        std::array<double, Players> &best_score
+        State &state,
+        std::array<double, 2> &best_score
     ) {
         this->nodes_hit++;
 
@@ -170,7 +181,7 @@ struct MaximinCached {
             return;
         }
 
-        std::array<double, Players> child_score;
+        std::array<double, 2> child_score;
 
         // Look through all the children of this state -
         // choose whichever has the highest score for you as your highest score
@@ -201,13 +212,14 @@ struct MaximinCached {
      * @param state the state at which you wish to find the optimal move
      * @return a pointer to an 
      */
+    [[nodiscard("discarding sole pointer to allocated memory would cause a leak")]]
     Action *maximin_no_prune(
-        GameState::State<Action, Back, Players> &state
+        State &state
     ) {
         this->nodes_hit = 0;
         this->terms_hit = 0;
-        std::array<double, Players> best_score;
-        std::array<double, Players> child_score;
+        std::array<double, 2> best_score;
+        std::array<double, 2> child_score;
         this->nodes_hit++;
 
         // if this node is terminal, then there's no action to return
@@ -236,6 +248,8 @@ struct MaximinCached {
             }
         }
 
+        this->nodes_hit_total += this->nodes_hit;
+        this->terms_hit_total += this->terms_hit;
         return best_action;
     }
 };
