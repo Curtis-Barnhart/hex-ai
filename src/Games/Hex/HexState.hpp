@@ -12,7 +12,7 @@
 #define PLAYER_ONE 0
 #define PLAYER_TWO 1
 #define PLAYER_NONE -1
-#define BOARD_SIZE 4
+#define BOARD_SIZE 3
 
 namespace GameState {
 /**
