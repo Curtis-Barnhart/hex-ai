@@ -20,59 +20,34 @@ namespace GameState {
  */
 class HexState {
     friend std::ostream &operator<<(std::ostream &out, const HexState &state) {
-        int p_rows = 3 * BOARD_SIZE - 1;
-        int p_cols = 2 * BOARD_SIZE;
+        out << "╭";
+        for (int t = 0; t < BOARD_SIZE; t++) {
+            out << "──";
+        }
+        out << "╮\n";
 
-        for (int row = p_rows - 1; row >= 0; row--) {
-            for (int col = 0; col < p_cols; col++) {
-                int boardx = col / 2;
-                int pre_board_y = row - boardx;
-                int boardy;
-                if (pre_board_y < 0) {
-                    boardy = (pre_board_y - 1) / 2;
-                } else {
-                    boardy = pre_board_y / 2;
-                }
-                std::string board_char;
-                if (boardx < BOARD_SIZE && boardx >= 0 && boardy < BOARD_SIZE && boardy >= 0) {
-                    switch (state.board[boardx][boardy]) {
-                        case PLAYER_NONE:
-                            board_char = "  ";
-                            break;
-                        case PLAYER_ONE:
-                            board_char = "▓▓";
-                            break;
-                        case PLAYER_TWO:
-                            board_char = "░░";
-                            break;
-                    }
-                    // out << "(" << boardx << "," << boardy << ")" << board_char;
-                    out << board_char;
-                } else {
-                    // out << "(" << boardx << "," << boardy << ")" << "X";
-                    out << "  ";
+        for (int y = BOARD_SIZE - 1; y >= 0; y--) {
+            out << "│";
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                switch (state.board[x][y]) {
+                    case PLAYER_NONE:
+                        out << "  ";
+                        break;
+                    case PLAYER_ONE:
+                        out << "1 ";
+                        break;
+                    case PLAYER_TWO:
+                        out << "2 ";
+                        break;
                 }
             }
-            out << "\n";
+            out << "│\n";
         }
-
-        // for (int y = BOARD_SIZE - 1; y >= 0; y--) {
-        //     for (int x = 0; x < BOARD_SIZE; x++) {
-        //         switch (state.board[x][y]) {
-        //             case PLAYER_NONE:
-        //                 out << ' ';
-        //                 break;
-        //             case PLAYER_ONE:
-        //                 out << '1';
-        //                 break;
-        //             case PLAYER_TWO:
-        //                 out << '2';
-        //                 break;
-        //         }
-        //     }
-        //     out << "\n";
-        // }
-        // out << std::endl;
+        out << "╰";
+        for (int t = 0; t < BOARD_SIZE; t++) {
+            out << "──";
+        }
+        out << "╯\n";
         return out;
     }
 
