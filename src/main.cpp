@@ -1,9 +1,8 @@
 #include <iostream>
 #include <vector>
 
-// #include "Games/TicTacToe/TTT_State.hpp"
 #include "Games/Hex/HexState.hpp"
-#include "GameSolve/AlphaBeta.hpp"
+#include "GameSolve/Maximin.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
@@ -25,7 +24,7 @@ void run_game() {
 
     std::cout << "Current Board:\n" << *test;
 
-    GameSolve::MaximinCached<State, Action, Action> maximin(20000000);
+    GameSolve::MaximinCached<State, Action, Action> maximin(5000);
 
     Action player_action;
     std::vector<Action> actions;
@@ -64,20 +63,7 @@ void run_game() {
 
 }
 
-int main(int argc, char *argv[]) {
-    // State test;
-    // Action a1{0, 3, 1};
-    // Action a2{1, 3, 1};
-    // Action a3{2, 3, 1};
-    // Action a4{3, 3, 1};
-
-    // test.succeed_in_place(a1);
-    // test.succeed_in_place(a2);
-    // test.succeed_in_place(a3);
-    // test.succeed_in_place(a4);
-
-    // std::cout << test.who_won() << "\n";
-    
+int main() {
     run_game();
 
     return 0;

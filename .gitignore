@@ -1,5 +1,5 @@
-build/*
-!build/Makefile
+build/release/*
+build/debug/*
 
 docs/*
 !docs/config

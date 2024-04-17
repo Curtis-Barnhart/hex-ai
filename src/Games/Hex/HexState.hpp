@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <cstring>
 #include <ostream>
-#include <string>
 #include <vector>
 
 #define PLAYER_ONE 0
@@ -160,7 +159,7 @@ public:
                     one_bottom_i = 0      , one_top_i = 0      , two_left_i = 0      , two_right_i = 0      ;
         const signed char MAX_SIZE = BOARD_SIZE - 1;
 
-        for (char i = 0; i < BOARD_SIZE; i++) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
             if (this->board[i][0] == PLAYER_ONE) {
                 one_bottom[one_bottom_i++] = i;
             }
@@ -176,15 +175,15 @@ public:
         }
 
         // if any of a player's pieces on opposite edges connects, they win
-        for (char bottom = 0; bottom < one_bottom_i; bottom++) {
-            for (char top = 0; top < one_top_i; top++) {
+        for (int bottom = 0; bottom < one_bottom_i; bottom++) {
+            for (int top = 0; top < one_top_i; top++) {
                 if (this->is_connected(one_bottom[bottom], 0, one_top[top], MAX_SIZE)) {
                     return PLAYER_ONE;
                 }
             }
         }
-        for (char left = 0; left < two_left_i; left++) {
-            for (char right = 0; right < two_right_i; right++) {
+        for (int left = 0; left < two_left_i; left++) {
+            for (int right = 0; right < two_right_i; right++) {
                 if (this->is_connected(0, two_left[left], MAX_SIZE, two_right[right])) {
                     return PLAYER_TWO;
                 }
@@ -386,7 +385,6 @@ private:
     * @return       how many valid neighbors there were
     */
     void get_neighbors(signed char x, signed char y, std::vector<std::array<signed char, 2>> &output) const {
-        const int maximum = BOARD_SIZE - 1;
         signed char neighbors[6][2] = {
             static_cast<signed char>(x + 1),                          y,
                                      x     , static_cast<signed char>(y + 1),
