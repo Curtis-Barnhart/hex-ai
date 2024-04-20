@@ -14,9 +14,9 @@ namespace GameSolve {
  * turns.
  */
 template<class State, class Action, class Back>
-struct Maximin {
-    Maximin() = default;
-    ~Maximin() = default;
+struct Minimax2Players {
+    Minimax2Players() = default;
+    ~Minimax2Players() = default;
 
     long nodes_hit = 0, nodes_hit_total = 0, terms_hit = 0, terms_hit_total = 0;
 
@@ -49,7 +49,7 @@ struct Maximin {
         state.get_actions(actions);
         if (actions.empty()) {
             this->terms_hit++;
-            state.current_score(best_score);
+            state.current_score_array(best_score);
             return;
         }
 
@@ -127,21 +127,21 @@ struct Maximin {
  * This only works for games with two players taking alternating turns.
  */
 template<class State, class Action, class Back>
-struct MaximinCached {
+struct Minimax2PlayersCached {
 
     /**
      * Creates a new instance of MaximinCached object.
      * Constructor initializes an empty cache.
      * @param cache_size size of the cache to use for this Maximin algorithm runner.
      */
-    MaximinCached(unsigned int cache_size) {
+    Minimax2PlayersCached(unsigned int cache_size) {
         this->cache = new Cache::LRUCache<State, std::array<double, 2>>(cache_size);
     }
 
     /**
      * Destructor deletes the internal cache.
      */
-    ~MaximinCached() {
+    ~Minimax2PlayersCached() {
         delete this->cache;
     }
 
@@ -177,7 +177,7 @@ struct MaximinCached {
         state.get_actions(actions);
         if (actions.empty()) {
             this->terms_hit++;
-            state.current_score(best_score.data());
+            state.current_score_array(best_score.data());
             return;
         }
 

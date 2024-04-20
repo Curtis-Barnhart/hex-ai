@@ -1,8 +1,14 @@
+#include <cassert>
+#include <fstream>
+#include <ios>
 #include <iostream>
+#include <ostream>
+#include <thread>
 #include <vector>
 
 #include "Games/Hex/HexState.hpp"
 #include "GameSolve/Maximin.hpp"
+#include "GameSolve/DeepNodeSolve.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
@@ -24,7 +30,7 @@ void run_game() {
 
     std::cout << "Current Board:\n" << *test;
 
-    GameSolve::MaximinCached<State, Action, Action> maximin(5000);
+    GameSolve::Minimax2PlayersCached<State, Action, Action> maximin(5000);
 
     Action player_action;
     std::vector<Action> actions;
@@ -63,8 +69,77 @@ void run_game() {
 
 }
 
+void generate_and_solve(GameSolve::Minimax2PlayersCached<State, Action, Action> &cache) {
+    State s;
+    GameSolve::hex_rand_moves(s, 108);
+    while (s.who_won() != -1) {
+        s = State();
+        GameSolve::hex_rand_moves(s, 108);
+    }
+    delete cache.maximin_no_prune(s);
+}
+
+void work(int t) {
+    GameSolve::Minimax2PlayersCached<State, Action, Action> cache(1000000);
+    while (t-->0) {
+        generate_and_solve(cache);
+    }
+    std::cout << "Nodes expanded: " << cache.nodes_hit_total << "\n";
+    std::cout << "Terms expanded: " << cache.terms_hit_total << "\n";
+}
+
+
+
 int main() {
-    run_game();
+    assert(sizeof(char) == 1);
+    // run_game();
+    
+    // State s;
+    // for (int x = 10000; x-->0;) {
+    //     GameSolve::hex_rand_moves(s, 110);
+    //     s = State();
+    // }
+    State s, copies[5];
+    std::ofstream fileout("test.txt");
+    for (int x = 0; x < 5; x++) {
+        GameSolve::hex_rand_moves(s, 21);
+        copies[x] = s;
+        std::cout << s;
+        std::cout << s.whose_turn() << '\n';
+        s.to_stream(fileout);
+    }
+    fileout.close();
+
+    std::cout << "-------------------------------------------\n";
+
+    std::ifstream filein("test.txt", std::ios_base::binary);
+    for (int x = 0; x < 5; x++) {
+        s.from_stream(filein);
+        if (s != copies[x]) {
+            std::cout << "UH NO NO BUENO\n";
+        }
+        std::cout << s;
+        std::cout << s.whose_turn() << '\n';
+    }
+    filein.close();
+
+    /*
+     * This is an example of how multithreading would work
+    std::thread *threads[8];
+    
+    for (int x = 0; x < 8; x++) {
+        std::thread *t = new std::thread(work, 10);
+        threads[x] = t;
+    }
+
+    for (int x = 0; x < 8; x++) {
+        threads[x]->join();
+    }
+    */
+
+    // GameSolve::Minimax2PlayersCached<State, Action, Action> minimax(100000);
+    // delete minimax.maximin_no_prune(s);
+    // std::cout << minimax.nodes_hit_total << '\n';
 
     return 0;
 }

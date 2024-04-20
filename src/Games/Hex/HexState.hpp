@@ -4,14 +4,18 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <ostream>
 #include <vector>
 
 #define PLAYER_ONE 0
 #define PLAYER_TWO 1
-#define PLAYER_NONE -1
-#define BOARD_SIZE 3
+#define PLAYER_NONE 2
+#define BOARD_SIZE 11
 
 namespace GameState {
 /**
@@ -38,6 +42,9 @@ class HexState {
                     case PLAYER_TWO:
                         out << "2 ";
                         break;
+                    default:
+                        out << "?" << (int) state.board[x][y];
+                        break;
                 }
             }
             out << "│\n";
@@ -54,12 +61,8 @@ class HexState {
 
 public:
     struct Action {
-        signed char x = 0, y = 0, whose = PLAYER_NONE;
+        unsigned char x = 0, y = 0, whose = PLAYER_NONE;
 
-        /**
-         * TODO: this is unneeded isn't it
-         * Constructor sets a move that is not possible (made by player -1)
-         */
         Action() = default;
 
         /**
@@ -68,15 +71,20 @@ public:
         * @param y the y coordinate of what tile should be claimed
         * @param whose 0 for the first player, 1 for the second, -1 for no player
          */
-        Action(signed char x, signed char y, signed char whose): x(x), y(y), whose(whose) {}
+        Action(unsigned char x, unsigned char y, unsigned char whose): x(x), y(y), whose(whose) {}
     };
 
     /*
      * Constructor needs to make board empty.
      */
     HexState() {
-        this->board = new signed char[BOARD_SIZE][BOARD_SIZE];
-        std::fill<signed char *, signed char>(&this->board[0][0], &this->board[0][0] + BOARD_SIZE * BOARD_SIZE, PLAYER_NONE);
+        this->board = new unsigned char[BOARD_SIZE][BOARD_SIZE];
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            for (int y = 0; y < BOARD_SIZE; y++) {
+                this->board[x][y] = PLAYER_NONE;
+            }
+        }
+        // std::fill<unsigned char *, unsigned char>(&this->board[0][0], &this->board[0][0] + BOARD_SIZE * BOARD_SIZE, PLAYER_NONE);
     }
 
     /*
@@ -93,7 +101,7 @@ public:
     */
     HexState(const HexState &other) {
         this->turn = other.turn;
-        std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(signed char) * BOARD_SIZE * BOARD_SIZE);
+        std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
     }
 
     /*
@@ -101,7 +109,7 @@ public:
     */
     HexState &operator=(const HexState &other) {
         this->turn = other.turn;
-        std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(signed char) * BOARD_SIZE * BOARD_SIZE);
+        std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
         return *this;
     }
 
@@ -141,6 +149,10 @@ public:
         return this->turn == other.turn;
     }
 
+    bool operator!=(const HexState &other) const {
+        return !(*this == other);
+    }
+
     /*
      *
      */
@@ -155,9 +167,9 @@ public:
         /* each char in each array denotes that the respective player owns the
          * tile at the x or y value on that border. The four chars represent
          * how many such tiles are actually owned in each array.*/
-        signed char one_bottom[BOARD_SIZE], one_top[BOARD_SIZE], two_left[BOARD_SIZE], two_right[BOARD_SIZE],
+        unsigned char one_bottom[BOARD_SIZE], one_top[BOARD_SIZE], two_left[BOARD_SIZE], two_right[BOARD_SIZE],
                     one_bottom_i = 0      , one_top_i = 0      , two_left_i = 0      , two_right_i = 0      ;
-        const signed char MAX_SIZE = BOARD_SIZE - 1;
+        const int MAX_SIZE = BOARD_SIZE - 1;
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             if (this->board[i][0] == PLAYER_ONE) {
@@ -195,7 +207,7 @@ public:
     /*
      * If a player wins, their score is 1.
      */
-    void current_score(double score[2]) const {
+    void current_score_array(double score[2]) const {
         switch (this->who_won()) {
             case PLAYER_NONE:
                 score[0] = 0.5l;
@@ -209,6 +221,20 @@ public:
                 score[0] = 0l;
                 score[1] = 1l;
                 return;
+        }
+    }
+
+    /*
+     *
+     */
+    double current_score_double() const {
+        switch (this->who_won()) {
+            case PLAYER_ONE:
+                return 1;
+            case PLAYER_TWO:
+                return 0;
+            default:
+                return 0.5;
         }
     }
 
@@ -309,7 +335,7 @@ public:
             return;
         }
 
-        signed char whose_turn = this->turn;
+        unsigned char whose_turn = this->turn;
         buffer.reserve(BOARD_SIZE * BOARD_SIZE);
         for (int x = 0; x < BOARD_SIZE; x++) {
             for (int y = 0; y < BOARD_SIZE; y++) {
@@ -320,9 +346,65 @@ public:
         }
     }
 
+    // TODO: there may be some io exceptions you wanna throw or do I dunno
+    void to_stream(std::ofstream &out) const {
+        char pack4 = 0;
+        int packed_in = 0;
+
+        // pack in all the board states
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            for (int y = 0; y < BOARD_SIZE; y++) {
+                pack4 |= (0x03 & this->board[x][y]);
+                packed_in++;
+
+                if (packed_in == 4) {
+                    packed_in = 0;
+                    out.put(pack4);
+                    pack4 = 0;
+                } else {
+                    pack4 <<= 2;
+                }
+            }
+        }
+
+        // put in the current turn
+        pack4 |= (0x03 & this->turn);
+        packed_in++;
+        pack4 <<= (2 * (4 - packed_in));
+        out.put(pack4);
+    }
+
+    // TODO: there may be some io exceptions you wanna throw or do I dunno
+    void from_stream(std::ifstream &in) {
+        char pack4 = 0;
+        int packed_in = 0;
+
+        // get all board states
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            for (int y = 0; y < BOARD_SIZE; y++) {
+                if (packed_in == 0) {
+                    in.get(pack4);
+                    packed_in = 4;
+                }
+
+                this->board[x][y] = (pack4 & 0xc0) >> 6;
+                pack4 <<= 2;
+                packed_in--;
+            }
+        }
+
+        // get current turn
+        if (packed_in == 0) {
+            in.get(pack4);
+            packed_in = 4;
+        }
+
+        this->turn = (pack4 & 0xc0) >> 6;
+    }
+
 private:
-    signed char turn = 0;
-    signed char (*board)[BOARD_SIZE] = nullptr;
+    unsigned char turn = 0;
+    unsigned char (*board)[BOARD_SIZE] = nullptr;
 
     /**
      * is_connected tells whether two points in a Hex game are connected
@@ -333,6 +415,7 @@ private:
      * @param y2 y coordinate of point 2.
      * @return   true if the points are connected, else false.
      */
+    // TODO: someday change these from being signed chars to ints
     bool is_connected(signed char x1, signed char y1, signed char x2, signed char y2) const {
         const signed char COLOR = this->board[x1][y1];
         signed char neigh_x, neigh_y;
