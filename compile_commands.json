@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/curtisb/Code/CPP-AI",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/src -Wall -Wextra -Wpedantic -o CMakeFiles/main.dir/src/main.cpp.o -c /home/curtisb/Code/CPP-AI/src/main.cpp",
+  "file": "/home/curtisb/Code/CPP-AI/src/main.cpp",
+  "output": "CMakeFiles/main.dir/src/main.cpp.o"
+}
+]

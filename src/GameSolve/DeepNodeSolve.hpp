@@ -1,7 +1,7 @@
 #ifndef GAMESOLVE_DEEPNODESOLVE_HPP
 #define GAMESOLVE_DEEPNODESOLVE_HPP
 
-#include "../Games/Hex/HexState.hpp"
+#include "GameState/HexState.hpp"
 #include <random>
 #include <vector>
 

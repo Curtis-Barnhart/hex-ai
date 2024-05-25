@@ -164,6 +164,7 @@ public:
     /**
     *
     */
+    [[nodiscard("Return value determines if value v is valid.")]]
     bool lookup(const Key &k, Value &v) {
         // First look up to see if there are any items with that key in the map
         LLNode *search = this->map[std::hash<Key>{}(k) % this->max_capacity];

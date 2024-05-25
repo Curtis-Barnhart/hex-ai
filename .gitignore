@@ -1,6 +1,16 @@
+# Where the cmake build files go (hopefully)
 build/release/*
 build/debug/*
 
+# Where the generated docs go
 docs/*
 !docs/config
+
+# Various CMake stuff??
+.cache/
+CMakeFiles/
+CMakeCache.txt
+
+# dirs for generated data
+data/
 

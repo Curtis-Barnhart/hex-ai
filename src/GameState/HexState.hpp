@@ -1,10 +1,8 @@
 #ifndef GAMES_HEX_HEXSTATE_HPP
 #define GAMES_HEX_HEXSTATE_HPP
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
-#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -12,9 +10,6 @@
 #include <ostream>
 #include <vector>
 
-#define PLAYER_ONE 0
-#define PLAYER_TWO 1
-#define PLAYER_NONE 2
 #define BOARD_SIZE 11
 
 namespace GameState {
@@ -61,7 +56,7 @@ class HexState {
 
 public:
     struct Action {
-        unsigned char x = 0, y = 0, whose = PLAYER_NONE;
+        unsigned char x = 0, y = 0, whose = HexState::PLAYERS::PLAYER_NONE;
 
         Action() = default;
 
@@ -73,6 +68,55 @@ public:
          */
         Action(unsigned char x, unsigned char y, unsigned char whose): x(x), y(y), whose(whose) {}
     };
+
+    class HexActReader {
+    private:
+        const HexState *book;
+        Action a;
+        bool valid = false;
+    public:
+        HexActReader(const HexState &state) {
+            if (state.who_won() != HexState::PLAYERS::PLAYER_NONE) {
+                this->valid = false;
+                this->a.x = BOARD_SIZE;
+                return;
+            }
+            book = &state;
+            a.whose = state.turn == 0 ? PLAYER_ONE : PLAYER_TWO;
+            if (state.board[0][0] == PLAYER_NONE) {
+                this->valid = true;
+            } else {
+                this->valid = true;
+                (*this)++;
+            }
+        }
+
+        const Action &get_action() const {
+            return a;
+        }
+
+        explicit operator bool() const { return this->valid; }
+
+        HexActReader &operator++(int) {
+            do {
+                if (this->a.x >= BOARD_SIZE) {
+                    this->valid = false;
+                    return *this;
+                }
+                this->a.y++;
+                if (this->a.y == BOARD_SIZE) {
+                    if (++(this->a.x) >= BOARD_SIZE) {
+                        this->valid = false;
+                        return *this;
+                    }
+                    this->a.y = 0;
+                }
+            } while (book->board[this->a.x][this->a.y] != HexState::PLAYERS::PLAYER_NONE);
+            return *this;
+        }
+    };
+
+    enum PLAYERS { PLAYER_ONE, PLAYER_TWO, PLAYER_NONE };
 
     /*
      * Constructor needs to make board empty.
@@ -101,7 +145,15 @@ public:
     */
     HexState(const HexState &other) {
         this->turn = other.turn;
-        std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
+        if (this->board == nullptr) {
+            this->board = new unsigned char[BOARD_SIZE][BOARD_SIZE];
+        }
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                this->board[x][y] = other.board[x][y];
+            }
+        }
+        // std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
     }
 
     /*
@@ -109,7 +161,15 @@ public:
     */
     HexState &operator=(const HexState &other) {
         this->turn = other.turn;
-        std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
+        // std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
+        if (this->board == nullptr) {
+            this->board = new unsigned char[BOARD_SIZE][BOARD_SIZE];
+        }
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                this->board[x][y] = other.board[x][y];
+            }
+        }
         return *this;
     }
 
@@ -163,12 +223,12 @@ public:
     /*
      *
      */
-    int who_won() const {
+    HexState::PLAYERS who_won() const {
         /* each char in each array denotes that the respective player owns the
          * tile at the x or y value on that border. The four chars represent
          * how many such tiles are actually owned in each array.*/
         unsigned char one_bottom[BOARD_SIZE], one_top[BOARD_SIZE], two_left[BOARD_SIZE], two_right[BOARD_SIZE],
-                    one_bottom_i = 0      , one_top_i = 0      , two_left_i = 0      , two_right_i = 0      ;
+                      one_bottom_i = 0      , one_top_i = 0      , two_left_i = 0      , two_right_i = 0      ;
         const int MAX_SIZE = BOARD_SIZE - 1;
 
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -417,7 +477,7 @@ private:
      */
     // TODO: someday change these from being signed chars to ints
     bool is_connected(signed char x1, signed char y1, signed char x2, signed char y2) const {
-        const signed char COLOR = this->board[x1][y1];
+        const unsigned char COLOR = this->board[x1][y1];
         signed char neigh_x, neigh_y;
         std::vector<std::array<signed char, 2>> neighbors;
         bool visited[BOARD_SIZE][BOARD_SIZE] = { false }, connected = false;
@@ -507,9 +567,9 @@ struct std::hash<GameState::HexState> {
     }
 };
 
-#undef PLAYER_X
-#undef PLAYER_O
-#undef PLAYER_NONE
+// #undef PLAYER_X
+// #undef PLAYER_O
+// #undef PLAYER_NONE
 
 #endif // !GAMES_HEX_HEXSTATE_HPP
 

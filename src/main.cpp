@@ -1,18 +1,20 @@
 #include <cassert>
 #include <fstream>
-#include <ios>
+#include <functional>
 #include <iostream>
 #include <ostream>
+#include <string>
 #include <thread>
 #include <vector>
 
-#include "Games/Hex/HexState.hpp"
-#include "GameSolve/Maximin.hpp"
+#include "GameState/HexState.hpp"
+#include "GameSolve/AlphaBeta.hpp"
 #include "GameSolve/DeepNodeSolve.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
 
+/*
 void get_p_action(Action &action) {
     signed char x, y;
     std::cout << "enter x coord: ";
@@ -23,14 +25,16 @@ void get_p_action(Action &action) {
     action.y = y - '0';
     action.whose = 0;
 }
+*/
 
+/*
 void run_game() {
     std::cout << "sizeof action: " << sizeof(Action) << ", sizeof state: " << sizeof(State) << "\n";
     State *test = new State();
 
     std::cout << "Current Board:\n" << *test;
 
-    GameSolve::Minimax2PlayersCached<State, Action, Action> maximin(5000);
+    GameSolve::Minimax2PlayersCached<State, Action, Action> maximin(100000);
 
     Action player_action;
     std::vector<Action> actions;
@@ -66,62 +70,103 @@ void run_game() {
     }
 
     delete test;
-
 }
+*/
 
-void generate_and_solve(GameSolve::Minimax2PlayersCached<State, Action, Action> &cache) {
+// template<int N>
+void do_N_examples(
+    GameSolve::AlphaBeta2PlayersCached &ab,
+    std::string output_name
+) {
+    // make variables for a state and for the file to write to
     State s;
-    GameSolve::hex_rand_moves(s, 108);
-    while (s.who_won() != -1) {
-        s = State();
-        GameSolve::hex_rand_moves(s, 108);
+    bool one_wins;
+    std::ofstream fileout(output_name);
+    
+    // N times, create board state, solve it, and write down result.
+    for (int x = 0; x < 100; x++) {
+        // make new game states until they don't have a winner
+        do {
+            s = State();
+            GameSolve::hex_rand_moves(s, 106);
+        } while (s.who_won() != GameState::HexState::PLAYERS::PLAYER_NONE);
+        
+        // calculate outcome and write it down
+        one_wins = ab.one_wins_one_turn(s);
+        s.to_stream(fileout);
+        fileout.put(one_wins ? '1' : '0');
     }
-    delete cache.maximin_no_prune(s);
+
+    // close file
+    fileout.close();
 }
 
-void work(int t) {
-    GameSolve::Minimax2PlayersCached<State, Action, Action> cache(1000000);
-    while (t-->0) {
-        generate_and_solve(cache);
+// template<int N>
+void read_N_examples(
+    std::string input_name
+) {
+    State s;
+    char one_wins_char;
+    bool one_wins;
+    std::ifstream filein(input_name);
+
+    // N times, read in board state and solution, and record into vector
+    for (int x = 0; x < 1; x++) {
+        s.from_stream(filein);
+        filein.get(one_wins_char);
+        one_wins = one_wins_char == '1';
     }
-    std::cout << "Nodes expanded: " << cache.nodes_hit_total << "\n";
-    std::cout << "Terms expanded: " << cache.terms_hit_total << "\n";
+
+    // close file
+    filein.close();
 }
-
-
 
 int main() {
-    assert(sizeof(char) == 1);
-    // run_game();
-    
-    // State s;
-    // for (int x = 10000; x-->0;) {
-    //     GameSolve::hex_rand_moves(s, 110);
-    //     s = State();
-    // }
-    State s, copies[5];
+    assert(sizeof(char) == 1); // needed for writing a gamestate to a file lol
+
+    /* example of writing to and reading from file
     std::ofstream fileout("test.txt");
-    for (int x = 0; x < 5; x++) {
-        GameSolve::hex_rand_moves(s, 21);
-        copies[x] = s;
-        std::cout << s;
-        std::cout << s.whose_turn() << '\n';
+    State s;
+    for (int x = 5; x-->0;) {
+        s = State();
+        GameSolve::hex_rand_moves(s, 3);
         s.to_stream(fileout);
+        std::cout << s << '\n';
     }
     fileout.close();
-
-    std::cout << "-------------------------------------------\n";
+    std::cout << "-----------------------------------------------------\n";
 
     std::ifstream filein("test.txt", std::ios_base::binary);
-    for (int x = 0; x < 5; x++) {
+    for (int x = 5; x-->0;) {
         s.from_stream(filein);
-        if (s != copies[x]) {
-            std::cout << "UH NO NO BUENO\n";
-        }
-        std::cout << s;
-        std::cout << s.whose_turn() << '\n';
+        std::cout << s << '\n';
     }
     filein.close();
+    */
+
+    constexpr int THREADS = 8;
+
+    GameSolve::AlphaBeta2PlayersCached *ab[THREADS];
+    for (int x = 0; x < THREADS; x++) {
+        ab[x] = new GameSolve::AlphaBeta2PlayersCached(1500000);
+    }
+
+    State s;
+
+    int sample_number = 72;
+    while (true) {
+        std::thread *threads[THREADS];
+        
+        for (int x = 0; x < THREADS; x++) {
+            std::string record_name = "record" + std::to_string(sample_number++) + ".data";
+            std::thread *t = new std::thread(do_N_examples, std::ref(*(ab[x])), record_name);
+            threads[x] = t;
+        }
+
+        for (int x = 0; x < THREADS; x++) {
+            threads[x]->join();
+        }
+    }
 
     /*
      * This is an example of how multithreading would work
@@ -136,10 +181,6 @@ int main() {
         threads[x]->join();
     }
     */
-
-    // GameSolve::Minimax2PlayersCached<State, Action, Action> minimax(100000);
-    // delete minimax.maximin_no_prune(s);
-    // std::cout << minimax.nodes_hit_total << '\n';
 
     return 0;
 }
