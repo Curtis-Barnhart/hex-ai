@@ -27,7 +27,7 @@ include_directories(
 target_compile_features(
     main
     PRIVATE
-    cxx_std_17
+    cxx_std_20
 )
 
 # we want to set some compilation options (for how many warnings to show).
@@ -38,4 +38,33 @@ target_compile_options(
     -Wextra 
     -Wpedantic
 )
+
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/305e5a238b3c8d11266fbafd85520fb6b3184851.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# This next section is to set up gtest I don't understand it help
+enable_testing()
+add_executable(
+    hello_test
+    test/hello_test.cpp
+)
+# this next command is one of my own in an attempt to get
+# clangd to recognize the gtest headers. It does not work.
+target_include_directories(
+    hello_test
+    PRIVATE
+    build/debug/_deps/googletest-src/googletest/include
+)
+target_link_libraries(
+    hello_test
+    GTest::gtest_main
+)
+include(GoogleTest)
+gtest_discover_tests(hello_test)
 

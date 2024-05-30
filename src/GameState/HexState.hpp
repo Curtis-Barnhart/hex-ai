@@ -13,10 +13,17 @@
 #define BOARD_SIZE 11
 
 namespace GameState {
+
 /**
  * HexState represents a state of a game of Hex.
+ * This includes a board of pieces which belongs to two players
+ * as well as a counter of whose turn it is.
  */
 class HexState {
+    /**
+     * Declaring a friend streaming operator so that a state may be printed.
+     * This will probably have to be redone when this gets templated.
+     */
     friend std::ostream &operator<<(std::ostream &out, const HexState &state) {
         out << "╭";
         for (int t = 0; t < BOARD_SIZE; t++) {
@@ -52,9 +59,16 @@ class HexState {
         return out;
     }
 
+    // Give access to std::hash of HexState private members like the board so
+    // that it can be hashed.
     friend class std::hash<GameState::HexState>;
 
 public:
+    /**
+     * HexState::Action is a class for representing an action that a player
+     * can take in a game of Hex. It holds location data as well as player
+     * identification.
+     */
     struct Action {
         unsigned char x = 0, y = 0, whose = HexState::PLAYERS::PLAYER_NONE;
 
@@ -69,6 +83,9 @@ public:
         Action(unsigned char x, unsigned char y, unsigned char whose): x(x), y(y), whose(whose) {}
     };
 
+    /**
+     * The HexActReader is an iterator over valid moves of a given HexState.
+     */
     class HexActReader {
     private:
         const HexState *book;
@@ -128,6 +145,7 @@ public:
                 this->board[x][y] = PLAYER_NONE;
             }
         }
+        // TODO: I'm pretty sure the following line worked just fine.
         // std::fill<unsigned char *, unsigned char>(&this->board[0][0], &this->board[0][0] + BOARD_SIZE * BOARD_SIZE, PLAYER_NONE);
     }
 
@@ -480,7 +498,7 @@ private:
         const unsigned char COLOR = this->board[x1][y1];
         signed char neigh_x, neigh_y;
         std::vector<std::array<signed char, 2>> neighbors;
-        bool visited[BOARD_SIZE][BOARD_SIZE] = { false }, connected = false;
+        bool visited[BOARD_SIZE][BOARD_SIZE] = {{ false }}, connected = false;
         visited[x1][y1] = true;
         std::vector<signed char> x_stack, y_stack;
         x_stack.push_back(x1);
@@ -529,12 +547,12 @@ private:
     */
     void get_neighbors(signed char x, signed char y, std::vector<std::array<signed char, 2>> &output) const {
         signed char neighbors[6][2] = {
-            static_cast<signed char>(x + 1),                          y,
-                                     x     , static_cast<signed char>(y + 1),
-            static_cast<signed char>(x - 1), static_cast<signed char>(y + 1),
-            static_cast<signed char>(x - 1),                          y,
-                                     x     , static_cast<signed char>(y - 1),
-            static_cast<signed char>(x + 1), static_cast<signed char>(y - 1),
+            {static_cast<signed char>(x + 1),                          y     },
+            {                         x     , static_cast<signed char>(y + 1)},
+            {static_cast<signed char>(x - 1), static_cast<signed char>(y + 1)},
+            {static_cast<signed char>(x - 1),                          y     },
+            {                        x     , static_cast<signed char>(y - 1) },
+            {static_cast<signed char>(x + 1), static_cast<signed char>(y - 1)},
         };
 
         for (int point = 0; point < 6; point++) {
@@ -550,6 +568,9 @@ private:
 
 }
 
+/**
+* Template specialization of std::hash for HexState
+*/
 template<>
 struct std::hash<GameState::HexState> {
     size_t operator()(const GameState::HexState &state) {
@@ -566,10 +587,6 @@ struct std::hash<GameState::HexState> {
         return result;
     }
 };
-
-// #undef PLAYER_X
-// #undef PLAYER_O
-// #undef PLAYER_NONE
 
 #endif // !GAMES_HEX_HEXSTATE_HPP
 
