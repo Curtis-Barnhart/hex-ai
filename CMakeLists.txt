@@ -23,7 +23,7 @@ include_directories(
 )
 
 # we want to add a compilation feature to one of our targets (main).
-# we add a feature that uses C++17.
+# we add a feature that uses C++20.
 target_compile_features(
     main
     PRIVATE
@@ -53,13 +53,6 @@ enable_testing()
 add_executable(
     hello_test
     test/hello_test.cpp
-)
-# this next command is one of my own in an attempt to get
-# clangd to recognize the gtest headers. It does not work.
-target_include_directories(
-    hello_test
-    PRIVATE
-    build/debug/_deps/googletest-src/googletest/include
 )
 target_link_libraries(
     hello_test
