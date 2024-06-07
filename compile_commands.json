@@ -31,7 +31,7 @@
 },
 {
   "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/test",
-  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/hello_test.dir/hello_test.cpp.o -c /home/curtisb/Code/CPP-AI/test/hello_test.cpp",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/hello_test.dir/hello_test.cpp.o -c /home/curtisb/Code/CPP-AI/test/hello_test.cpp",
   "file": "/home/curtisb/Code/CPP-AI/test/hello_test.cpp",
   "output": "test/CMakeFiles/hello_test.dir/hello_test.cpp.o"
 }
