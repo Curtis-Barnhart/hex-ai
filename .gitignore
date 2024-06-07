@@ -5,6 +5,8 @@ build/debug/*
 # Where the generated docs go
 docs/*
 !docs/config
+# backup file??? don't know what this is; hopefully don't need it.
+docs/config/Doxyfile.bak
 
 # Various CMake stuff??
 .cache/

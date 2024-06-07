@@ -1,38 +1,38 @@
 [
 {
-  "directory": "/home/curtisb/Code/CPP-AI/build/debug",
-  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/src -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/main.dir/src/main.cpp.o -c /home/curtisb/Code/CPP-AI/src/main.cpp",
+  "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/src",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/main.dir/main.cpp.o -c /home/curtisb/Code/CPP-AI/src/main.cpp",
   "file": "/home/curtisb/Code/CPP-AI/src/main.cpp",
-  "output": "CMakeFiles/main.dir/src/main.cpp.o"
+  "output": "src/CMakeFiles/main.dir/main.cpp.o"
 },
 {
-  "directory": "/home/curtisb/Code/CPP-AI/build/debug",
-  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/include -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest  -o CMakeFiles/hello_test.dir/test/hello_test.cpp.o -c /home/curtisb/Code/CPP-AI/test/hello_test.cpp",
+  "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/extern/googletest/googlemock",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -I/home/curtisb/Code/CPP-AI/extern/googletest/googlemock/include -I/home/curtisb/Code/CPP-AI/extern/googletest/googlemock -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest -O3 -DNDEBUG -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /home/curtisb/Code/CPP-AI/extern/googletest/googlemock/src/gmock-all.cc",
+  "file": "/home/curtisb/Code/CPP-AI/extern/googletest/googlemock/src/gmock-all.cc",
+  "output": "extern/googletest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
+},
+{
+  "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/extern/googletest/googlemock",
+  "command": "/usr/bin/c++  -isystem /home/curtisb/Code/CPP-AI/extern/tiny-dnn -isystem /home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googlemock/include -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googlemock -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest -O3 -DNDEBUG -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /home/curtisb/Code/CPP-AI/extern/googletest/googlemock/src/gmock_main.cc",
+  "file": "/home/curtisb/Code/CPP-AI/extern/googletest/googlemock/src/gmock_main.cc",
+  "output": "extern/googletest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
+},
+{
+  "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/extern/googletest/googletest",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -I/home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -I/home/curtisb/Code/CPP-AI/extern/googletest/googletest -O3 -DNDEBUG -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/curtisb/Code/CPP-AI/extern/googletest/googletest/src/gtest-all.cc",
+  "file": "/home/curtisb/Code/CPP-AI/extern/googletest/googletest/src/gtest-all.cc",
+  "output": "extern/googletest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
+},
+{
+  "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/extern/googletest/googletest",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest -O3 -DNDEBUG -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/curtisb/Code/CPP-AI/extern/googletest/googletest/src/gtest_main.cc",
+  "file": "/home/curtisb/Code/CPP-AI/extern/googletest/googletest/src/gtest_main.cc",
+  "output": "extern/googletest/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+},
+{
+  "directory": "/home/curtisb/Code/CPP-AI/build/compile_commands_temp/test",
+  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/extern/tiny-dnn -I/home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest -isystem /home/curtisb/Code/CPP-AI/extern/googletest/googletest/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -o CMakeFiles/hello_test.dir/hello_test.cpp.o -c /home/curtisb/Code/CPP-AI/test/hello_test.cpp",
   "file": "/home/curtisb/Code/CPP-AI/test/hello_test.cpp",
-  "output": "CMakeFiles/hello_test.dir/test/hello_test.cpp.o"
-},
-{
-  "directory": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-build/googlemock",
-  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/src -I/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock/include -I/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/include -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock/src/gmock-all.cc",
-  "file": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock/src/gmock-all.cc",
-  "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
-},
-{
-  "directory": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-build/googlemock",
-  "command": "/usr/bin/c++  -isystem /home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock/include -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/include -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock/src/gmock_main.cc",
-  "file": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googlemock/src/gmock_main.cc",
-  "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
-},
-{
-  "directory": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-build/googletest",
-  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/src -I/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/include -I/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/src/gtest-all.cc",
-  "file": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/src/gtest-all.cc",
-  "output": "_deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
-},
-{
-  "directory": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-build/googletest",
-  "command": "/usr/bin/c++  -I/home/curtisb/Code/CPP-AI/src -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/include -isystem /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/src/gtest_main.cc",
-  "file": "/home/curtisb/Code/CPP-AI/build/debug/_deps/googletest-src/googletest/src/gtest_main.cc",
-  "output": "_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+  "output": "test/CMakeFiles/hello_test.dir/hello_test.cpp.o"
 }
 ]
