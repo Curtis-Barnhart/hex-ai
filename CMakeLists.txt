@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 
 # set the project description and name and whatnot
 project(
-    cpp-ai
+    hex-ai
     DESCRIPTION "Hex ai for fun in C++"
     LANGUAGES CXX
 )
@@ -15,7 +15,7 @@ include_directories("${tiny_dnn_SOURCE_DIR}")
 # we want to set a sort of "root directory" so that all our includes
 # don't have to be goofy relative path messes
 # by using "include_directories" we can set a directory to include everything from
-include_directories(src)
+include_directories("include")
 
 # this is the subdirectory of our main executable
 add_subdirectory(src)

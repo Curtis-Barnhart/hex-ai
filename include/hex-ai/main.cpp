@@ -3,9 +3,9 @@
 #include <string>
 #include <thread>
 
-#include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/GameSolve/AlphaBeta.hpp"
-#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
+#include "GameState/HexState.hpp"
+#include "GameSolve/AlphaBeta.hpp"
+#include "GameSolve/DeepNodeSolve.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
@@ -89,7 +89,7 @@ void do_N_examples(
         
         // calculate outcome and write it down
         one_wins = ab.one_wins_one_turn(s);
-        s.pack_to_stream(fileout);
+        s.to_stream(fileout);
         fileout.put(one_wins ? '1' : '0');
     }
 
@@ -108,7 +108,7 @@ void read_N_examples(
 
     // N times, read in board state and solution, and record into vector
     for (int x = 0; x < 1; x++) {
-        s.unpack_from_stream(filein);
+        s.from_stream(filein);
         filein.get(one_wins_char);
         one_wins = one_wins_char == '1';
     }
