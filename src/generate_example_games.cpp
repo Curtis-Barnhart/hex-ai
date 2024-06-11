@@ -1,9 +1,9 @@
 #include <thread>
 #include <vector>
 
-#include "GameState/HexState.hpp"
-#include "GameSolve/AlphaBeta.hpp"
-#include "GameSolve/DeepNodeSolve.hpp"
+#include "hex-ai/GameState/HexState.hpp"
+#include "hex-ai/GameSolve/AlphaBeta.hpp"
+#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;

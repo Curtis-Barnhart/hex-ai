@@ -4,7 +4,7 @@
  * with alpha-beta pruning.
  */
 
-#include "hex-ai/GameSolve/LRUCache.hpp"
+#include "hex-ai/Util/LRUCache.hpp"
 #include "hex-ai/GameState/HexState.hpp"
 
 namespace GameSolve {
