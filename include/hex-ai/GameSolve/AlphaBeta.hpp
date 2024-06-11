@@ -10,7 +10,8 @@
 namespace GameSolve {
 
 /**
-*
+* AlphaBeta2PlayersCached is a class that provides functions to run
+* the alpha beta algorithm on a game of Hex
 */
 struct AlphaBeta2PlayersCached {
 public:
@@ -20,78 +21,47 @@ public:
     Cache::LRUCache<GameState::HexState, bool> *cache = nullptr;
 
 public:
-    long get_nodes_hit() const { return this->nodes_miss; }
-    long get_nodes_hit_total() const { return this->nodes_miss_total; }
+    long get_nodes_hit() const;
+    long get_nodes_hit_total() const;
 
-    AlphaBeta2PlayersCached(unsigned int cache_size) {
-        this->cache = new Cache::LRUCache<GameState::HexState, bool>(cache_size);
-    }
+    /**
+    * The constructor takes a single parameter to tell us how large to make
+    * the internal cache for storing past gamestates.
+    *
+    * @param cache_size the size of the internal cache for past gamestates.
+    */
+    AlphaBeta2PlayersCached(unsigned int cache_size);
 
-    ~AlphaBeta2PlayersCached() {
-        delete this->cache;
-    }
+    /**
+    * It's a destructor.
+    */
+    ~AlphaBeta2PlayersCached();
 
-    bool one_wins_one_turn(GameState::HexState &state) {
-        // First check the transposition table to see if we've done this before
-        // initialize one_wins to false because that is the default
-        // (if no actions we take force a win)
-        bool one_wins = false;
-        if (this->cache->lookup(state, one_wins)) {
-            return one_wins;
-        }
-        this->nodes_miss++;
+    /**
+    * This method should be given a HexState object in which it is currently
+    * the first player's turn. This method will return true if player one can
+    * force a win by playing a certain (unspecified) move from this position.
+    * Similarly, it will return false if no matter what player one plays,
+    * player two can force a win somehow.
+    *
+    * @param state The state at which to evaluate whether or not player one can
+    *              force a win from.
+    */
+    bool one_wins_one_turn(GameState::HexState &state);
 
-        GameState::HexState::HexActReader act_iter(state);
-        if (act_iter) {
-            GameState::HexState::Action backwards;
-            while (act_iter) {
-                state.succeed_in_place(act_iter.get_action(), backwards);
-                if (this->one_wins_two_turn(state)) {
-                    one_wins = true;
-                    state.reverse_in_place(backwards);
-                    break;
-                }
-                state.reverse_in_place(backwards);
-                act_iter++;
-            }
-        } else {
-            one_wins = (state.who_won() == GameState::HexState::PLAYERS::PLAYER_ONE);
-        }
+    /**
+    * This method should be given a HexState object in which it is currently
+    * the second player's turn. This method will return true if, regardless of
+    * what player two plays as their move this turn, player one will be able to
+    * force a win by playing a certain (unspecified) move afterwards.
+    * Similarly, it will return false if there is a move that player two can make
+    * such that player two will able to force a win somehow.
+    *
+    * @param state The state at which to evaluate whether or not player one can
+    *              force a win from.
+    */
 
-        this->cache->insert(state, one_wins);
-        return one_wins;
-    }
-
-    bool one_wins_two_turn(GameState::HexState &state) {
-        // First check the transposition table to see if we've done this before
-        // initialize one_wins to true because that is the default
-        // (if no actions we take force a win)
-        bool one_wins = true;
-        if (this->cache->lookup(state, one_wins)) {
-            return one_wins;
-        }
-        this->nodes_miss++;
-
-        GameState::HexState::HexActReader act_iter(state);
-        if (act_iter) {
-            GameState::HexState::Action backwards;
-            while (act_iter) {
-                state.succeed_in_place(act_iter.get_action(), backwards);
-                if (!this->one_wins_one_turn(state)) {
-                    one_wins = false;
-                    state.reverse_in_place(backwards);
-                    break;
-                }
-                state.reverse_in_place(backwards);
-                act_iter++;
-            }
-        } else {
-            one_wins = (state.who_won() == GameState::HexState::PLAYERS::PLAYER_ONE);
-        }
-
-        this->cache->insert(state, one_wins);
-        return one_wins;
-    }
+    bool one_wins_two_turn(GameState::HexState &state);
 };
 
 }
