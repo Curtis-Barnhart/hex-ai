@@ -3,6 +3,6 @@ add_executable(
     main.cpp
     GameState/HexState.cpp
     GameSolve/AlphaBeta.cpp
-    GameSolve/LRUCache.hpp
+    Util/LRUCache.hpp
 )
 

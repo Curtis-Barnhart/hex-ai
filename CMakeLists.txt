@@ -37,9 +37,9 @@ target_compile_options(
     -Wpedantic
 )
 
-option(CPP_AI_TESTS "Build tests for cpp-ai" OFF)
-message(STATUS "CPP_AI_TESTS set to ${CPP_AI_TESTS}")
-if (CPP_AI_TESTS)
+option(HEX_AI_TESTS "Build tests for cpp-ai" OFF)
+message(STATUS "HEX_AI_TESTS set to ${HEX_AI_TESTS}")
+if (HEX_AI_TESTS)
     # compile targets for googletest
     add_subdirectory("extern/googletest")
     # For some reason the following line is not necessary for headers to work properly
@@ -48,5 +48,17 @@ if (CPP_AI_TESTS)
     # in the test dir CMakeLists.txt. I also am not sure why.
     # include_directories("${gtest_SOURCE_DIR}")
     add_subdirectory("test")
+endif()
+
+# HEX_AI_DATA_DIR is the absolute path to the directory where hex-ai can store
+# data that isn't part of the source code or need to be tracked.
+# It is a macro that will be used in Util/io.cpp
+# If it is not defined by the user at compile time, it will use a relative path
+# that is defined in Util/io.cpp
+if (NOT "${HEX_AI_DATA_DIR}" STREQUAL "")
+    add_definitions("-DHEX_AI_DATA_DIR=${HEX_AI_DATA_DIR}")
+    message(STATUS "HEX_AI_DATA_DIR set to ${HEX_AI_DATA_DIR}.")
+else()
+    message(STATUS "HEX_AI_DATA_DIR not set (using default directory relative to source code).")
 endif()
 
