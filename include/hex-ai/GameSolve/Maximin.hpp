@@ -2,7 +2,7 @@
 #include <limits>
 #include <vector>
 
-#include "LRUCache.hpp"
+#include "hex-ai/Util/LRUCache.hpp"
 
 namespace GameSolve {
 /**

@@ -13,10 +13,14 @@ using GameState::HexState::PLAYERS::PLAYER_NONE;
 * Definitions                                    *
 *************************************************/
 
-TEST(HexState_Definitions, PLAYERSValue) {
+TEST(HexState_Definitions, PLAYERS_Value) {
     EXPECT_EQ(PLAYER_ONE, 0);
     EXPECT_EQ(PLAYER_TWO, 1);
     EXPECT_EQ(PLAYER_NONE, 2);
+}
+
+TEST(HexState_Definitions, BOARD_SIZE_Value) {
+    EXPECT_EQ(BOARD_SIZE, 11);
 }
 
 /*************************************************
@@ -48,9 +52,13 @@ TEST(HexState_Trivials, EmptyWin) {
 
 TEST(HexState_Trivials, EmptyBoardMoves) {
     HexState empty;
+    
+    auto actions = empty.get_actions();
 
-    EXPECT_EQ(empty.get_actions()->size(), 121)
+    EXPECT_EQ(actions->size(), 121)
         << "A newly constructed board should have 121 available moves";
+
+    delete actions;
 }
 
 /*************************************************

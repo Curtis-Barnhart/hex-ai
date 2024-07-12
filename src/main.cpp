@@ -3,14 +3,15 @@
 #include <string>
 #include <thread>
 
-#include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
+#include "hex-ai/GameState/HexState.hpp"
+#include "hex-ai/GameSolve/Maximin.hpp"
 #include "hex-ai/GameSolve/DeepNodeSolve.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
 
-/*
+// /*
 void get_p_action(Action &action) {
     signed char x, y;
     std::cout << "enter x coord: ";
@@ -21,9 +22,9 @@ void get_p_action(Action &action) {
     action.y = y - '0';
     action.whose = 0;
 }
-*/
+// */
 
-/*
+// /*
 void run_game() {
     std::cout << "sizeof action: " << sizeof(Action) << ", sizeof state: " << sizeof(State) << "\n";
     State *test = new State();
@@ -39,7 +40,7 @@ void run_game() {
         test->succeed_in_place(player_action);
         
         std::cout << "Player moves\n" << "Current Board:\n" << *test << "\n";
-        if (test->who_won() != -1) {
+        if (test->who_won() == GameState::HexState::PLAYERS::PLAYER_ONE) {
             std::cout << "Player wins!\n";
             break;
         }
@@ -59,7 +60,7 @@ void run_game() {
                   << "Game state nodes evaluated total    : " << maximin.nodes_hit_total << "\n";
         delete computer_action;
 
-        if (test->who_won() != -1) {
+        if (test->who_won() == GameState::HexState::PLAYERS::PLAYER_TWO) {
             std::cout << "Computer wins!\n";
             break;
         }
@@ -67,7 +68,7 @@ void run_game() {
 
     delete test;
 }
-*/
+// */
 
 // template<int N>
 void do_N_examples(
@@ -117,7 +118,7 @@ void read_N_examples(
     filein.close();
 }
 
-int main() {
+void gen_examples() {
     /* example of writing to and reading from file
     std::ofstream fileout("test.txt");
     State s;
@@ -176,6 +177,10 @@ int main() {
     }
     */
 
+}
+
+int main() {
+    run_game();
     return 0;
 }
 
