@@ -10,9 +10,9 @@
 #include "hex-ai/GameState/HexState.hpp"
 
 using GameState::HexState;
-using HexState::PLAYER_NONE;
-using HexState::PLAYER_ONE;
-using HexState::PLAYER_TWO;
+using HexState::PLAYERS::PLAYER_NONE;
+using HexState::PLAYERS::PLAYER_ONE;
+using HexState::PLAYERS::PLAYER_TWO;
 
 /*************************************************
  * Methods for HexState::HexActReader            *
@@ -314,7 +314,8 @@ void HexState::pack_to_stream(std::ofstream &out) const {
 }
 
 // TODO: there may be some io exceptions you wanna throw or do I dunno
-void HexState::unpack_from_stream(std::ifstream &in) {
+[[nodiscard("Return value is an error code - should not be discarded.")]]
+int HexState::unpack_from_stream(std::ifstream &in) {
     char pack4 = 0;
     int packed_in = 0;
 
@@ -323,10 +324,20 @@ void HexState::unpack_from_stream(std::ifstream &in) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             if (packed_in == 0) {
                 in.get(pack4);
+                if (in.eof()) {
+                    return 1;
+                }
                 packed_in = 4;
             }
 
             this->board[x][y] = (pack4 & 0xc0) >> 6;
+            if (
+                this->board[x][y] != HexState::PLAYERS::PLAYER_ONE &&
+                this->board[x][y] != HexState::PLAYERS::PLAYER_TWO &&
+                this->board[x][y] != HexState::PLAYERS::PLAYER_NONE
+            ) {
+                return 2;
+            }
             pack4 <<= 2;
             packed_in--;
         }
@@ -335,10 +346,21 @@ void HexState::unpack_from_stream(std::ifstream &in) {
     // get current turn
     if (packed_in == 0) {
         in.get(pack4);
+        if (in.eof()) {
+            return 1;
+        }
         packed_in = 4;
     }
 
     this->turn = (pack4 & 0xc0) >> 6;
+    if (
+        this->turn != 0 &&
+        this->turn != 1
+    ) {
+        return 2;
+    }
+
+    return 0;
 }
 
 // TODO: someday change these from being signed chars to ints

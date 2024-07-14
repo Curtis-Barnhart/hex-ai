@@ -11,6 +11,7 @@ namespace GameSolve {
 /**
 *
 */
+[[nodiscard("Return value is an error code of sorts - do not discard")]]
 int hex_rand_moves(GameState::HexState &state, int turns) {
     static std::minstd_rand0 rand(0);
 

@@ -222,7 +222,15 @@ public:
     void pack_to_stream(std::ofstream &out) const;
 
     // TODO: there may be some io exceptions you wanna throw or do I dunno
-    void unpack_from_stream(std::ifstream &in);
+    /**
+     * reads a HexState in from a file (must have been put there by `pack_to_stream`).
+     * @param in the file to read the HexState in from
+     * @return 0 if the HexState was read in successfully.
+     *         1 if the eof was encountered before the entire HexState could be read.
+     *         2 if the file contained a value that should not exist in the HexState.
+     */
+    [[nodiscard("Return value is an error code - should not be discarded.")]]
+    int unpack_from_stream(std::ifstream &in);
 
 private:
     unsigned char turn = 0;
