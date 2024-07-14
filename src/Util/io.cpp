@@ -6,7 +6,7 @@
 #include "hex-ai/Util/io.hpp"
 
 #ifndef HEX_AI_DATA_DIR
-#define HEX_AI_DATA_DIR "../../data/"
+#define HEX_AI_DATA_DIR "./data/"
 #endif // !HEX_AI_DATA_DIR
 
 using GameState::HexState;

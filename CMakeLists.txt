@@ -20,26 +20,12 @@ include_directories("include")
 # this is the subdirectory of our main executable
 add_subdirectory(src)
 
-# we want to add a compilation feature to one of our targets (main).
-# we add a feature that uses C++20.
-target_compile_features(
-    main
-    PRIVATE
-    cxx_std_20
-)
-
-# we want to set some compilation options (for how many warnings to show).
-target_compile_options(
-    main 
-    PRIVATE 
-    -Wall 
-    -Wextra 
-    -Wpedantic
-)
-
 option(HEX_AI_TESTS "Build tests for cpp-ai" OFF)
 message(STATUS "HEX_AI_TESTS set to ${HEX_AI_TESTS}")
 if (HEX_AI_TESTS)
+    # use ctest for tests?
+    include(CTest)
+
     # compile targets for googletest
     add_subdirectory("extern/googletest")
     # For some reason the following line is not necessary for headers to work properly
@@ -48,6 +34,16 @@ if (HEX_AI_TESTS)
     # in the test dir CMakeLists.txt. I also am not sure why.
     # include_directories("${gtest_SOURCE_DIR}")
     add_subdirectory("test")
+endif()
+
+# HEX_AI_TESTING_DIR is the absolute path to a directory where unit tests for hex-ai
+# can create temporary files that are used during the testing process
+# Right now used by test/test_HexStateIO.cpp
+if (NOT "${HEX_AI_TESTING_DIR}" STREQUAL "")
+    add_definitions("-DHEX_AI_TESTING_DIR=${HEX_AI_TESTING_DIR}")
+    message(STATUS "HEX_AI_TESTING_DIR set to ${HEX_AI_TESTING_DIR}.")
+else()
+    message(STATUS "HEX_AI_TESTING_DIR not set (using default directory './data').")
 endif()
 
 # HEX_AI_DATA_DIR is the absolute path to the directory where hex-ai can store
@@ -59,6 +55,6 @@ if (NOT "${HEX_AI_DATA_DIR}" STREQUAL "")
     add_definitions("-DHEX_AI_DATA_DIR=${HEX_AI_DATA_DIR}")
     message(STATUS "HEX_AI_DATA_DIR set to ${HEX_AI_DATA_DIR}.")
 else()
-    message(STATUS "HEX_AI_DATA_DIR not set (using default directory relative to source code).")
+    message(STATUS "HEX_AI_DATA_DIR not set (using default directory './data').")
 endif()
 

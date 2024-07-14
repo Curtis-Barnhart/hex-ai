@@ -22,6 +22,10 @@ target_compile_options(
 )
 
 target_link_libraries(test_HexState gtest gtest_main)
+add_test(
+    NAME test_HexState
+    COMMAND test_HexState
+)
 
 
 add_executable(
@@ -48,4 +52,8 @@ target_compile_options(
 )
 
 target_link_libraries(test_HexStateIO gtest gtest_main)
+add_test(
+    NAME test_HexStateIO
+    COMMAND test_HexStateIO
+)
 
