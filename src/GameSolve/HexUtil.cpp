@@ -1,16 +1,11 @@
-#ifndef GAMESOLVE_DEEPNODESOLVE_HPP
-#define GAMESOLVE_DEEPNODESOLVE_HPP
-
-#include "GameState/HexState.hpp"
 #include <random>
 #include <vector>
 
-namespace GameSolve {
+#include "hex-ai/GameState/HexState.hpp"
+#include "hex-ai/GameSolve/HexUtil.hpp"
 
-/**
-*
-*/
-int hex_rand_moves(GameState::HexState &state, int turns) {
+[[nodiscard("Return value is an error code of sorts - do not discard")]]
+int GameSolve::hex_rand_moves(GameState::HexState &state, int turns) {
     static std::minstd_rand0 rand(0);
 
     std::vector<GameState::HexState::Action> a_list;
@@ -25,8 +20,4 @@ int hex_rand_moves(GameState::HexState &state, int turns) {
 
     return 0;
 }
-
-}
-
-#endif // !GAMESOLVE_DEEPNODESOLVE_HPP
 
