@@ -1,5 +1,5 @@
-#ifndef GAMESOLVE_DEEPNODESOLVE_HPP
-#define GAMESOLVE_DEEPNODESOLVE_HPP
+#ifndef GAMESOLVE_HEXUTIL_HPP
+#define GAMESOLVE_HEXUTIL_HPP
 
 #include "hex-ai/GameState/HexState.hpp"
 
@@ -18,5 +18,5 @@ int hex_rand_moves(GameState::HexState &state, int turns);
 
 }
 
-#endif // !GAMESOLVE_DEEPNODESOLVE_HPP
+#endif // !GAMESOLVE_HEXUTIL_HPP
 
