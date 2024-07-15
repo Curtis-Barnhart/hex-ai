@@ -1,7 +1,7 @@
 #include <string>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
+#include "hex-ai/GameSolve/HexUtil.hpp"
 
 #include "hex-ai/Util/io.hpp"
 
@@ -11,14 +11,15 @@
 
 using GameState::HexState;
 
-void write_examples(
+[[nodiscard("Return value is an error code - do not discard.")]]
+int write_hexstates(
     const std::string &output_name,
     const std::vector<GameState::HexState> &games,
     const std::vector<bool> &winner
 ) {
-    std::string abs_filename(HEX_AI_DATA_DIR"ex_games/");
-    abs_filename.append(output_name);
-    std::ofstream fileout(abs_filename);
+    std::string filename(HEX_AI_DATA_DIR);
+    filename.append(output_name);
+    std::ofstream fileout(filename);
     
     // N times, create board state, solve it, and write down result.
     for (int x = 0; x < 100; x++) {
@@ -33,6 +34,7 @@ void write_examples(
     fileout.close();
 }
 
+[[nodiscard("Return value is an error code - do not discard.")]]
 void read_examples(
     const std::string &input_filename,
     std::vector<HexState> &games,

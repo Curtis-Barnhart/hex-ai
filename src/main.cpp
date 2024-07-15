@@ -5,8 +5,7 @@
 
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/GameSolve/Maximin.hpp"
-#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
+#include "hex-ai/GameSolve/HexUtil.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;

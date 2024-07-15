@@ -286,9 +286,14 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
 }
 
 // TODO: there may be some io exceptions you wanna throw or do I dunno
-void HexState::pack_to_stream(std::ofstream &out) const {
+[[nodiscard("Return value is an error code - do not discard.")]]
+int HexState::pack_to_stream(std::ofstream &out) const {
     char pack4 = 0;
     int packed_in = 0;
+
+    if (!out.good()) {
+        return 1;
+    }
 
     // pack in all the board states
     for (int x = 0; x < BOARD_SIZE; x++) {
@@ -311,13 +316,19 @@ void HexState::pack_to_stream(std::ofstream &out) const {
     packed_in++;
     pack4 <<= (2 * (4 - packed_in));
     out.put(pack4);
+
+    return 0;
 }
 
 // TODO: there may be some io exceptions you wanna throw or do I dunno
-[[nodiscard("Return value is an error code - should not be discarded.")]]
+[[nodiscard("Return value is an error code - do not discard.")]]
 int HexState::unpack_from_stream(std::ifstream &in) {
     char pack4 = 0;
     int packed_in = 0;
+
+    if (!in.good()) {
+        return 3;
+    }
 
     // get all board states
     for (int x = 0; x < BOARD_SIZE; x++) {

@@ -3,7 +3,7 @@
 #include <cstdio>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
+#include "hex-ai/GameSolve/HexUtil.hpp"
 
 using GameState::HexState;
 
@@ -19,7 +19,7 @@ TEST(HexState_FromFile, Empty) {
     HexState state, from_file;
 
     std::ofstream ofile(HEX_AI_TESTING_DIR"HexState_FromFile__Empty");
-    state.pack_to_stream(ofile);
+    ASSERT_EQ(state.pack_to_stream(ofile), 0);
     ofile.close();
 
     std::ifstream ifile(HEX_AI_TESTING_DIR"HexState_FromFile__Empty");
@@ -36,7 +36,7 @@ TEST(HexState_FromFile, Nonempty) {
     ASSERT_EQ(GameSolve::hex_rand_moves(state, 20), 0);
 
     std::ofstream ofile(HEX_AI_TESTING_DIR"HexState_FromFile__Nonempty");
-    state.pack_to_stream(ofile);
+    ASSERT_EQ(state.pack_to_stream(ofile), 0);
     ofile.close();
 
     std::ifstream ifile(HEX_AI_TESTING_DIR"HexState_FromFile__Nonempty");
@@ -74,7 +74,20 @@ TEST(HexState_FromFile, ReadBadValue) {
     EXPECT_EQ(state.unpack_from_stream(ifile), 2);
 
     std::remove(HEX_AI_TESTING_DIR"HexState_FromFile__ReadBadValue");
+}
 
+TEST(HexState_FromFile, ToBadStream) {
+    HexState state;
+
+    std::ofstream ofile("bad/file/name");
+    EXPECT_EQ(state.pack_to_stream(ofile), 1);
+}
+
+TEST(HexState_FromFile, FromBadStream) {
+    HexState state;
+
+    std::ifstream ifile("bad/file/name");
+    EXPECT_EQ(state.unpack_from_stream(ifile), 3);
 }
 
 /*************************************************

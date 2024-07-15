@@ -2,6 +2,7 @@ add_executable(
     test_HexState 
     test_HexState.cpp
     "../src/GameState/HexState.cpp"
+    "../src/GameSolve/HexUtil.cpp"
 )
 
 # we want to add a compilation feature to one of our targets (test_HexState).
@@ -32,6 +33,7 @@ add_executable(
     test_HexStateIO
     test_HexStateIO.cpp
     "../src/GameState/HexState.cpp"
+    "../src/GameSolve/HexUtil.cpp"
 )
 
 # we want to add a compilation feature to one of our targets (test_HexStateIO).

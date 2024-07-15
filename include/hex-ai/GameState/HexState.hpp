@@ -219,7 +219,14 @@ public:
     void get_actions(std::vector<Action> &buffer) const;
 
     // TODO: there may be some io exceptions you wanna throw or do I dunno
-    void pack_to_stream(std::ofstream &out) const;
+    /**
+     * writes a HexState out to a file
+     * @param out the file to write the HexState to
+     * @return 0 if the HexState was written out successfully.
+     *         1 if the given ofstream was bad from the start (!out.good())
+     */
+    [[nodiscard("Return value is an error code - do not discard.")]]
+    int pack_to_stream(std::ofstream &out) const;
 
     // TODO: there may be some io exceptions you wanna throw or do I dunno
     /**
@@ -228,8 +235,9 @@ public:
      * @return 0 if the HexState was read in successfully.
      *         1 if the eof was encountered before the entire HexState could be read.
      *         2 if the file contained a value that should not exist in the HexState.
+     *         3 if the given ifstream was bad from the start (!in.good())
      */
-    [[nodiscard("Return value is an error code - should not be discarded.")]]
+    [[nodiscard("Return value is an error code - do not discard.")]]
     int unpack_from_stream(std::ifstream &in);
 
 private:

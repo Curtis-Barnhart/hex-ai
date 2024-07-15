@@ -2,7 +2,7 @@
 #include <utility>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
+#include "hex-ai/GameSolve/HexUtil.hpp"
 
 using GameState::HexState;
 using GameState::HexState::PLAYERS::PLAYER_ONE;

@@ -8,13 +8,21 @@
 
 #include "hex-ai/GameState/HexState.hpp"
 
-void write_100_examples(
+/**
+*
+*/
+[[nodiscard("Return value is an error code - do not discard.")]]
+int write_hexstates(
     const std::string &output_name,
     const std::vector<GameState::HexState> &games,
     const std::vector<bool> &winner
 );
 
-void read_100_examples(
+/**
+*
+*/
+[[nodiscard("Return value is an error code - do not discard.")]]
+int read_hexstates(
     const std::string &input_filename,
     std::vector<GameState::HexState> &games,
     std::vector<bool> &winner
