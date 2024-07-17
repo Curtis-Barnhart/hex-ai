@@ -82,30 +82,30 @@ void generate_loop(std::atomic<int> &count, int bundle, const std::string &fileb
 }
 
 int main (int argc, char *argv[]) {
-    if (argc < 4) {
-        std::cout << "needs 3 args\n";
+    if (argc < 5) {
+        std::cout << "needs 4 args\n";
         return 0;
     }
 
     std::atomic<int> count;
-    int bundle, int_count;
+    int thread_ct, bundle, int_count;
     std::string filebase;
 
     std::stringstream args;
-    args << argv[1] << ' ' << argv[2] << ' ' << argv[3];
+    args << argv[1] << ' ' << argv[2] << ' ' << argv[3] << ' ' << argv[4];
+    args >> thread_ct;
     args >> int_count;
     args >> bundle;
     args >> filebase;
     count = int_count;
 
-    constexpr int THREADS = 8;
+    std::vector<std::thread *> threads;
 
-    std::thread *threads[THREADS];
-    for (int x = 0; x < THREADS; x++) {
-        threads[x] = new std::thread(generate_loop, std::ref(count), bundle, std::ref(filebase));
+    for (int x = 0; x < thread_ct; x++) {
+        threads.push_back(new std::thread(generate_loop, std::ref(count), bundle, std::ref(filebase)));
     }
 
-    for (int x = 0; x < THREADS; x++) {
+    for (int x = 0; x < thread_ct; x++) {
         threads[x]->join();
     }
 
