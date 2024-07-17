@@ -1,24 +1,35 @@
+#include <atomic>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include <thread>
 #include <vector>
 
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
-#include "hex-ai/GameSolve/DeepNodeSolve.hpp"
+#include "hex-ai/GameSolve/HexUtil.hpp"
+#include "hex-ai/Util/io.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
 
-void write_100_examples(
+int generate_examples(
     GameSolve::AlphaBeta2PlayersCached &ab,
-    std::string output_name
+    int n,
+    const std::string &hex_outs,
+    const std::string &bool_outs
 ) {
-    // make variables for a state and for the file to write to
+    std::vector<State> states;
+    std::vector<bool> wins;
+    states.reserve(n);
+    wins.reserve(n);
     State s;
-    bool one_wins;
-    std::ofstream fileout(output_name);
     
     // N times, create board state, solve it, and write down result.
-    for (int x = 0; x < 100; x++) {
+    for (int x = 0; x < n; x++) {
         // make new game states until they don't have a winner
         do {
             s = State();
@@ -26,62 +37,79 @@ void write_100_examples(
         } while (s.who_won() != GameState::HexState::PLAYERS::PLAYER_NONE);
         
         // calculate outcome and write it down
-        one_wins = ab.one_wins_one_turn(s);
-        s.to_stream(fileout);
-        fileout.put(one_wins ? '1' : '0');
+        wins.push_back(ab.one_wins_one_turn(s));
+        states.push_back(s);
     }
 
-    // close file
-    fileout.close();
+    if (!Util::write_hexstates(hex_outs, states)) {
+        return 1;
+    }
+    
+    std::ofstream bool_file(bool_outs);
+    for (bool w : wins) {
+        bool_file.put(w ? '0' : '1');
+    }
+    if (!bool_file.good()) {
+        return 1;
+    }
+
+    return 0;
 }
 
-void read_100_examples(
-    std::string input_filename,
-    std::vector<State> games,
-    std::vector<bool> winner
-) {
-    State s;
-    char one_wins_char;
-    bool one_wins;
-    std::ifstream filein(input_filename);
+void generate_loop(std::atomic<int> &count, int bundle, const std::string &filebase) {
+    while (true) {
+        int my_count = count.fetch_sub(1);
+        if (my_count <= 0) {
+            return;
+        }
 
-    // N times, read in board state and solution, and record into vector
-    for (int x = 0; x < 100; x++) {
-        s.from_stream(filein);
-        filein.get(one_wins_char);
-        one_wins = one_wins_char == '1';
-        games.push_back(s);
-        winner.push_back(one_wins);
+        GameSolve::AlphaBeta2PlayersCached ab(1500000);
+        std::string hex_outs, bool_outs;
+
+        std::stringstream s;
+        s << filebase << "_hex" << std::setfill('0') << std::setw(5) << my_count;
+        s >> hex_outs;
+        s.str("");
+        s.clear();
+        s << filebase << "_bool" << std::setfill('0') << std::setw(5) << my_count;
+        s >> bool_outs;
+
+        if (generate_examples(ab, bundle, hex_outs, bool_outs)) {
+            std::cout << "AAAAAAAAAAAAAAAAAA\n";
+        }
+        std::cout << "finishing " << my_count << "\n";
     }
-
-    // close file
-    filein.close();
 }
 
 int main (int argc, char *argv[]) {
-    constexpr int THREADS = 8;
-
-    GameSolve::AlphaBeta2PlayersCached *ab[THREADS];
-    for (int x = 0; x < THREADS; x++) {
-        ab[x] = new GameSolve::AlphaBeta2PlayersCached(1500000);
+    if (argc < 4) {
+        std::cout << "needs 3 args\n";
+        return 0;
     }
 
-    State s;
+    std::atomic<int> count;
+    int bundle, int_count;
+    std::string filebase;
 
-    int sample_number = 72;
-    while (true) {
-        std::thread *threads[THREADS];
-        
-        for (int x = 0; x < THREADS; x++) {
-            std::string record_name = "record" + std::to_string(sample_number++) + ".data";
-            std::thread *t = new std::thread(write_100_examples, std::ref(*(ab[x])), record_name);
-            threads[x] = t;
-        }
+    std::stringstream args;
+    args << argv[1] << ' ' << argv[2] << ' ' << argv[3];
+    args >> int_count;
+    args >> bundle;
+    args >> filebase;
+    count = int_count;
 
-        for (int x = 0; x < THREADS; x++) {
-            threads[x]->join();
-        }
-    }
+    generate_loop(count, bundle, filebase);
+
+    // constexpr int THREADS = 8;
+
+    // std::thread *threads[THREADS];
+    // for (int x = 0; x < THREADS; x++) {
+    //     threads[x] = new std::thread(generate_loop, std::ref(count), bundle, std::ref(filebase));
+    // }
+
+    // for (int x = 0; x < THREADS; x++) {
+    //     threads[x]->join();
+    // }
 
     return 0;
 }

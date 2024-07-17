@@ -4,7 +4,6 @@
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/HexUtil.hpp"
 
-[[nodiscard("Return value is an error code of sorts - do not discard")]]
 int GameSolve::hex_rand_moves(GameState::HexState &state, int turns) {
     static std::minstd_rand0 rand(0);
 

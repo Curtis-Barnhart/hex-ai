@@ -13,7 +13,6 @@ namespace GameSolve {
 *         1 if the amount of turns that were made were less than `turns`
 *         due to the game having been won by any player.
 */
-[[nodiscard("Return value is an error code of sorts - do not discard")]]
 int hex_rand_moves(GameState::HexState &state, int turns);
 
 }
