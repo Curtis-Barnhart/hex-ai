@@ -1,60 +1,55 @@
 #include <string>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/GameSolve/HexUtil.hpp"
-
 #include "hex-ai/Util/io.hpp"
-
-#ifndef HEX_AI_DATA_DIR
-#define HEX_AI_DATA_DIR "./data/"
-#endif // !HEX_AI_DATA_DIR
 
 using GameState::HexState;
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int write_hexstates(
+int Util::write_hexstates(
     const std::string &output_name,
-    const std::vector<GameState::HexState> &games,
-    const std::vector<bool> &winner
+    const std::vector<GameState::HexState> &games
 ) {
-    std::string filename(HEX_AI_DATA_DIR);
-    filename.append(output_name);
-    std::ofstream fileout(filename);
-    
-    // N times, create board state, solve it, and write down result.
-    for (int x = 0; x < 100; x++) {
+    unsigned int count = games.size();
+    int status;
 
-        // calculate outcome and write it down
-        one_wins = ab.one_wins_one_turn(s);
-        s.pack_to_stream(fileout);
-        fileout.put(one_wins ? '1' : '0');
+    std::ofstream fileout(output_name);
+
+    fileout.write((const char *) &count, sizeof(unsigned int) / sizeof(char));
+
+    for (const HexState &h : games) {
+        if (!(status = h.pack_to_stream(fileout))) {
+            return 1;
+        }
     }
 
-    // close file
     fileout.close();
+    return 0;
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-void read_examples(
+int read_hexstates(
     const std::string &input_filename,
-    std::vector<HexState> &games,
-    std::vector<bool> &winner
+    std::vector<HexState> &games
 ) {
-    HexState s;
-    char one_wins_char;
-    std::string abs_filename(HEX_AI_DATA_DIR"ex_games/");
-    abs_filename.append(input_filename);
-    std::ifstream filein(abs_filename);
+    unsigned int count;
 
-    // N times, read in board state and solution, and record into vector
-    for (int x = 0; x < 100; x++) {
-        s.unpack_from_stream(filein);
-        filein.get(one_wins_char);
-        games.push_back(s);
-        winner.push_back(one_wins_char == '1');
+    std::ifstream filein(input_filename);
+
+    filein.read((char *) &count, sizeof(int) / sizeof(char));
+    if (filein.eof()) {
+        return 1;
     }
 
-    // close file
+    // N times, read in board state and solution, and record into vector
+    for (unsigned int x = 0; x < count; x++) {
+        games.emplace_back();
+        if (int status = !games.end()->unpack_from_stream(filein)) {
+            return status;
+        }
+    }
+
     filein.close();
+    return 0;
 }
 

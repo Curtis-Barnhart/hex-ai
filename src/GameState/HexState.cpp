@@ -285,7 +285,6 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
     }
 }
 
-// TODO: there may be some io exceptions you wanna throw or do I dunno
 [[nodiscard("Return value is an error code - do not discard.")]]
 int HexState::pack_to_stream(std::ofstream &out) const {
     char pack4 = 0;
@@ -320,7 +319,6 @@ int HexState::pack_to_stream(std::ofstream &out) const {
     return 0;
 }
 
-// TODO: there may be some io exceptions you wanna throw or do I dunno
 [[nodiscard("Return value is an error code - do not discard.")]]
 int HexState::unpack_from_stream(std::ifstream &in) {
     char pack4 = 0;

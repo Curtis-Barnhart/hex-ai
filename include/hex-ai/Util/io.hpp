@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "hex-ai/GameSolve/AlphaBeta.hpp"
-
 #include "hex-ai/GameState/HexState.hpp"
+
+namespace Util {
 
 /**
 *
@@ -14,8 +14,7 @@
 [[nodiscard("Return value is an error code - do not discard.")]]
 int write_hexstates(
     const std::string &output_name,
-    const std::vector<GameState::HexState> &games,
-    const std::vector<bool> &winner
+    const std::vector<GameState::HexState> &games
 );
 
 /**
@@ -24,9 +23,10 @@ int write_hexstates(
 [[nodiscard("Return value is an error code - do not discard.")]]
 int read_hexstates(
     const std::string &input_filename,
-    std::vector<GameState::HexState> &games,
-    std::vector<bool> &winner
+    std::vector<GameState::HexState> &games
 );
+
+}
 
 #endif // !HEX_AI_UTIL_IO_HPP
 
