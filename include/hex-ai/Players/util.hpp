@@ -3,13 +3,11 @@
 
 #include "hex-ai/GameState/HexState.hpp"
 
-using Action = GameState::HexState::Action;
-
 namespace Players {
 
-void get_action(Action &a);
+void get_action(GameState::HexState::Action &a);
 
 }
 
 #endif // !PLAYERS_UTIL_HPP
-//
+
