@@ -98,18 +98,16 @@ int main (int argc, char *argv[]) {
     args >> filebase;
     count = int_count;
 
-    generate_loop(count, bundle, filebase);
+    constexpr int THREADS = 8;
 
-    // constexpr int THREADS = 8;
+    std::thread *threads[THREADS];
+    for (int x = 0; x < THREADS; x++) {
+        threads[x] = new std::thread(generate_loop, std::ref(count), bundle, std::ref(filebase));
+    }
 
-    // std::thread *threads[THREADS];
-    // for (int x = 0; x < THREADS; x++) {
-    //     threads[x] = new std::thread(generate_loop, std::ref(count), bundle, std::ref(filebase));
-    // }
-
-    // for (int x = 0; x < THREADS; x++) {
-    //     threads[x]->join();
-    // }
+    for (int x = 0; x < THREADS; x++) {
+        threads[x]->join();
+    }
 
     return 0;
 }
