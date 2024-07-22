@@ -29,6 +29,34 @@ target_compile_options(
 )
 
 ################################
+# training nerual network      #
+################################
+
+add_executable(
+    train_bottom_model
+    train_bottom_model.cpp
+    GameState/HexState.cpp
+    Util/io.cpp
+)
+
+# we want to add a compilation feature to one of our targets (main).
+# we add a feature that uses C++20.
+target_compile_features(
+    train_bottom_model
+    PRIVATE
+    cxx_std_14
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    train_bottom_model 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+
+################################
 # two player hex               #
 ################################
 

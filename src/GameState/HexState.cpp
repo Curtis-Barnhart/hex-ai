@@ -10,9 +10,6 @@
 #include "hex-ai/GameState/HexState.hpp"
 
 using GameState::HexState;
-using HexState::PLAYERS::PLAYER_NONE;
-using HexState::PLAYERS::PLAYER_ONE;
-using HexState::PLAYERS::PLAYER_TWO;
 
 /*************************************************
  * Methods for HexState::HexActReader            *
@@ -372,6 +369,10 @@ int HexState::unpack_from_stream(std::ifstream &in) {
     return 0;
 }
 
+unsigned char HexState::at(int x, int y) const {
+    return this->board[x][y];
+}
+
 // TODO: someday change these from being signed chars to ints
 bool HexState::is_connected(signed char x1, signed char y1, signed char x2, signed char y2) const {
     const unsigned char COLOR = this->board[x1][y1];
@@ -463,13 +464,13 @@ std::ostream &GameState::operator<<(std::ostream &out, const GameState::HexState
         out << "│";
         for (int x = 0; x < BOARD_SIZE; x++) {
             switch (state.board[x][y]) {
-                case PLAYER_NONE:
+                case HexState::PLAYER_NONE:
                     out << "  ";
                     break;
-                case PLAYER_ONE:
+                case HexState::PLAYER_ONE:
                     out << "1 ";
                     break;
-                case PLAYER_TWO:
+                case HexState::PLAYER_TWO:
                     out << "2 ";
                     break;
                 default:

@@ -240,6 +240,11 @@ public:
     [[nodiscard("Return value is an error code - do not discard.")]]
     int unpack_from_stream(std::ifstream &in);
 
+    /**
+     * so that people can read the board without being able to modify it
+     */
+    unsigned char at(int x, int y) const;
+
 private:
     unsigned char turn = 0;
     unsigned char (*board)[BOARD_SIZE] = nullptr;

@@ -11,14 +11,13 @@ int Util::write_hexstates(
     const std::vector<GameState::HexState> &games
 ) {
     unsigned int count = games.size();
-    int status;
 
     std::ofstream fileout(output_name);
 
     fileout.write((const char *) &count, sizeof(unsigned int) / sizeof(char));
 
     for (const HexState &h : games) {
-        if (!(status = h.pack_to_stream(fileout))) {
+        if (h.pack_to_stream(fileout)) {
             return 1;
         }
     }
@@ -28,11 +27,12 @@ int Util::write_hexstates(
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int read_hexstates(
+int Util::read_hexstates(
     const std::string &input_filename,
     std::vector<HexState> &games
 ) {
     unsigned int count;
+    int status;
 
     std::ifstream filein(input_filename);
 
@@ -44,7 +44,7 @@ int read_hexstates(
     // N times, read in board state and solution, and record into vector
     for (unsigned int x = 0; x < count; x++) {
         games.emplace_back();
-        if (int status = !games.end()->unpack_from_stream(filein)) {
+        if ((status = (games.end() - 1)->unpack_from_stream(filein))) {
             return status;
         }
     }

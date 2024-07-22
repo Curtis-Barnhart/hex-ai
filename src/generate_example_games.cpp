@@ -41,7 +41,7 @@ int generate_examples(
         states.push_back(s);
     }
 
-    if (!Util::write_hexstates(hex_outs, states)) {
+    if (Util::write_hexstates(hex_outs, states)) {
         return 1;
     }
     
@@ -52,6 +52,7 @@ int generate_examples(
     if (!bool_file.good()) {
         return 1;
     }
+    bool_file.close();
 
     return 0;
 }
