@@ -8,7 +8,7 @@ add_executable(
     GameState/HexState.cpp
     GameSolve/AlphaBeta.cpp
     GameSolve/HexUtil.cpp
-    Util/io.cpp
+    GameState/io.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).
@@ -36,7 +36,7 @@ add_executable(
     train_bottom_model
     train_bottom_model.cpp
     GameState/HexState.cpp
-    Util/io.cpp
+    GameState/io.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).

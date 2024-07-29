@@ -1,12 +1,12 @@
 #include <string>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/Util/io.hpp"
+#include "hex-ai/GameState/io.hpp"
 
 using GameState::HexState;
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int Util::write_hexstates(
+int GameState::write_hexstates(
     const std::string &output_name,
     const std::vector<GameState::HexState> &games
 ) {
@@ -27,7 +27,7 @@ int Util::write_hexstates(
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int Util::read_hexstates(
+int GameState::read_hexstates(
     const std::string &input_filename,
     std::vector<HexState> &games
 ) {

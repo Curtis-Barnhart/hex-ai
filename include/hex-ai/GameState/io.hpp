@@ -6,7 +6,7 @@
 
 #include "hex-ai/GameState/HexState.hpp"
 
-namespace Util {
+namespace GameState {
 
 /**
 *

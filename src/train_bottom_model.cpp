@@ -7,7 +7,7 @@
 #include <tiny_dnn/tiny_dnn.h>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/Util/io.hpp"
+#include "hex-ai/GameState/io.hpp"
 
 void hex_to_vec(const GameState::HexState &state, tiny_dnn::vec_t &vec) {
     for (int x = 0; x < BOARD_SIZE; x++) {
@@ -39,7 +39,7 @@ int main (int argc, char *argv[]) {
     std::string hex_filename("/home/curtisb/temporary_hex/batch01_hex00001");
     std::string bool_filename("/home/curtisb/temporary_hex/batch01_bool00001");
 
-    int status = Util::read_hexstates(hex_filename, hex_states);
+    int status = GameState::read_hexstates(hex_filename, hex_states);
     if (status) {
         std::cout << "error: " << status << "\n";
     }

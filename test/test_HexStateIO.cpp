@@ -5,7 +5,7 @@
 
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/HexUtil.hpp"
-#include "hex-ai/Util/io.hpp"
+#include "hex-ai/GameState/io.hpp"
 
 using GameState::HexState;
 
@@ -98,8 +98,8 @@ TEST(HexState_SingleIO, FromBadStream) {
 
 TEST(HexState_MultiIO, NoWrites) {
     std::vector<HexState> states;
-    ASSERT_EQ(Util::write_hexstates("HexState_MultiIO__NoWrites", states), 0);
-    ASSERT_EQ(Util::read_hexstates("HexState_MultiIO__NoWrites", states), 0);
+    ASSERT_EQ(GameState::write_hexstates("HexState_MultiIO__NoWrites", states), 0);
+    ASSERT_EQ(GameState::read_hexstates("HexState_MultiIO__NoWrites", states), 0);
     EXPECT_EQ(states.size(), 0);
 }
 
@@ -108,8 +108,8 @@ TEST(HexState_MultiIO, Empty) {
     for (int x = 0; x < 32; x++) {
         states_write.push_back(HexState());
     }
-    ASSERT_EQ(Util::write_hexstates("HexState_MultiIO__Empty", states_write), 0);
-    ASSERT_EQ(Util::read_hexstates("HexState_MultiIO__Empty", states_read), 0);
+    ASSERT_EQ(GameState::write_hexstates("HexState_MultiIO__Empty", states_write), 0);
+    ASSERT_EQ(GameState::read_hexstates("HexState_MultiIO__Empty", states_read), 0);
     ASSERT_EQ(states_read.size(), 32);
     for (int x = 0; x < 32; x++) {
         EXPECT_EQ(states_read.at(x) == states_write.at(x), true);
@@ -124,8 +124,8 @@ TEST(HexState_MultiIO, Nonempty) {
         GameSolve::hex_rand_moves(state, 10);
         states_write.push_back(state);
     }
-    ASSERT_EQ(Util::write_hexstates("HexState_MultiIO__Nonempty", states_write), 0);
-    ASSERT_EQ(Util::read_hexstates("HexState_MultiIO__Nonempty", states_read), 0);
+    ASSERT_EQ(GameState::write_hexstates("HexState_MultiIO__Nonempty", states_write), 0);
+    ASSERT_EQ(GameState::read_hexstates("HexState_MultiIO__Nonempty", states_read), 0);
     ASSERT_EQ(states_read.size(), 32);
     for (int x = 0; x < 32; x++) {
         EXPECT_EQ(states_read.at(x) == states_write.at(x), true);

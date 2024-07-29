@@ -11,7 +11,7 @@
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 #include "hex-ai/GameSolve/HexUtil.hpp"
-#include "hex-ai/Util/io.hpp"
+#include "hex-ai/GameState/io.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
@@ -41,7 +41,7 @@ int generate_examples(
         states.push_back(s);
     }
 
-    if (Util::write_hexstates(hex_outs, states)) {
+    if (GameState::write_hexstates(hex_outs, states)) {
         return 1;
     }
     
