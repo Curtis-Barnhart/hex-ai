@@ -10,6 +10,8 @@ namespace GameState {
 
 /**
 *
+* @return 0 if successful,
+*         1 if an error was encountered while writing a HexState to disk.
 */
 [[nodiscard("Return value is an error code - do not discard.")]]
 int write_hexstates(
@@ -19,6 +21,11 @@ int write_hexstates(
 
 /**
 *
+* @return 0 if successful,
+*         1 if the file ended unexpectedly,
+*         2 if the file contained a value that should not exist in a HexState,
+*         3 if an error was encountered between reading in the number of HexStates
+*           and reading in the HexStates.
 */
 [[nodiscard("Return value is an error code - do not discard.")]]
 int read_hexstates(
