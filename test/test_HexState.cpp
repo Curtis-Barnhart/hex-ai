@@ -207,3 +207,35 @@ TEST(HexState_Equality, InequalStates) {
         << "s1 and s2 have different moves applied and should be inequal";
 }
 
+/*************************************************
+* Other                                          *
+*************************************************/
+
+TEST(HexState_Miscellaneous, FlipEmpty) {
+    HexState s1, s2;
+    EXPECT_EQ(s1.flip(GameState::HexState::HORIZONTAL), s2);
+    EXPECT_EQ(s1.flip(GameState::HexState::VERTICAL), s2);
+    EXPECT_EQ(s1.flip(GameState::HexState::BOTH), s2);
+}
+
+TEST(HexState_Miscellaneous, FlipNonempty) {
+    HexState original, s1, s2, s3;
+
+    original.succeed_in_place({1, 1, PLAYER_ONE});
+    original.succeed_in_place({5, 1, PLAYER_TWO});
+    HexState o2(original), o3(original);
+    
+    s1.succeed_in_place({9, 1, PLAYER_ONE});
+    s1.succeed_in_place({5, 1, PLAYER_TWO});
+
+    s2.succeed_in_place({1, 9, PLAYER_ONE});
+    s2.succeed_in_place({5, 9, PLAYER_TWO});
+    
+    s3.succeed_in_place({9, 9, PLAYER_ONE});
+    s3.succeed_in_place({5, 9, PLAYER_TWO});
+
+    EXPECT_EQ(original.flip(GameState::HexState::HORIZONTAL), s1);
+    EXPECT_EQ(o2.flip(GameState::HexState::VERTICAL), s2);
+    EXPECT_EQ(o3.flip(GameState::HexState::BOTH), s3);
+}
+

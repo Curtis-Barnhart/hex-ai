@@ -74,6 +74,7 @@ public:
     };
 
     enum PLAYERS { PLAYER_ONE, PLAYER_TWO, PLAYER_NONE };
+    enum AXIS { VERTICAL, HORIZONTAL, BOTH };
 
     /**
      * The constructor with no arguments will make an empty board.
@@ -242,8 +243,20 @@ public:
 
     /**
      * so that people can read the board without being able to modify it
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     * @return value of position (x, y) on current board
      */
     unsigned char at(int x, int y) const;
+
+    /**
+     * allows you to flip a board on a certain axis
+     *
+     * @param axis the axis on which you wish to flip the board
+     * @return reference to self
+     */
+    GameState::HexState &flip(GameState::HexState::AXIS axis);
 
 private:
     unsigned char turn = 0;

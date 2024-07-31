@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <ostream>
+#include <utility>
 #include <vector>
 
 #include "hex-ai/GameState/HexState.hpp"
@@ -371,6 +372,28 @@ int HexState::unpack_from_stream(std::ifstream &in) {
 
 unsigned char HexState::at(int x, int y) const {
     return this->board[x][y];
+}
+
+HexState &HexState::flip(HexState::AXIS axis) {
+    switch (axis) {
+        case GameState::HexState::HORIZONTAL:
+            for (int x = 0; x < BOARD_SIZE / 2; x++) {
+                for (int y = 0; y < BOARD_SIZE; y++) {
+                    std::swap(this->board[x][y], this->board[BOARD_SIZE - x - 1][y]);
+                }
+            }
+            break;
+        case GameState::HexState::VERTICAL:
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                for (int y = 0; y < BOARD_SIZE / 2; y++) {
+                    std::swap(this->board[x][y], this->board[x][BOARD_SIZE - y - 1]);
+                }
+            }
+            break;
+        case GameState::HexState::BOTH:
+            return (*this).flip(HexState::AXIS::VERTICAL).flip(HexState::AXIS::HORIZONTAL);
+    }
+    return *this;
 }
 
 // TODO: someday change these from being signed chars to ints
