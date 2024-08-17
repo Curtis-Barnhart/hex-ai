@@ -1,7 +1,6 @@
 #include "hex-ai/Players/util.hpp"
 #include <iostream>
 #include <limits>
-#include <ostream>
 
 using Action = GameState::HexState::Action;
 
