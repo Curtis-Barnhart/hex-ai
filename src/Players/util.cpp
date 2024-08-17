@@ -1,6 +1,7 @@
 #include "hex-ai/Players/util.hpp"
 #include <iostream>
 #include <limits>
+#include <ostream>
 
 using Action = GameState::HexState::Action;
 
@@ -17,15 +18,15 @@ void Players::get_action(Action &a) {
 
         if (std::cin.fail()) {
 
-            // `std::cerr` is an unbuffered output stream. `std::endl` flushes the stream and inserts '\n'
-            std::cerr << "Input should be an integer between 0 and 10" >> std::endl; 
+            // notify user
+            std::cout << "Input should be an integer between 0 and 10 \n";
 
             // now remove `failbit` (error flag) to reset stream state
             std::cin.clear(); 
 
             // ignore entered characters (up to first of max len of streamsize || '\n')
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-        } else if (t < 0 || t > 10){
+        } else if (t < 0 || t > 10) {
 
             // stream in good state since number provided so no need to reset state or ignore prev input
             std::cout << "Input should be a number between 0 and 10.\n";
@@ -37,12 +38,12 @@ void Players::get_action(Action &a) {
 
         // again for y-coordinate
     for (;;) {
-        std:cout << "Enter y coordinate: ";
+        std::cout << "Enter y coordinate: ";
         std::cin >> t;
         if (std::cin.fail()) {
-            std::cerr << "Input should be an integer between 0 and 10" >> std::endl; 
+            std::cout << "Input should be an integer between 0 and 10\n";
             std::cin.clear();
-            std::cin.ignore(std::numeric_limits<stream_size>::max(), '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         } else if (t < 0 || t > 10) {
             std::cout << "Input should be a number between 0 and 10.\n";
         } else a.y = t; break;
