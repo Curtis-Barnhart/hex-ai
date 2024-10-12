@@ -1,3 +1,6 @@
+#include <cassert>
+#include <fstream>
+#include <iostream>
 #include <string>
 
 #include "hex-ai/GameState/HexState.hpp"
@@ -6,13 +9,17 @@
 using GameState::HexState;
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int GameState::write_hexstates(
+unsigned int GameState::write_hexstates(
     const std::string &output_name,
-    const std::vector<GameState::HexState> &games
+    const std::vector<HexState> &games
 ) {
     unsigned int count = games.size();
 
     std::ofstream fileout(output_name);
+
+    if (!fileout.good()) {
+        return 2;
+    }
 
     fileout.write((const char *) &count, sizeof(unsigned int) / sizeof(char));
 
@@ -21,13 +28,13 @@ int GameState::write_hexstates(
             return 1;
         }
     }
-
     fileout.close();
+
     return 0;
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int GameState::read_hexstates(
+unsigned int GameState::read_hexstates(
     const std::string &input_filename,
     std::vector<HexState> &games
 ) {
@@ -44,12 +51,54 @@ int GameState::read_hexstates(
     // N times, read in board state and solution, and record into vector
     for (unsigned int x = 0; x < count; x++) {
         games.emplace_back();
-        if ((status = (games.end() - 1)->unpack_from_stream(filein))) {
-            return status;
+        switch (status = games.back().unpack_from_stream(filein)) {
+            case 0:
+                break;
+            case 1:
+            case 2:
+            case 3:
+                return status;
+            default:
+                std::cerr << "hex-ai: unhandled error code " << status << ".\n";
+                assert(false);
         }
     }
 
     filein.close();
     return 0;
+}
+
+[[nodiscard("Return value is an error code - do not discard.")]]
+unsigned int GameState::write_bools(
+    const std::string &output_name,
+    const std::vector<bool> &bools
+) {
+
+    std::ofstream fileout(output_name);
+
+    if (!fileout.good()) {
+        return 1;
+    }
+
+    for (const bool &b : bools) {
+        fileout.put(b ? '1' : '0');
+    }
+    fileout.close();
+
+    return 0;
+}
+
+void GameState::read_bools(
+    const std::string &input_filename,
+    std::vector<bool> &bools
+) {
+    char val;
+    std::ifstream filein(input_filename);
+    while (filein) {
+        filein.get(val);
+        bools.push_back(val == '1');
+    }
+
+    filein.close();
 }
 

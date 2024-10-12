@@ -29,6 +29,66 @@ target_compile_options(
 )
 
 ################################
+# for combining game data      #
+################################
+
+add_executable(
+    file_combine
+    file_combine.cpp
+    Util/generated_games_combiner.cpp
+    GameState/HexState.cpp
+    GameSolve/HexUtil.cpp
+    GameState/io.cpp
+)
+
+# we want to add a compilation feature to one of our targets (main).
+# we add a feature that uses C++20.
+target_compile_features(
+    file_combine
+    PRIVATE
+    cxx_std_20
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    file_combine 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+
+################################
+# verify gamestate file valid  #
+################################
+
+add_executable(
+    verify_game_file
+    verify_game_file.cpp
+    Util/generated_games_combiner.cpp
+    GameState/HexState.cpp
+    GameSolve/HexUtil.cpp
+    GameState/io.cpp
+)
+
+# we want to add a compilation feature to one of our targets (main).
+# we add a feature that uses C++20.
+target_compile_features(
+    verify_game_file
+    PRIVATE
+    cxx_std_20
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    verify_game_file 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+
+################################
 # training nerual network      #
 ################################
 
