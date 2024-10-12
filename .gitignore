@@ -12,6 +12,8 @@ docs/config/Doxyfile.bak
 .cache/
 CMakeFiles/
 CMakeCache.txt
+# used for integration with clangd
+compile_commands.json
 
 # dirs for generated data
 data/
