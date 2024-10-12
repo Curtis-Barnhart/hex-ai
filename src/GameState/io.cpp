@@ -42,6 +42,10 @@ unsigned int GameState::read_hexstates(
     int status;
 
     std::ifstream filein(input_filename);
+    if (!filein.good()) {
+        filein.close(); // TODO: Do I even need to do this?
+        return 4;
+    }
 
     filein.read((char *) &count, sizeof(int) / sizeof(char));
     if (filein.eof()) {

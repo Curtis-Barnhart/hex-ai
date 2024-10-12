@@ -144,6 +144,8 @@ int HexState::whose_turn() const {
     return this->turn;
 }
 
+// TODO: this is genuinely some of the most disgusting code I've ever written
+// please redo this at some point in the future
 HexState::PLAYERS HexState::who_won() const {
     /* each char in each array denotes that the respective player owns the
      * tile at the x or y value on that border. The four chars represent

@@ -29,6 +29,7 @@ unsigned int write_hexstates(
  *         2 if the file contained a value that should not exist in a HexState,
  *         3 if an error was encountered between reading in the number of HexStates
  *           and reading in the HexStates.
+ *         4 if the file could not be opened for reading.
  */
 [[nodiscard("Return value is an error code - do not discard.")]]
 unsigned int read_hexstates(
