@@ -12,8 +12,12 @@ int main (int argc, char *argv[]) {
     }
     std::string output(argv[argc - 1]), error;
 
-    int ecode = Util::combine_games(inputs, output, error);
-    std::printf("error code: %d\n", ecode);
+    unsigned int ecode = Util::combine_games(inputs, output, error);
+    std::printf("hex-ai: file_combine: error code: %d\n", ecode);
+    if (ecode) {
+        std::printf("hex-ai: file_combine: %s", error.c_str());
+    }
+
     return 0;
 }
 

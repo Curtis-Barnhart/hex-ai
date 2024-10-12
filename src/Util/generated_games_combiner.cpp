@@ -5,7 +5,7 @@
 #include "hex-ai/Util/generated_games_combiner.hpp"
 #include "hex-ai/GameState/io.hpp"
 
-int Util::combine_games(
+unsigned int Util::combine_games(
     const std::vector<std::string> &filenames,
     const std::string &new_filename,
     std::string &error_filename
@@ -39,7 +39,7 @@ int Util::combine_games(
     return 0;
 }
 
-int Util::combine_bools(
+unsigned int Util::combine_bools(
     const std::vector<std::string> &filenames,
     const std::string &new_filename
 ) {
