@@ -1,5 +1,7 @@
 #include <array>
+#include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -63,8 +65,8 @@ HexState::HexActReader &HexState::HexActReader::operator++(int) {
  ************************************************/
 
 HexState::HexState() {
-    this->board = new unsigned char[BOARD_SIZE][BOARD_SIZE];
-    std::fill<unsigned char *, unsigned char>(&this->board[0][0], &this->board[0][0] + BOARD_SIZE * BOARD_SIZE, PLAYER_NONE);
+    this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
+    std::fill<HexState::PLAYERS *, HexState::PLAYERS>(&this->board[0][0], &this->board[0][0] + BOARD_SIZE * BOARD_SIZE, PLAYER_NONE);
 }
 
 HexState::HexState(HexState &&other) {
@@ -75,30 +77,37 @@ HexState::HexState(HexState &&other) {
 
 HexState::HexState(const HexState &other) {
     this->turn = other.turn;
-    if (this->board == nullptr) {
-        this->board = new unsigned char[BOARD_SIZE][BOARD_SIZE];
+    if (this->board == nullptr) { // TODO: shouldn't this always be true?
+        this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
     }
-    for (int y = 0; y < BOARD_SIZE; y++) {
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            this->board[x][y] = other.board[x][y];
-        }
-    }
-    // I'm pretty sure this works but I should check somewhere
-    // std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
+    // for (int y = 0; y < BOARD_SIZE; y++) {
+    //     for (int x = 0; x < BOARD_SIZE; x++) {
+    //         this->board[x][y] = other.board[x][y];
+    //     }
+    // }
+    std::memcpy(
+        &this->board[0][0],
+        &other.board[0][0],
+        sizeof(HexState::PLAYERS) * BOARD_SIZE * BOARD_SIZE
+    );
 }
 
 HexState &HexState::operator=(const HexState &other) {
     this->turn = other.turn;
-    // I'm pretty sure this works but I should check somewhere
-    // std::memcpy(&this->board[0][0], &other.board[0][0], sizeof(unsigned char) * BOARD_SIZE * BOARD_SIZE);
     if (this->board == nullptr) {
-        this->board = new unsigned char[BOARD_SIZE][BOARD_SIZE];
+        this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
     }
-    for (int y = 0; y < BOARD_SIZE; y++) {
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            this->board[x][y] = other.board[x][y];
-        }
-    }
+    // for (int y = 0; y < BOARD_SIZE; y++) {
+    //     for (int x = 0; x < BOARD_SIZE; x++) {
+    //         this->board[x][y] = other.board[x][y];
+    //     }
+    // }
+    std::memcpy(
+        &this->board[0][0],
+        &other.board[0][0],
+        sizeof(HexState::PLAYERS) * BOARD_SIZE * BOARD_SIZE
+    );
+
     return *this;
 }
 
@@ -219,7 +228,9 @@ double HexState::current_score_double() const {
 HexState *HexState::succeed(const Action &action) const {
     auto next = new HexState(*this);
     next->board[action.x][action.y] = action.whose;
-    next->turn = (action.whose + 1) % 2;
+    assert(next->turn != HexState::PLAYER_NONE);
+    next->turn = (next->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
+    
     return next;
 }
 
@@ -227,7 +238,8 @@ HexState *HexState::succeed(const Action &action) const {
 HexState *HexState::succeed(const Action &action, Action &baction) const {
     auto next = new HexState(*this);
     next->board[action.x][action.y] = action.whose;
-    next->turn = (action.whose + 1) % 2;
+    assert(next->turn != HexState::PLAYER_NONE);
+    next->turn = (next->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
 
     baction = action;
     return next;
@@ -235,13 +247,15 @@ HexState *HexState::succeed(const Action &action, Action &baction) const {
 
 HexState &HexState::succeed_in_place(const Action &action) {
     this->board[action.x][action.y] = action.whose;
-    this->turn = (action.whose + 1) % 2;
+    assert(this->turn != HexState::PLAYER_NONE);
+    this->turn = (this->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
     return *this;
 }
 
 HexState &HexState::succeed_in_place(const Action &action, Action &baction) {
     this->board[action.x][action.y] = action.whose;
-    this->turn = (action.whose + 1) % 2;
+    assert(this->turn != HexState::PLAYER_NONE);
+    this->turn = (this->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
 
     baction = action;
     return *this;
@@ -274,7 +288,7 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
         return;
     }
 
-    unsigned char whose_turn = this->turn;
+    HexState::PLAYERS whose_turn = this->turn;
     buffer.reserve(BOARD_SIZE * BOARD_SIZE);
     for (int x = 0; x < BOARD_SIZE; x++) {
         for (int y = 0; y < BOARD_SIZE; y++) {
@@ -286,7 +300,7 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int HexState::pack_to_stream(std::ofstream &out) const {
+int HexState::serialize(std::ofstream &out) const {
     char pack4 = 0;
     int packed_in = 0;
 
@@ -320,8 +334,9 @@ int HexState::pack_to_stream(std::ofstream &out) const {
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int HexState::unpack_from_stream(std::ifstream &in) {
-    char pack4 = 0;
+int HexState::deserialize(std::ifstream &in) {
+    uint8_t pack4 = 0;
+    uint8_t value;
     int packed_in = 0;
 
     if (!in.good()) {
@@ -332,20 +347,22 @@ int HexState::unpack_from_stream(std::ifstream &in) {
     for (int x = 0; x < BOARD_SIZE; x++) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             if (packed_in == 0) {
-                in.get(pack4);
+                pack4 = in.get();
                 if (in.eof()) {
                     return 1;
                 }
                 packed_in = 4;
             }
 
-            this->board[x][y] = (pack4 & 0xc0) >> 6;
+            value = (pack4 & 0xc0) >> 6;
             if (
-                this->board[x][y] != HexState::PLAYERS::PLAYER_ONE &&
-                this->board[x][y] != HexState::PLAYERS::PLAYER_TWO &&
-                this->board[x][y] != HexState::PLAYERS::PLAYER_NONE
+                value != HexState::PLAYER_ONE &&
+                value != HexState::PLAYER_TWO &&
+                value != HexState::PLAYER_NONE
             ) {
                 return 2;
+            } else {
+                this->board[x][y] = static_cast<HexState::PLAYERS>(value);
             }
             pack4 <<= 2;
             packed_in--;
@@ -354,25 +371,27 @@ int HexState::unpack_from_stream(std::ifstream &in) {
 
     // get current turn
     if (packed_in == 0) {
-        in.get(pack4);
+        pack4 = in.get();
         if (in.eof()) {
             return 1;
         }
         packed_in = 4;
     }
 
-    this->turn = (pack4 & 0xc0) >> 6;
+    value = (pack4 & 0xc0) >> 6;
     if (
-        this->turn != 0 &&
-        this->turn != 1
+        value != HexState::PLAYER_ONE &&
+        value != HexState::PLAYER_TWO
     ) {
         return 2;
+    } else {
+        this->turn = static_cast<HexState::PLAYERS>(value);
     }
 
     return 0;
 }
 
-unsigned char HexState::at(int x, int y) const {
+HexState::PLAYERS HexState::at(int x, int y) const {
     return this->board[x][y];
 }
 

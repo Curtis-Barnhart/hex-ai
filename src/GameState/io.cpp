@@ -24,7 +24,7 @@ unsigned int GameState::write_hexstates(
     fileout.write((const char *) &count, sizeof(unsigned int) / sizeof(char));
 
     for (const HexState &h : games) {
-        if (h.pack_to_stream(fileout)) {
+        if (h.serialize(fileout)) {
             return 1;
         }
     }
@@ -55,7 +55,7 @@ unsigned int GameState::read_hexstates(
     // N times, read in board state and solution, and record into vector
     for (unsigned int x = 0; x < count; x++) {
         games.emplace_back();
-        switch (status = games.back().unpack_from_stream(filein)) {
+        switch (status = games.back().deserialize(filein)) {
             case 0:
                 break;
             case 1:

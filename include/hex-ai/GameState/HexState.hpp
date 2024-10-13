@@ -33,13 +33,19 @@ class HexState {
     friend class std::hash<GameState::HexState>;
 
 public:
+
+    // some enums
+    enum PLAYERS : unsigned char { PLAYER_ONE, PLAYER_TWO, PLAYER_NONE };
+    enum AXIS { VERTICAL, HORIZONTAL, BOTH };
+
     /**
      * HexState::Action is a class for representing an action that a player
      * can take in a game of Hex. It holds location data as well as player
      * identification.
      */
     struct Action {
-        unsigned char x = 0, y = 0, whose = HexState::PLAYERS::PLAYER_NONE;
+        unsigned char x = 0, y = 0;
+        HexState::PLAYERS whose = HexState::PLAYER_NONE;
 
         /**
          * The default constructor creates an action at (0, 0) by PLAYER_NONE.
@@ -48,11 +54,14 @@ public:
 
         /**
         * Constructor sets memeber values according to the given parameters.
-        * @param x the x coordinate of what tile should be claimed
-        * @param y the y coordinate of what tile should be claimed
-        * @param whose 0 for the first player, 1 for the second, -1 for no player
+        * NO ERROR CHECKING is performed on x and y to make sure they are
+        * within an allowable range [0, BOARD_SIZE).
+        *
+        * @param x the x coordinate of what tile should be claimed.
+        * @param y the y coordinate of what tile should be claimed.
+        * @param whose 0 for the first player, 1 for the second, -1 for no player.
          */
-        Action(unsigned char x, unsigned char y, unsigned char whose): x(x), y(y), whose(whose) {}
+        Action(unsigned char x, unsigned char y, HexState::PLAYERS whose): x(x), y(y), whose(whose) {}
     };
 
     /**
@@ -72,9 +81,6 @@ public:
 
         HexActReader &operator++(int);
     };
-
-    enum PLAYERS { PLAYER_ONE, PLAYER_TWO, PLAYER_NONE };
-    enum AXIS { VERTICAL, HORIZONTAL, BOTH };
 
     /**
      * The constructor with no arguments will make an empty board.
@@ -164,6 +170,7 @@ public:
     /*
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
+    *
     */
     [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
     HexState *succeed(const Action &action) const;
@@ -171,7 +178,7 @@ public:
     /*
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
-    * To tell how to undoe an action, you just need to know where a player claimed
+    * To tell how to undo an action, you just need to know where a player claimed
     * a tile.
     */
     [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
@@ -227,9 +234,8 @@ public:
      *         1 if the given ofstream was bad from the start (!out.good())
      */
     [[nodiscard("Return value is an error code - do not discard.")]]
-    int pack_to_stream(std::ofstream &out) const;
+    int serialize(std::ofstream &out) const;
 
-    // TODO: there may be some io exceptions you wanna throw or do I dunno
     /**
      * reads a HexState in from a file (must have been put there by `pack_to_stream`).
      * @param in the file to read the HexState in from
@@ -239,16 +245,20 @@ public:
      *         3 if the given ifstream was bad from the start (!in.good())
      */
     [[nodiscard("Return value is an error code - do not discard.")]]
-    int unpack_from_stream(std::ifstream &in);
+    int deserialize(std::ifstream &in);
 
     /**
-     * so that people can read the board without being able to modify it
+     * `at` allows the caller to query what piece is at a given position
+     * in a HexState instance.
+     * `x` and `y` must both be integers in [0, 10].
+     * NO ERROR CHECKING is done to ensure that this is actually true of
+     * `x` and `y`...
      *
-     * @param x x coordinate
-     * @param y y coordinate
+     * @param x x coordinate (0 <= x < 11)
+     * @param y y coordinate (0 <= y < 11)
      * @return value of position (x, y) on current board
      */
-    unsigned char at(int x, int y) const;
+    PLAYERS at(int x, int y) const;
 
     /**
      * allows you to flip a board on a certain axis
@@ -259,8 +269,8 @@ public:
     GameState::HexState &flip(GameState::HexState::AXIS axis);
 
 private:
-    unsigned char turn = 0;
-    unsigned char (*board)[BOARD_SIZE] = nullptr;
+    PLAYERS turn = PLAYER_ONE;
+    PLAYERS (*board)[BOARD_SIZE] = nullptr;
 
     /**
      * is_connected tells whether two points in a Hex game are connected

@@ -71,7 +71,7 @@ TEST(HexState_Movement, TurnCount) {
     GameSolve::hex_rand_moves(state, 5);
     ASSERT_EQ(state.who_won(), PLAYER_NONE)
         << "No one can win in 5 turns";
-    EXPECT_EQ(state.whose_turn(), 1)
+    EXPECT_EQ(state.whose_turn(), PLAYER_TWO)
         << "It should be player 2's turn after 5 moves";
     EXPECT_EQ(state.get_actions()->size(), 116)
         << "There should be 116 moves after 5 have been taken";
@@ -79,7 +79,7 @@ TEST(HexState_Movement, TurnCount) {
     GameSolve::hex_rand_moves(state, 5);
     ASSERT_EQ(state.who_won(), PLAYER_NONE)
         << "No one can win in 10 turns";
-    EXPECT_EQ(state.whose_turn(), 0)
+    EXPECT_EQ(state.whose_turn(), PLAYER_ONE)
         << "It should be player 1's turn after 10 moves";
     EXPECT_EQ(state.get_actions()->size(), 111)
         << "There should be 111 moves after 10 have been taken";
@@ -87,7 +87,7 @@ TEST(HexState_Movement, TurnCount) {
     GameSolve::hex_rand_moves(state, 5);
     ASSERT_EQ(state.who_won(), PLAYER_NONE)
         << "No one can win in 15 turns";
-    EXPECT_EQ(state.whose_turn(), 1)
+    EXPECT_EQ(state.whose_turn(), PLAYER_TWO)
         << "It should be player 2's turn after 15 moves";
     EXPECT_EQ(state.get_actions()->size(), 106)
         << "There should be 106 moves after 15 have been taken";
