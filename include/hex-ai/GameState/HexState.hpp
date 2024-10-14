@@ -5,9 +5,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
-#include <fstream>
 #include <iostream>
-#include <ostream>
 #include <vector>
 
 #define BOARD_SIZE 11
@@ -234,7 +232,7 @@ public:
      *         1 if the given ofstream was bad from the start (!out.good())
      */
     [[nodiscard("Return value is an error code - do not discard.")]]
-    int serialize(std::ofstream &out) const;
+    int serialize(std::ostream &out) const;
 
     /**
      * reads a HexState in from a file (must have been put there by `pack_to_stream`).
@@ -245,7 +243,7 @@ public:
      *         3 if the given ifstream was bad from the start (!in.good())
      */
     [[nodiscard("Return value is an error code - do not discard.")]]
-    int deserialize(std::ifstream &in);
+    int deserialize(std::istream &in);
 
     /**
      * `at` allows the caller to query what piece is at a given position

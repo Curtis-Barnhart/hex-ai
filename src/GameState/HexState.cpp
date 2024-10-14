@@ -4,9 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <fstream>
 #include <iostream>
-#include <ostream>
 #include <utility>
 #include <vector>
 
@@ -300,7 +298,7 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int HexState::serialize(std::ofstream &out) const {
+int HexState::serialize(std::ostream &out) const {
     char pack4 = 0;
     int packed_in = 0;
 
@@ -334,7 +332,7 @@ int HexState::serialize(std::ofstream &out) const {
 }
 
 [[nodiscard("Return value is an error code - do not discard.")]]
-int HexState::deserialize(std::ifstream &in) {
+int HexState::deserialize(std::istream &in) {
     uint8_t pack4 = 0;
     uint8_t value;
     int packed_in = 0;

@@ -2,8 +2,7 @@
 #define UTIL_FILE_IO_BASIC_SERIALIZATION_HPP
 
 #include <cstdint>
-#include <ostream>
-#include <istream>
+#include <iostream>
 
 namespace Util::FileIO {
 
