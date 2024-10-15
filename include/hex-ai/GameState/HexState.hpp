@@ -224,7 +224,6 @@ public:
     */
     void get_actions(std::vector<Action> &buffer) const;
 
-    // TODO: there may be some io exceptions you wanna throw or do I dunno
     /**
      * writes a HexState out to a file
      * @param out the file to write the HexState to
