@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -242,7 +243,35 @@ public:
      * @param archive the cereal archive to write to
      */
     template<class Archive>
-    void save(Archive &archive) const;
+    void save(Archive &archive) const {
+        uint8_t pack4 = 0;
+        int packed_in = 0;
+
+        // pack in all the board states
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            for (int y = 0; y < BOARD_SIZE; y++) {
+                pack4 |= (0x03 & this->board[x][y]);
+                packed_in++;
+
+                if (packed_in == 4) {
+                    packed_in = 0;
+                    archive(pack4);
+                    pack4 = 0;
+                } else {
+                    pack4 <<= 2;
+                }
+            }
+        }
+
+        // put in the current turn
+        // WARNING: this only works assuming that the area of the board
+        // is not divisible by 4????
+        // hopefully I don't change it from 11 anyways?
+        pack4 |= (0x03 & this->turn);
+        packed_in++;
+        pack4 <<= (2 * (4 - packed_in));
+        archive(pack4);
+    }
 
     /**
      * Reads in a serialized HexState instance from a cereal archive
@@ -251,7 +280,33 @@ public:
      * @param archive the cereal archive to read from.
      */
     template<class Archive>
-    void load(Archive &archive);
+    void load(Archive &archive){
+        uint8_t pack4 = 0;
+        uint8_t value;
+        int packed_in = 0;
+
+        // get all board states
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            for (int y = 0; y < BOARD_SIZE; y++) {
+                if (packed_in == 0) {
+                    archive(pack4);
+                    packed_in = 4;
+                }
+
+                value = (pack4 & 0xc0) >> 6;
+                this->board[x][y] = static_cast<HexState::PLAYERS>(value);
+                pack4 <<= 2;
+                packed_in--;
+            }
+        }
+
+        // WARNING: just like in save,
+        // load assumes that the area of a board is not divisible by four
+        // (so that there are "remainder" spots and you don't need to get
+        // another byte to read in the turn)
+        value = (pack4 & 0xc0) >> 6;
+        this->turn = static_cast<HexState::PLAYERS>(value);
+    }
 
     /**
      * reads a HexState in from a file (must have been put there by `pack_to_stream`).
