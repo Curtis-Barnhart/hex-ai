@@ -291,14 +291,10 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
     }
 }
 
-[[nodiscard("Return value is an error code - do not discard.")]]
-int HexState::serialize(std::ostream &out) const {
-    char pack4 = 0;
+template<class Archive>
+void HexState::save(Archive &archive) const {
+    uint8_t pack4 = 0;
     int packed_in = 0;
-
-    if (!out.good()) {
-        return 1;
-    }
 
     // pack in all the board states
     for (int x = 0; x < BOARD_SIZE; x++) {
@@ -308,7 +304,7 @@ int HexState::serialize(std::ostream &out) const {
 
             if (packed_in == 4) {
                 packed_in = 0;
-                out.put(pack4);
+                archive(pack4);
                 pack4 = 0;
             } else {
                 pack4 <<= 2;
@@ -317,70 +313,42 @@ int HexState::serialize(std::ostream &out) const {
     }
 
     // put in the current turn
+    // WARNING: this only works assuming that the area of the board
+    // is not divisible by 4????
+    // hopefully I don't change it from 11 anyways?
     pack4 |= (0x03 & this->turn);
     packed_in++;
     pack4 <<= (2 * (4 - packed_in));
-    out.put(pack4);
-
-    return 0;
+    archive(pack4);
 }
 
-[[nodiscard("Return value is an error code - do not discard.")]]
-int HexState::deserialize(std::istream &in) {
+template<class Archive>
+void HexState::load(Archive &archive) {
     uint8_t pack4 = 0;
     uint8_t value;
     int packed_in = 0;
-
-    if (!in.good()) {
-        return 3;
-    }
 
     // get all board states
     for (int x = 0; x < BOARD_SIZE; x++) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             if (packed_in == 0) {
-                pack4 = in.get();
-                if (in.eof()) {
-                    return 1;
-                }
+                archive(pack4);
                 packed_in = 4;
             }
 
             value = (pack4 & 0xc0) >> 6;
-            if (
-                value != HexState::PLAYER_ONE &&
-                value != HexState::PLAYER_TWO &&
-                value != HexState::PLAYER_NONE
-            ) {
-                return 2;
-            } else {
-                this->board[x][y] = static_cast<HexState::PLAYERS>(value);
-            }
+            this->board[x][y] = static_cast<HexState::PLAYERS>(value);
             pack4 <<= 2;
             packed_in--;
         }
     }
 
-    // get current turn
-    if (packed_in == 0) {
-        pack4 = in.get();
-        if (in.eof()) {
-            return 1;
-        }
-        packed_in = 4;
-    }
-
+    // WARNING: just like in save,
+    // load assumes that the area of a board is not divisible by four
+    // (so that there are "remainder" spots and you don't need to get
+    // another byte to read in the turn)
     value = (pack4 & 0xc0) >> 6;
-    if (
-        value != HexState::PLAYER_ONE &&
-        value != HexState::PLAYER_TWO
-    ) {
-        return 2;
-    } else {
-        this->turn = static_cast<HexState::PLAYERS>(value);
-    }
-
-    return 0;
+    this->turn = static_cast<HexState::PLAYERS>(value);
 }
 
 HexState::PLAYERS HexState::at(int x, int y) const {

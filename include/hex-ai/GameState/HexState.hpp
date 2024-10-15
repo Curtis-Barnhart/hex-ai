@@ -60,6 +60,17 @@ public:
         * @param whose 0 for the first player, 1 for the second, -1 for no player.
          */
         Action(unsigned char x, unsigned char y, HexState::PLAYERS whose): x(x), y(y), whose(whose) {}
+
+        /**
+         * Serializes an Action instance to a cereal archive
+         * using the cereal library.
+         *
+         * @param archive the cereal archive to serialize the Action to.
+         */
+        template<class Archive>
+        void serialize(Archive &archive) {
+            archive(x, y, whose);
+        }
     };
 
     /**
@@ -225,13 +236,22 @@ public:
     void get_actions(std::vector<Action> &buffer) const;
 
     /**
-     * writes a HexState out to a file
-     * @param out the file to write the HexState to
-     * @return 0 if the HexState was written out successfully.
-     *         1 if the given ofstream was bad from the start (!out.good())
+     * Serializes a HexState instance to a cereal archive
+     * using the cereal library.
+     *
+     * @param archive the cereal archive to write to
      */
-    [[nodiscard("Return value is an error code - do not discard.")]]
-    int serialize(std::ostream &out) const;
+    template<class Archive>
+    void save(Archive &archive) const;
+
+    /**
+     * Reads in a serialized HexState instance from a cereal archive
+     * using the cereal library.
+     *
+     * @param archive the cereal archive to read from.
+     */
+    template<class Archive>
+    void load(Archive &archive);
 
     /**
      * reads a HexState in from a file (must have been put there by `pack_to_stream`).
