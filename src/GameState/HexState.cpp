@@ -17,14 +17,14 @@ using GameState::HexState;
  ************************************************/
 
 HexState::HexActReader::HexActReader(const HexState &state) {
-    if (state.who_won() != PLAYER_NONE) {
+    if (state.who_won() != HexState::PLAYER_NONE) {
         this->valid = false;
         this->a.x = BOARD_SIZE;
         return;
     }
     this->book = &state;
-    this->a.whose = state.turn == 0 ? PLAYER_ONE : PLAYER_TWO;
-    if (state.board[0][0] == PLAYER_NONE) {
+    this->a.whose = state.turn == 0 ? HexState::PLAYER_ONE : HexState::PLAYER_TWO;
+    if (state.board[0][0] == HexState::PLAYER_NONE) {
         this->valid = true;
     } else {
         this->valid = true;
@@ -64,7 +64,11 @@ HexState::HexActReader &HexState::HexActReader::operator++(int) {
 
 HexState::HexState() {
     this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
-    std::fill<HexState::PLAYERS *, HexState::PLAYERS>(&this->board[0][0], &this->board[0][0] + BOARD_SIZE * BOARD_SIZE, PLAYER_NONE);
+    std::fill<HexState::PLAYERS *, HexState::PLAYERS>(
+        &this->board[0][0],
+        &this->board[0][0] + BOARD_SIZE * BOARD_SIZE,
+        PLAYER_NONE
+    );
 }
 
 HexState::HexState(HexState &&other) {
@@ -78,11 +82,6 @@ HexState::HexState(const HexState &other) {
     if (this->board == nullptr) { // TODO: shouldn't this always be true?
         this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
     }
-    // for (int y = 0; y < BOARD_SIZE; y++) {
-    //     for (int x = 0; x < BOARD_SIZE; x++) {
-    //         this->board[x][y] = other.board[x][y];
-    //     }
-    // }
     std::memcpy(
         &this->board[0][0],
         &other.board[0][0],
@@ -95,11 +94,6 @@ HexState &HexState::operator=(const HexState &other) {
     if (this->board == nullptr) {
         this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
     }
-    // for (int y = 0; y < BOARD_SIZE; y++) {
-    //     for (int x = 0; x < BOARD_SIZE; x++) {
-    //         this->board[x][y] = other.board[x][y];
-    //     }
-    // }
     std::memcpy(
         &this->board[0][0],
         &other.board[0][0],
