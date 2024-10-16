@@ -65,10 +65,11 @@ target_compile_options(
 add_executable(
     verify_game_file
     verify_game_file.cpp
-    Util/generated_games_combiner.cpp
+    Util/FileIO/file_types.cpp
+    # Util/generated_games_combiner.cpp
     GameState/HexState.cpp
-    GameSolve/HexUtil.cpp
-    GameState/io.cpp
+    # GameSolve/HexUtil.cpp
+    # GameState/io.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).

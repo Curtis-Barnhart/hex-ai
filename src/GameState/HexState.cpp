@@ -1,7 +1,6 @@
 #include <array>
 #include <cassert>
 #include <cstddef>
-#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -315,6 +314,22 @@ HexState &HexState::flip(HexState::AXIS axis) {
             return (*this).flip(HexState::AXIS::VERTICAL).flip(HexState::AXIS::HORIZONTAL);
     }
     return *this;
+}
+
+bool HexState::verify_board_state() {
+    for (int x = 0; x < BOARD_SIZE; x++) {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            HexState::PLAYERS p = this->board[x][y];
+            if (
+                p != HexState::PLAYER_ONE &&
+                p != HexState::PLAYER_TWO &&
+                p != HexState::PLAYER_NONE
+            ) {
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 // TODO: someday change these from being signed chars to ints

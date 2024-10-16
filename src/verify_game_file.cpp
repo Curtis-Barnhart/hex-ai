@@ -1,16 +1,13 @@
-#include "hex-ai/GameState/io.hpp"
-
 #include <cstdio>
-#include <vector>
+#include <hex-ai/GameState/HexState.hpp>
+#include <string>
+
+#include "hex-ai/Util/FileIO/file_types.hpp"
 
 int main (int argc, char *argv[]) {
-    std::vector<GameState::HexState> hex;
-
-    int error = GameState::read_hexstates(std::string(argv[1]), hex);
-
-    std::printf("Error Code: %d\n", error);
-    std::printf("Games Present: %zu\n", hex.size());
-
+    for (int x = 1; x < argc; x++) {
+        Util::FileIO::info_file(std::string(argv[x]));
+    }
     return 0;
 }
 

@@ -340,6 +340,20 @@ public:
      */
     GameState::HexState &flip(GameState::HexState::AXIS axis);
 
+    /**
+     * verify_board_state makes sure that all values in the internal board
+     * are valid instances of HexState::PLAYERS.
+     * This probably shouldn't be used a ton,
+     * as it should be able to be assumed that the state is always valid.
+     * Occasionally (like when reading from files) I imagine it is helpful to
+     * check first though.
+     * That's what this function was originally intended for.
+     * 
+     * @return true if all values are valid.
+     *         false if any value is not valid.
+     */
+    bool verify_board_state();
+
 private:
     PLAYERS turn = PLAYER_ONE;
     PLAYERS (*board)[BOARD_SIZE] = nullptr;
