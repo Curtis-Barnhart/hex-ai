@@ -1,7 +1,9 @@
 /*
- * So this hasn't really worked out and I may try to make it to.
- * I'm not sure how to effectively combine transposition tables
- * with alpha-beta pruning.
+ * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
+ *
+ * This file is part of hex-ai.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #include "hex-ai/Util/LRUCache.hpp"

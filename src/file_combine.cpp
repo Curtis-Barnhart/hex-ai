@@ -1,9 +1,16 @@
-#include "hex-ai/Util/generated_games_combiner.hpp"
+/*
+ * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
+ *
+ * This file is part of hex-ai.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
 #include <cstdio>
 #include <string>
 #include <vector>
 
+#include "hex-ai/Util/generated_games_combiner.hpp"
 
 int main (int argc, char *argv[]) {
     std::vector<std::string> inputs;
