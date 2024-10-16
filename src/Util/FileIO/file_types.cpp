@@ -25,6 +25,7 @@ using GameState::HexState;
 void Util::FileIO::info_file(
     const string &filename
 ) {
+    // TODO: Yeah you can make this nicer you don't need three you need 1
     enum { VERSIONED_FILE = 1, UNVERSIONED_FILE = 2, NOT_A_FILE = 4 };
     uint8_t claimed_filetype, claimed_version;
     unsigned int real_filetype;
@@ -56,42 +57,32 @@ void Util::FileIO::info_file(
     if (real_filetype & VERSIONED_FILE) {
         vector<HexState> states;
         vector<bool> bools;
-        try {
-            switch (claimed_filetype) {
-/*GAMESTATE*/       case Util::FileIO::HEX_FILE_TYPE::GAMESTATE:
-                    switch (claimed_version) {
-/*VERSION 1*/               case 1:
-                            read_gamestate_01(filename, states);
+        switch (claimed_filetype) {
+            case Util::FileIO::HEX_FILE_TYPE::GAMESTATE:
+                switch (claimed_version) {
+                    case 1:
+                        if (!read_gamestate_01(filename, states)) {
                             std::printf("    type: GAMESTATE\n");
                             std::printf("    version: 1\n");
                             std::printf("    data:\n");
                             std::printf("         states : %zu\n", states.size());
                             return;
-/*BAD VERSION*/         default:
-                            // file version doesn't exist
-                            states.clear();
-                            break;
-                    }
-                    break;
-/*BOOL*/            case Util::FileIO::HEX_FILE_TYPE::BOOL:
-                    switch (claimed_version) {
-/*VERSION 1*/               case 1:
-                            read_bools_01(filename, bools);
+                        }
+                        break;
+                }
+                break;
+            case Util::FileIO::HEX_FILE_TYPE::BOOL:
+                switch (claimed_version) {
+                    case 1:
+                        if (!read_bools_01(filename, bools)) {
                             std::printf("    type: BOOL\n");
                             std::printf("    version: 1\n");
                             std::printf("    data:\n");
-                            std::printf("         bools : %zu\n", states.size());
+                            std::printf("         bools : %zu\n", bools.size());
                             return;
-/*BAD VERSION*/         default:
-                            // file version doesn't exist
-                            bools.clear();
-                            break;
-                    }
-                    break;
-            }
-        } catch (cereal::Exception &) {
-            // oops, looks like it wasn't actually a versioned file.
-            // It's still possible that it is unversioned.
+                        }
+                }
+                break;
         }
     }
 
@@ -290,7 +281,7 @@ unsigned int Util::FileIO::write_bools_01(
         return 1;
     }
 
-    uint8_t file_type = Util::FileIO::GAMESTATE;
+    uint8_t file_type = Util::FileIO::BOOL;
     uint8_t file_version = 1;
 
     cereal::BinaryOutputArchive out_archive(ofile);
