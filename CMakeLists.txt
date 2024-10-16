@@ -45,7 +45,7 @@ endif()
 
 # HEX_AI_TESTING_DIR is the absolute path to a directory where unit tests for hex-ai
 # can create temporary files that are used during the testing process
-# Right now used by test/test_HexStateIO.cpp
+# It was being used by test/test_HexStateIO.cpp but is not any longer.
 if (NOT "${HEX_AI_TESTING_DIR}" STREQUAL "")
     add_definitions("-DHEX_AI_TESTING_DIR=${HEX_AI_TESTING_DIR}")
     message(STATUS "HEX_AI_TESTING_DIR set to ${HEX_AI_TESTING_DIR}.")

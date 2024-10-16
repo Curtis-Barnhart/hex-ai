@@ -1,14 +1,40 @@
 ################################
+# main library                 #
+################################
+
+add_library(
+    hex-ai-core
+    GameState/HexState.cpp
+    GameSolve/AlphaBeta.cpp
+    GameSolve/HexUtil.cpp
+    Util/FileIO/file_types.cpp
+    Players/util.cpp
+)
+
+# we want to add a compilation feature to one of our targets (hex-ai-core).
+# we add a feature that uses C++20.
+target_compile_features(
+    hex-ai-core
+    PRIVATE
+    cxx_std_20
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    hex-ai-core 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+
+################################
 # generating games and solving #
 ################################
 
 add_executable(
     generate_example_games
     generate_example_games.cpp
-    GameState/HexState.cpp
-    GameSolve/AlphaBeta.cpp
-    GameSolve/HexUtil.cpp
-    Util/FileIO/file_types.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).
@@ -26,6 +52,11 @@ target_compile_options(
     -Wall 
     -Wextra 
     -Wpedantic
+)
+
+target_link_libraries(
+    generate_example_games
+    hex-ai-core
 )
 
 ################################
@@ -65,8 +96,6 @@ target_compile_options(
 add_executable(
     verify_game_file
     verify_game_file.cpp
-    Util/FileIO/file_types.cpp
-    GameState/HexState.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).
@@ -84,6 +113,11 @@ target_compile_options(
     -Wall 
     -Wextra 
     -Wpedantic
+)
+
+target_link_libraries(
+    verify_game_file
+    hex-ai-core
 )
 
 ################################
@@ -121,8 +155,6 @@ target_compile_options(
 add_executable(
     play_two_players
     play_two_players.cpp
-    GameState/HexState.cpp
-    Players/util.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).
@@ -140,5 +172,10 @@ target_compile_options(
     -Wall 
     -Wextra 
     -Wpedantic
+)
+
+target_link_libraries(
+    play_two_players
+    hex-ai-core
 )
 

@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <hex-ai/GameState/HexState.hpp>
 #include <string>
 
 #include "hex-ai/Util/FileIO/file_types.hpp"
