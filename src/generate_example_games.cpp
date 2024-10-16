@@ -1,6 +1,5 @@
 #include <atomic>
 #include <cstdio>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -11,7 +10,7 @@
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 #include "hex-ai/GameSolve/HexUtil.hpp"
-#include "hex-ai/GameState/io.hpp"
+#include "hex-ai/Util/FileIO/file_types.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
@@ -41,18 +40,13 @@ int generate_examples(
         states.push_back(s);
     }
 
-    if (GameState::write_hexstates(hex_outs, states)) {
-        return 1;
+    if (Util::FileIO::write_gamestate_01(hex_outs, states)) {
+        std::cerr << "Error writing out file " << hex_outs << ".\n";
     }
-    
-    std::ofstream bool_file(bool_outs);
-    for (bool w : wins) {
-        bool_file.put(w ? '0' : '1');
+
+    if (Util::FileIO::write_bools_01(bool_outs, wins)) {
+        std::cerr << "Error writing out file " << bool_outs << ".\n";
     }
-    if (!bool_file.good()) {
-        return 1;
-    }
-    bool_file.close();
 
     return 0;
 }

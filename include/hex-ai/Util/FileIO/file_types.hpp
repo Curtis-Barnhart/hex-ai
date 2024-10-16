@@ -46,6 +46,7 @@ void info_file(const std::string &filename);
  *         1 if the file could not be opened for reading.
  *         2 if the file content was corrupted and could not be interpreted.
  */
+[[nodiscard("Return value is error code.")]]
 unsigned int read_gamestate_00(
     const std::string &filename,
     std::vector<GameState::HexState> &states
@@ -65,6 +66,7 @@ unsigned int read_gamestate_00(
  *         1 if the file could not be opened for reading.
  *         2 if the file content was corrupted and could not be interpreted.
  */
+[[nodiscard("Return value is error code.")]]
 unsigned int read_bools_00(
     const std::string &filename,
     std::vector<bool> &bools
@@ -91,6 +93,7 @@ unsigned int read_bools_00(
  *         3 if the file version was not 1.
  *         4 if the file contents were corrupted and could not be interpreted.
  */
+[[nodiscard("Return value is error code.")]]
 unsigned int read_gamestate_01(
     const std::string &filename,
     std::vector<GameState::HexState> &states
@@ -110,6 +113,7 @@ unsigned int read_gamestate_01(
  * @return 0 if the file was successfully written to.
  *         1 if the file could not be opened for writing.
  */
+[[nodiscard("Return value is error code.")]]
 unsigned int write_gamestate_01(
     const std::string &filename,
     const std::vector<GameState::HexState> &states
@@ -136,6 +140,7 @@ unsigned int write_gamestate_01(
  *         3 if the file version was not 1.
  *         4 if the file contents were corrupted and could not be interpreted.
  */
+[[nodiscard("Return value is error code.")]]
 unsigned int read_bools_01(
     const std::string &filename,
     std::vector<bool> &bools
@@ -155,6 +160,7 @@ unsigned int read_bools_01(
  * @return 0 if the file was successfully written to.
  *         1 if the file could not be opened for writing.
  */
+[[nodiscard("Return value is error code.")]]
 unsigned int write_bools_01(
     const std::string &filename,
     const std::vector<bool> &bools

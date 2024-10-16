@@ -8,7 +8,7 @@ add_executable(
     GameState/HexState.cpp
     GameSolve/AlphaBeta.cpp
     GameSolve/HexUtil.cpp
-    GameState/io.cpp
+    Util/FileIO/file_types.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).
@@ -32,31 +32,31 @@ target_compile_options(
 # for combining game data      #
 ################################
 
-add_executable(
-    file_combine
-    file_combine.cpp
-    Util/generated_games_combiner.cpp
-    GameState/HexState.cpp
-    GameSolve/HexUtil.cpp
-    GameState/io.cpp
-)
+# add_executable(
+#     file_combine
+#     file_combine.cpp
+#     Util/generated_games_combiner.cpp
+#     GameState/HexState.cpp
+#     GameSolve/HexUtil.cpp
+#     GameState/io.cpp
+# )
 
-# we want to add a compilation feature to one of our targets (main).
-# we add a feature that uses C++20.
-target_compile_features(
-    file_combine
-    PRIVATE
-    cxx_std_20
-)
+# # we want to add a compilation feature to one of our targets (main).
+# # we add a feature that uses C++20.
+# target_compile_features(
+#     file_combine
+#     PRIVATE
+#     cxx_std_20
+# )
 
-# we want to set some compilation options (for how many warnings to show).
-target_compile_options(
-    file_combine 
-    PRIVATE 
-    -Wall 
-    -Wextra 
-    -Wpedantic
-)
+# # we want to set some compilation options (for how many warnings to show).
+# target_compile_options(
+#     file_combine 
+#     PRIVATE 
+#     -Wall 
+#     -Wextra 
+#     -Wpedantic
+# )
 
 ################################
 # verify gamestate file valid  #
@@ -66,10 +66,7 @@ add_executable(
     verify_game_file
     verify_game_file.cpp
     Util/FileIO/file_types.cpp
-    # Util/generated_games_combiner.cpp
     GameState/HexState.cpp
-    # GameSolve/HexUtil.cpp
-    # GameState/io.cpp
 )
 
 # we want to add a compilation feature to one of our targets (main).
@@ -93,29 +90,29 @@ target_compile_options(
 # training nerual network      #
 ################################
 
-add_executable(
-    train_bottom_model
-    train_bottom_model.cpp
-    GameState/HexState.cpp
-    GameState/io.cpp
-)
+# add_executable(
+#     train_bottom_model
+#     train_bottom_model.cpp
+#     GameState/HexState.cpp
+#     GameState/io.cpp
+# )
 
-# we want to add a compilation feature to one of our targets (main).
-# we add a feature that uses C++20.
-target_compile_features(
-    train_bottom_model
-    PRIVATE
-    cxx_std_14
-)
+# # we want to add a compilation feature to one of our targets (main).
+# # we add a feature that uses C++20.
+# target_compile_features(
+#     train_bottom_model
+#     PRIVATE
+#     cxx_std_14
+# )
 
-# we want to set some compilation options (for how many warnings to show).
-target_compile_options(
-    train_bottom_model 
-    PRIVATE 
-    -Wall 
-    -Wextra 
-    -Wpedantic
-)
+# # we want to set some compilation options (for how many warnings to show).
+# target_compile_options(
+#     train_bottom_model 
+#     PRIVATE 
+#     -Wall 
+#     -Wextra 
+#     -Wpedantic
+# )
 
 ################################
 # two player hex               #
