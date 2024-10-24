@@ -9,6 +9,7 @@
 #ifndef GAMES_HEX_HEXSTATE_HPP
 #define GAMES_HEX_HEXSTATE_HPP
 
+#include "cereal/details/helpers.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -286,6 +287,7 @@ public:
      * using the cereal library.
      *
      * @param archive the cereal archive to read from.
+     * @raises cereal::Exception if the gamestate read in had bad values.
      */
     template<class Archive>
     void load(Archive &archive){
@@ -302,6 +304,9 @@ public:
                 }
 
                 value = (pack4 & 0xc0) >> 6;
+                if (value > HexState::PLAYER_NONE) {
+                    throw cereal::Exception("Bad HexState value.");
+                }
                 this->board[x][y] = static_cast<HexState::PLAYERS>(value);
                 pack4 <<= 2;
                 packed_in--;
@@ -313,6 +318,9 @@ public:
         // (so that there are "remainder" spots and you don't need to get
         // another byte to read in the turn)
         value = (pack4 & 0xc0) >> 6;
+        if (value > HexState::PLAYER_NONE) {
+            throw cereal::Exception("Bad HexState value.");
+        }
         this->turn = static_cast<HexState::PLAYERS>(value);
     }
 
