@@ -1,13 +1,12 @@
 /*
  * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
- *
  * This file is part of hex-ai.
- *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #include <atomic>
 #include <cstdio>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -26,8 +25,7 @@ using Action = GameState::HexState::Action;
 int generate_examples(
     GameSolve::AlphaBeta2PlayersCached &ab,
     int n,
-    const std::string &hex_outs,
-    const std::string &bool_outs
+    const std::string &output_path
 ) {
     std::vector<State> states;
     std::vector<bool> wins;
@@ -48,12 +46,9 @@ int generate_examples(
         states.push_back(s);
     }
 
-    if (Util::FileIO::write_gamestate_01(hex_outs, states)) {
-        std::cerr << "Error writing out file " << hex_outs << ".\n";
-    }
-
-    if (Util::FileIO::write_bools_01(bool_outs, wins)) {
-        std::cerr << "Error writing out file " << bool_outs << ".\n";
+    std::ofstream outfile(output_path);
+    if (Util::FileIO::write_gamestate_bools_00(outfile, states, wins)) {
+        std::cerr << "Error writing out file " << output_path << ".\n";
     }
 
     return 0;
@@ -77,7 +72,7 @@ void generate_loop(std::atomic<int> &count, int bundle, const std::string &fileb
         s << filebase << "_bool" << std::setfill('0') << std::setw(5) << my_count;
         s >> bool_outs;
 
-        if (generate_examples(ab, bundle, hex_outs, bool_outs)) {
+        if (generate_examples(ab, bundle, hex_outs)) {
             std::cout << "AAAAAAAAAAAAAAAAAA\n";
         }
         std::cout << "finishing " << my_count << "\n";
