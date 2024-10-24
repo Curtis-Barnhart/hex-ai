@@ -1,18 +1,28 @@
+/*
+ * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
+ * This file is part of hex-ai.
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
+#include <istream>
+#include <ostream>
 #include <string>
 #include <vector>
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/details/helpers.hpp>
 
 #include "hex-ai/Util/FileIO/file_types.hpp"
-#include "cereal/details/helpers.hpp"
 #include "hex-ai/GameState/HexState.hpp"
 
 using std::ifstream;
 using std::ofstream;
+using std::ostream;
+using std::istream;
 using std::string;
 using std::vector;
 using GameState::HexState;
@@ -29,43 +39,46 @@ void Util::FileIO::info_file(
     enum { VERSIONED_FILE = 1, UNVERSIONED_FILE = 2, NOT_A_FILE = 4 };
     uint8_t claimed_filetype, claimed_version;
     unsigned int real_filetype;
-    ifstream infile(filename);
+    ifstream in_stream(filename, ifstream::binary);
 
     std::printf("file '%s':\n", filename.c_str());
 
     // verify file could even be opened
-    if (!infile.good()) {
+    if (!in_stream.good()) {
         std::printf("    ERROR: file could not be opened for reading.\n");
         return;
     }
 
-    cereal::BinaryInputArchive cereal_in(infile);
-    // look for the filetype and version number
-    try {
-        cereal_in(claimed_filetype);
-        if (claimed_filetype >= Util::FileIO::HEX_FILE_TYPE::END) {
+    {
+        cereal::BinaryInputArchive cereal_in(in_stream);
+        // look for the filetype and version number
+        try {
+            cereal_in(claimed_filetype);
+            if (claimed_filetype >= Util::FileIO::HEX_FILE_TYPE::END) {
+                real_filetype = UNVERSIONED_FILE | NOT_A_FILE;
+            } else {
+                real_filetype = VERSIONED_FILE | UNVERSIONED_FILE | NOT_A_FILE;
+            }
+            cereal_in(claimed_version);
+        } catch (cereal::Exception &) {
             real_filetype = UNVERSIONED_FILE | NOT_A_FILE;
-        } else {
-            real_filetype = VERSIONED_FILE | UNVERSIONED_FILE | NOT_A_FILE;
         }
-        cereal_in(claimed_version);
-    } catch (cereal::Exception &) {
-        real_filetype = UNVERSIONED_FILE | NOT_A_FILE;
     }
 
     // try to interpret the file as though it is a versioned file
     if (real_filetype & VERSIONED_FILE) {
         vector<HexState> states;
         vector<bool> bools;
+
         switch (claimed_filetype) {
             case Util::FileIO::HEX_FILE_TYPE::GAMESTATE:
                 switch (claimed_version) {
                     case 1:
-                        if (!read_gamestate_01(filename, states)) {
+                        if (!read_gamestate_01(in_stream, states)) {
                             std::printf("    type: GAMESTATE\n");
                             std::printf("    version: 1\n");
                             std::printf("    data:\n");
-                            std::printf("         states : %zu\n", states.size());
+                            std::printf("         states: %zu\n", states.size());
                             return;
                         }
                         break;
@@ -74,15 +87,27 @@ void Util::FileIO::info_file(
             case Util::FileIO::HEX_FILE_TYPE::BOOL:
                 switch (claimed_version) {
                     case 1:
-                        if (!read_bools_01(filename, bools)) {
+                        if (!read_bools_01(in_stream, bools)) {
                             std::printf("    type: BOOL\n");
                             std::printf("    version: 1\n");
                             std::printf("    data:\n");
-                            std::printf("         bools : %zu\n", bools.size());
+                            std::printf("         bools: %zu\n", bools.size());
                             return;
                         }
                 }
                 break;
+            case Util::FileIO::HEX_FILE_TYPE::GAMESTATE_BOOL:
+                switch (claimed_version) {
+                    case 0:
+                        if (!read_gamestate_bools_00(in_stream, states, bools)) {
+                            std::printf("    type: GAMESTATE_BOOL\n");
+                            std::printf("    version: 0\n");
+                            std::printf("    data:\n");
+                            std::printf("        states: %zu\n", states.size());
+                            std::printf("        bools: %zu\n", bools.size());
+                            return;
+                        }
+                }
         }
     }
 
@@ -90,8 +115,10 @@ void Util::FileIO::info_file(
     // which means it is either versioned or not a good file at all
     // we will just trial and error through all unversioned file types we know.
     { // GAMESTATE VERSION 0
+        in_stream.clear();
+        in_stream.seekg(0);
         vector<HexState> states;
-        unsigned int error = read_gamestate_00(filename, states);
+        unsigned int error = read_gamestate_00(in_stream, states);
 
         switch (error) {
             case 0:
@@ -106,8 +133,10 @@ void Util::FileIO::info_file(
         }
     }
     { // BOOL VERSION 0
+        in_stream.clear();
+        in_stream.seekg(0);
         vector<bool> bools;
-        unsigned int error = read_bools_00(filename, bools);
+        unsigned int error = read_bools_00(in_stream, bools);
 
         switch (error) {
             case 0:
@@ -127,53 +156,79 @@ void Util::FileIO::info_file(
     std::printf("    ERROR: file content is corrupted and cannot be interpreted\n");
 }
 
+/*****************************************
+ * GAMESTATE files below                 *
+ ****************************************/
+
 unsigned int Util::FileIO::read_gamestate_00(
-    const string &filename,
+    istream &in,
     vector<HexState> &states
 ) {
-    ifstream ifile(filename);
-
-    if (!ifile.good()) {
-        return 1;
-    }
-
-    cereal::BinaryInputArchive in_archive(ifile);
-    int32_t count;
-
     try {
+        cereal::BinaryInputArchive in_archive(in);
+        int32_t count;
+
         in_archive(count);
         while (count-->0) {
             states.emplace_back();
             in_archive(states.back());
-            if (!states.back().verify_board_state()) {
-                return 2;
-            }
         }
     } catch (cereal::Exception &) {
-        return 2;
+        return 1;
     }
 
     return 0;
 }
 
-unsigned int Util::FileIO::read_bools_00(
-    const string &filename,
-    vector<bool> &bools
+unsigned int Util::FileIO::read_gamestate_01(
+    istream &in,
+    vector<HexState> &states
 ) {
-    ifstream ifile(filename);
-
-    if (!ifile.good()) {
+    try {
+        cereal::BinaryInputArchive in_archive(in);
+        in_archive(states);
+    } catch (cereal::Exception &) {
         return 1;
     }
 
-    cereal::BinaryInputArchive in_archive(ifile);
-    
-    char b;
+    return 0;
+}
+
+unsigned int Util::FileIO::write_gamestate_01(
+    ostream &out,
+    const vector<HexState> &states
+) {
+    uint8_t file_type = Util::FileIO::GAMESTATE;
+    uint8_t file_version = 1;
+
     try {
+        cereal::BinaryOutputArchive out_archive(out);
+        out_archive(file_type);
+        out_archive(file_version);
+        out_archive(states);
+    } catch (cereal::Exception &) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/*****************************************
+ * BOOL files below                      *
+ ****************************************/
+
+unsigned int Util::FileIO::read_bools_00(
+    istream &in,
+    vector<bool> &bools
+) {
+    try {
+        cereal::BinaryInputArchive in_archive(in);
+        char b;
+
         while (true) {
             in_archive(b);
             if (b != '0' && b != '1') {
-                return 2;
+                return 1;
             }
             bools.emplace_back(b == '1');
         }
@@ -184,112 +239,72 @@ unsigned int Util::FileIO::read_bools_00(
     return 0;
 }
 
-unsigned int Util::FileIO::read_gamestate_01(
-    const string &filename,
-    vector<HexState> &states
-) {
-    ifstream ifile(filename);
-
-    if (!ifile.good()) {
-        return 1;
-    }
-
-    uint8_t file_type;
-    uint8_t file_version;
-
-    cereal::BinaryInputArchive in_archive(ifile);
-
-    try {
-        in_archive(file_type);
-        if (file_type != Util::FileIO::GAMESTATE) {
-            return 2;
-        }
-        in_archive(file_version);
-        if (file_version != 1) {
-            return 3;
-        }
-        in_archive(states);
-    } catch (cereal::Exception &) {
-        return 4;
-    }
-    
-    return 0;
-}
-
-unsigned int Util::FileIO::write_gamestate_01(
-    const string &filename,
-    const vector<HexState> &states
-) {
-    ofstream ofile(filename);
-
-    if (!ofile.good()) {
-        return 1;
-    }
-
-    uint8_t file_type = Util::FileIO::GAMESTATE;
-    uint8_t file_version = 1;
-
-    cereal::BinaryOutputArchive out_archive(ofile);
-
-    out_archive(file_type);
-    out_archive(file_version);
-
-    out_archive(states);
-    
-    return 0;
-}
-
 unsigned int Util::FileIO::read_bools_01(
-    const string &filename,
+    istream &in,
     vector<bool> &bools
 ) {
-    ifstream ifile(filename);
-
-    if (!ifile.good()) {
-        return 1;
-    }
-
-    uint8_t file_type;
-    uint8_t file_version;
-
-    cereal::BinaryInputArchive in_archive(ifile);
-
     try {
-        in_archive(file_type);
-        if (file_type != Util::FileIO::BOOL) {
-            return 2;
-        }
-        in_archive(file_version);
-        if (file_version != 1) {
-            return 3;
-        }
+        cereal::BinaryInputArchive in_archive(in);
         in_archive(bools);
     } catch (cereal::Exception &) {
-        return 4;
+        return 1;
     }
     
     return 0;
 }
 
 unsigned int Util::FileIO::write_bools_01(
-    const string &filename,
+    ostream &out,
     const vector<bool> &bools
 ){
-    ofstream ofile(filename);
-
-    if (!ofile.good()) {
-        return 1;
-    }
-
     uint8_t file_type = Util::FileIO::BOOL;
     uint8_t file_version = 1;
 
-    cereal::BinaryOutputArchive out_archive(ofile);
-
-    out_archive(file_type);
-    out_archive(file_version);
-    out_archive(bools);
+    try {
+        cereal::BinaryOutputArchive out_archive(out);
+        out_archive(file_type);
+        out_archive(file_version);
+        out_archive(bools);
+    } catch (cereal::Exception &) {
+        return 1;
+    }
     
+    return 0;
+}
+
+unsigned int Util::FileIO::read_gamestate_bools_00(
+    istream &in,
+    vector<HexState> &states,
+    vector<bool> &bools
+) {
+    try {
+        cereal::BinaryInputArchive in_archive(in);
+        in_archive(states);
+        in_archive(bools);
+    } catch (cereal::Exception &) {
+        return 1;
+    }
+
+    return 0;
+}
+
+unsigned int Util::FileIO::write_gamestate_bools_00(
+    ostream &out,
+    const vector<HexState> &states,
+    const vector<bool> &bools
+) {
+    uint8_t file_type = Util::FileIO::GAMESTATE_BOOL, file_version = 0;
+
+    try {
+        cereal::BinaryOutputArchive out_archive(out);
+        out_archive(file_type);
+        out_archive(file_version);
+        out_archive(states);
+        out_archive(bools);
+    } catch (cereal::Exception &) {
+        return 1;
+    }
+
     return 0;
 }
 
