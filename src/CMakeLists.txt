@@ -15,6 +15,12 @@ add_library(
     Players/util.cpp
 )
 
+target_include_directories(
+    hex-ai-core
+    PUBLIC
+    ../extern/cereal/include/
+)
+
 # we want to add a compilation feature to one of our targets (hex-ai-core).
 # we add a feature that uses C++20.
 target_compile_features(

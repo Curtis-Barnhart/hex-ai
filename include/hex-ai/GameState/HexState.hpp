@@ -9,7 +9,6 @@
 #ifndef GAMES_HEX_HEXSTATE_HPP
 #define GAMES_HEX_HEXSTATE_HPP
 
-#include "cereal/details/helpers.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +16,8 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+
+#include <cereal/cereal.hpp>
 
 #define BOARD_SIZE 11
 

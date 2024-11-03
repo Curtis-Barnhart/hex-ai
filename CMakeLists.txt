@@ -11,18 +11,6 @@ project(
     LANGUAGES CXX
 )
 
-# This is where tiny-dnn lives
-add_subdirectory("extern/tiny-dnn")
-# And also do an include_directories so we can reference it with absolute path
-include_directories("${tiny_dnn_SOURCE_DIR}")
-
-# This is where cereal lives -
-# It is commented out because it is header only and we don't care about
-# building its tests or anything.
-# add_subdirectory("extern/cereal")
-# And also do an include_directories so we can reference it with absolute path
-include_directories("extern/cereal/include/cereal")
-
 # we want to set a sort of "root directory" so that all our includes
 # don't have to be goofy relative path messes
 # by using "include_directories" we can set a directory to include everything from
