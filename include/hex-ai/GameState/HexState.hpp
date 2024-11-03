@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 #include <cereal/cereal.hpp>
@@ -245,6 +246,8 @@ public:
     * a player could claim as their next move.
     */
     void get_actions(std::vector<Action> &buffer) const;
+
+    void simple_string(std::ostream &out) const;
 
     /**
      * Serializes a HexState instance to a cereal archive

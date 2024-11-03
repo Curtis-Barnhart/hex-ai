@@ -296,6 +296,16 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
     }
 }
 
+void GameState::HexState::simple_string(std::ostream &out) const {
+    out << "{";
+    for (int x = 0; x < BOARD_SIZE; x++) {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            out << this->board[x][y];
+        }
+    }
+    out << "}";
+}
+
 HexState::PLAYERS HexState::at(int x, int y) const {
     return this->board[x][y];
 }
