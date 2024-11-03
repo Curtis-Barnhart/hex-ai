@@ -1,8 +1,6 @@
 /*
  * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
- *
  * This file is part of hex-ai.
- *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -336,6 +334,13 @@ bool HexState::verify_board_state() {
                 return 0;
             }
         }
+    }
+    if (
+        this->turn != HexState::PLAYER_ONE &&
+        this->turn != HexState::PLAYER_TWO &&
+        this->turn != HexState::PLAYER_NONE
+    ) {
+        return 0;
     }
     return 1;
 }
