@@ -304,9 +304,7 @@ public:
                 }
 
                 value = (pack4 & 0xc0) >> 6;
-                if (value > HexState::PLAYER_NONE) {
-                    throw cereal::Exception("Bad HexState value.");
-                }
+                // okay to cast - we check correctness later
                 this->board[x][y] = static_cast<HexState::PLAYERS>(value);
                 pack4 <<= 2;
                 packed_in--;
@@ -318,10 +316,11 @@ public:
         // (so that there are "remainder" spots and you don't need to get
         // another byte to read in the turn)
         value = (pack4 & 0xc0) >> 6;
-        if (value > HexState::PLAYER_NONE) {
-            throw cereal::Exception("Bad HexState value.");
-        }
+        // okay to cast - we check correctness later
         this->turn = static_cast<HexState::PLAYERS>(value);
+        if (!this->verify_board_state()) {
+            throw cereal::Exception("Bad HexState value in cereal import.");
+        }
     }
 
     /**
