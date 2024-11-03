@@ -15,7 +15,7 @@ using GameState::HexState::PLAYERS::PLAYER_ONE;
 using GameState::HexState::PLAYERS::PLAYER_TWO;
 using GameState::HexState::PLAYERS::PLAYER_NONE;
 
-int main (int argc, char *argv[]) {
+int main () {
     GameState::HexState state;
     GameState::HexState::Action a;
 
