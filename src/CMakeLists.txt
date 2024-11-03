@@ -1,10 +1,6 @@
-#
 # Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
-#
 # This file is part of hex-ai.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
 
 ################################
 # main library                 #
@@ -68,36 +64,6 @@ target_link_libraries(
 )
 
 ################################
-# for combining game data      #
-################################
-
-# add_executable(
-#     file_combine
-#     file_combine.cpp
-#     Util/generated_games_combiner.cpp
-#     GameState/HexState.cpp
-#     GameSolve/HexUtil.cpp
-#     GameState/io.cpp
-# )
-
-# # we want to add a compilation feature to one of our targets (main).
-# # we add a feature that uses C++20.
-# target_compile_features(
-#     file_combine
-#     PRIVATE
-#     cxx_std_20
-# )
-
-# # we want to set some compilation options (for how many warnings to show).
-# target_compile_options(
-#     file_combine 
-#     PRIVATE 
-#     -Wall 
-#     -Wextra 
-#     -Wpedantic
-# )
-
-################################
 # verify gamestate file valid  #
 ################################
 
@@ -127,34 +93,6 @@ target_link_libraries(
     verify_game_file
     hex-ai-core
 )
-
-################################
-# training nerual network      #
-################################
-
-# add_executable(
-#     train_bottom_model
-#     train_bottom_model.cpp
-#     GameState/HexState.cpp
-#     GameState/io.cpp
-# )
-
-# # we want to add a compilation feature to one of our targets (main).
-# # we add a feature that uses C++20.
-# target_compile_features(
-#     train_bottom_model
-#     PRIVATE
-#     cxx_std_14
-# )
-
-# # we want to set some compilation options (for how many warnings to show).
-# target_compile_options(
-#     train_bottom_model 
-#     PRIVATE 
-#     -Wall 
-#     -Wextra 
-#     -Wpedantic
-# )
 
 ################################
 # two player hex               #
