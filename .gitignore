@@ -12,9 +12,13 @@ docs/config/Doxyfile.bak
 .cache/
 CMakeFiles/
 CMakeCache.txt
-# used for integration with clangd
-compile_commands.json
 
-# dirs for generated data
-data/
+# used for integration with clangd
+**/compile_commands.json
+
+# Python byte code
+**/__pycache__
+
+# tensorflow record dataset files
+*.tfrec
 
