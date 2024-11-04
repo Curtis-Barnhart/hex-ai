@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
                     in_paths.emplace_back(argv[x]);
                 }
                 string out_path(argv[argc - 2]);
-                combine_gamestate_bool_00(in_paths, out_path);
+                return combine_gamestate_bool_00(in_paths, out_path);
             }
         default:
             std::cerr << "hex-ai: file_combine does not recognize flag.\n";

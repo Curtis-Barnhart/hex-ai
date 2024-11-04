@@ -18,6 +18,9 @@ using std::string;
 using GameState::HexState;
 
 int main (int argc, char *argv[]) {
+    if (argc != 4) {
+        std::cerr << "hex-ai: hexstate_to_string takes exactly 3 arguments.\n";
+    }
     vector<HexState> states;
     vector<bool> bools;
 
