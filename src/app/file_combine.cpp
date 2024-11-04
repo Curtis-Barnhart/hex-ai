@@ -26,13 +26,13 @@ int combine_gamestate_bool_00(const vector<string> &in_paths, string &out_path) 
     // Open all files and print out errors if any couldn't be opened and return 1
     for (const string &s : in_paths) {
         in_files.emplace_back(s);
-        if (!in_files.back()) {
+        if (!in_files.back().good()) {
             std::cerr << "hex-ai: File " << s << " could not be opened for reading.\n";
             file_errors = true;
         }
     }
-    if (!out_file) {
-        std::cerr << "hex-ai: File " << out_path << " could not be opened for reading.\n";
+    if (!out_file.good()) {
+        std::cerr << "hex-ai: File " << out_path << " could not be opened for writing.\n";
         file_errors = true;
     }
     if (file_errors) {
@@ -82,15 +82,17 @@ int main(int argc, char *argv[]) {
     switch (*argv[1]) {
         case 'c':
             {
+                // last argument is the output filename
+                // all other arguments are input files
                 if (argc < 5) {
                     std::cerr << "hex-ai: file_combine combining requires at least 3 additional arguments.\n";
                     return 1;
                 }
                 vector<string> in_paths;
-                for (int x = 2; x < argc; x++) {
+                for (int x = 2; x < argc - 1; x++) {
                     in_paths.emplace_back(argv[x]);
                 }
-                string out_path(argv[argc - 2]);
+                string out_path(argv[argc - 1]);
                 return combine_gamestate_bool_00(in_paths, out_path);
             }
         default:
