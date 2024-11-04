@@ -32,5 +32,8 @@ if __name__ == "__main__":
     dataset_size = sum(1 for _ in dataset)
     print("Loaded in {:d} records.".format(dataset_size))
 
-    model.fit(infinite_dataset, steps_per_epoch=dataset_size, epochs=3)
+    batch_size: int = 128
+    steps: int = dataset_size // batch_size
+
+    model.fit(infinite_dataset, batch_size=batch_size, steps_per_epoch=steps, epochs=3)
 

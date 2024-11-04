@@ -55,6 +55,7 @@ int main (int argc, char *argv[]) {
     }
     for (bool b: bools) {
         py_bools << (b ? '1' : '0');
+        py_bools << '\n';
     }
 
     return 0;

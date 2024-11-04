@@ -5,12 +5,10 @@ import numpy as np
 import tensorflow as tf
 
 
-def read_in_bools(filename: str) -> np.ndarray:
+def read_in_bools(filename: str) -> Generator[np.ndarray, None, None]:
     with open(filename, "r") as file:
-        values = np.array([(int(char),) for char in file.read()])
-
-    print(f"hex-ai: reading in {values.shape} bools")
-    return values
+        for line in file:
+            yield np.array((int(line[0]),))
 
 
 def read_in_states(filename: str) -> Generator[np.ndarray, None, None]:
@@ -65,7 +63,7 @@ def _parse_from_proto(proto):
 
 
 def read_from_tfrecords(input_filenames: Iterable[str]):
-    ds = tf.data.TFRecordDataset(input_filenames)
+    ds = tf.data.TFRecordDataset(input_filenames, buffer_size=100000000, num_parallel_reads=16)
     ds = ds.map(_parse_from_proto)
     return ds
 
