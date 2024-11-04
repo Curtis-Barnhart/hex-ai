@@ -297,13 +297,22 @@ void HexState::get_actions(std::vector<Action> &buffer) const {
 }
 
 void GameState::HexState::simple_string(std::ostream &out) const {
-    out << "{";
     for (int x = 0; x < BOARD_SIZE; x++) {
         for (int y = 0; y < BOARD_SIZE; y++) {
-            out << this->board[x][y];
+            switch (this->board[x][y]) {
+                case HexState::PLAYER_ONE:
+                    out << "1";
+                    break;
+                case HexState::PLAYER_TWO:
+                    out << "2";
+                    break;
+                case HexState::PLAYER_NONE:
+                    out << "0";
+                    break;
+            }
         }
     }
-    out << "}";
+    out << ";";
 }
 
 HexState::PLAYERS HexState::at(int x, int y) const {
@@ -312,21 +321,21 @@ HexState::PLAYERS HexState::at(int x, int y) const {
 
 HexState &HexState::flip(HexState::AXIS axis) {
     switch (axis) {
-        case GameState::HexState::HORIZONTAL:
+        case HexState::HORIZONTAL:
             for (int x = 0; x < BOARD_SIZE / 2; x++) {
                 for (int y = 0; y < BOARD_SIZE; y++) {
                     std::swap(this->board[x][y], this->board[BOARD_SIZE - x - 1][y]);
                 }
             }
             break;
-        case GameState::HexState::VERTICAL:
+        case HexState::VERTICAL:
             for (int x = 0; x < BOARD_SIZE; x++) {
                 for (int y = 0; y < BOARD_SIZE / 2; y++) {
                     std::swap(this->board[x][y], this->board[x][BOARD_SIZE - y - 1]);
                 }
             }
             break;
-        case GameState::HexState::BOTH:
+        case HexState::BOTH:
             return (*this).flip(HexState::AXIS::VERTICAL).flip(HexState::AXIS::HORIZONTAL);
     }
     return *this;
