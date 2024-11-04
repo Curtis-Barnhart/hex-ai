@@ -301,18 +301,18 @@ void GameState::HexState::simple_string(std::ostream &out) const {
         for (int y = 0; y < BOARD_SIZE; y++) {
             switch (this->board[x][y]) {
                 case HexState::PLAYER_ONE:
-                    out << "1";
+                    out << '1';
                     break;
                 case HexState::PLAYER_TWO:
-                    out << "2";
+                    out << '2';
                     break;
                 case HexState::PLAYER_NONE:
-                    out << "0";
+                    out << '0';
                     break;
             }
         }
     }
-    out << ";";
+    out << '\n';
 }
 
 HexState::PLAYERS HexState::at(int x, int y) const {
