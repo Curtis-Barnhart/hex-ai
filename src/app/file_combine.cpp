@@ -4,14 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-#include <algorithm>
-#include <cstddef>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-
 
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/Util/FileIO/file_types.hpp"
@@ -21,87 +18,84 @@ using std::vector;
 using std::string;
 using GameState::HexState;
 
-int main () {
-    vector<HexState> states;
-    vector<bool> bools;
-    std::ifstream file("/home/curtisb/hex-type-test/all_data", std::ifstream::binary);
-    if (!file.good()) {
-        std::printf("double bruh\n");
+int combine_gamestate_bool_00(const vector<string> &in_paths, string &out_path) {
+    bool file_errors = false;
+    vector<std::ifstream> in_files;
+    std::ofstream out_file(out_path);
+
+    // Open all files and print out errors if any couldn't be opened and return 1
+    for (const string &s : in_paths) {
+        in_files.emplace_back(s);
+        if (!in_files.back()) {
+            std::cerr << "hex-ai: File " << s << " could not be opened for reading.\n";
+            file_errors = true;
+        }
     }
-
-    file.seekg(2);
-
-    if (Util::FileIO::read_gamestate_bools_00(file, states, bools)) {
-        printf("bruh\n");
+    if (!out_file) {
+        std::cerr << "hex-ai: File " << out_path << " could not be opened for reading.\n";
+        file_errors = true;
+    }
+    if (file_errors) {
         return 1;
     }
 
-    file.close();
-    
-    std::ofstream py_states("py_states.txt"), py_bools("py_bools.txt");
-
-    if (!(py_states && py_bools)) {
-        std::printf("Error opening writing files.\n");
+    // read in all files one by one
+    // only throw an error after we've tried to read in as many as possible
+    // to try and give as many errors as can be given at once
+    std::vector<bool> bools;
+    std::vector<GameState::HexState> states;
+    for (size_t x = 0; x < in_files.size(); x++) {
+        std::vector<bool> bools_buff;
+        std::vector<GameState::HexState> states_buff;
+        // We assume the file given was actually a
+        // gamestate_bool version 0 (we can fix later)
+        in_files.at(x).seekg(2);
+        if (Util::FileIO::read_gamestate_bools_00(
+            in_files.at(x), states_buff, bools_buff
+        )) {
+            std::cerr << "hex-ai: File " << in_paths.at(x) << " was corrupted and could not be read.\n";
+            file_errors = true;
+        } else {
+            bools.insert(bools.end(), bools_buff.begin(), bools_buff.end());
+            states.insert(states.end(), states_buff.begin(), states_buff.end());
+        }
+    }
+    if (file_errors) {
+        return 1;
     }
 
-    for (HexState &h : states) {
-        h.simple_string(py_states);
-    }
-    for (bool b: bools) {
-        py_bools << (b ? '1' : '0');
+    // attempt to write out all values
+    if (Util::FileIO::write_gamestate_bools_00(out_file, states, bools)) {
+        std::cerr << "hex-ai: File " << out_path << " was corrupted and could not be read.\n";
+        return 1;
     }
 
     return 0;
 }
 
-int not_main (int argc, char *argv[]) {
-    std::vector<std::string> inputs;
-    for (int x = 1; x < argc - 1; x++) {
-        inputs.emplace_back(argv[x]);
-    }
-    std::string output(argv[argc - 1]);
-
-    std::vector<bool> bools;
-    std::vector<GameState::HexState> states;
-
-    if (std::any_of(
-        inputs.begin(),
-        inputs.begin() + 3,
-        [&states](std::string &fname) {
-            std::ifstream s(fname, std::ifstream::binary);
-            std::vector<GameState::HexState> local;
-            s.seekg(2);
-            unsigned int error = Util::FileIO::read_gamestate_01(s, local);
-            states.insert(states.end(), local.begin(), local.end());
-            return error;
-        }
-    )) {
-        std::printf("ERROR READING (I'm not telling what though)\n");
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        std::cerr << "hex-ai: file_combine requires at least 1 argument.\n";
         return 1;
     }
 
-    if (std::any_of(
-        inputs.begin() + 3,
-        inputs.begin() + 6,
-        [&bools](std::string &fname) {
-            std::ifstream s(fname);
-            std::vector<bool> local;
-            s.seekg(2);
-            unsigned int error = Util::FileIO::read_bools_01(s, local);
-            bools.insert(bools.end(), local.begin(), local.end());
-            return error;
-        }
-    )) {
-        std::printf("ERROR READING (I'm not telling what though)\n");
-        return 1;
+    switch (*argv[1]) {
+        case 'c':
+            {
+                if (argc < 5) {
+                    std::cerr << "hex-ai: file_combine combining requires at least 3 additional arguments.\n";
+                    return 1;
+                }
+                vector<string> in_paths;
+                for (int x = 2; x < argc; x++) {
+                    in_paths.emplace_back(argv[x]);
+                }
+                string out_path(argv[argc - 2]);
+                combine_gamestate_bool_00(in_paths, out_path);
+            }
+        default:
+            std::cerr << "hex-ai: file_combine does not recognize flag.\n";
+            return 1;
     }
-
-    std::ofstream s(output, std::ofstream::binary);
-    if (Util::FileIO::write_gamestate_bools_00(s, states, bools)) {
-        std::printf("ERROR WRITING (I'm not telling what though)\n");
-        return 1;
-    }
-
-    return 0;
 }
 

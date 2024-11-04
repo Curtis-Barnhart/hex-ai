@@ -131,6 +131,10 @@ target_link_libraries(
     hex-ai-core
 )
 
+################################
+# combine/split data files     #
+################################
+
 add_executable(
     file_combine
     app/file_combine.cpp
@@ -155,6 +159,37 @@ target_compile_options(
 
 target_link_libraries(
     file_combine
+    hex-ai-core
+)
+
+################################
+# output data file to text     #
+################################
+
+add_executable(
+    hexstate_to_string
+    app/hexstate_to_string.cpp
+)
+
+# we want to add a compilation feature to one of our targets (main).
+# we add a feature that uses C++20.
+target_compile_features(
+    hexstate_to_string
+    PRIVATE
+    cxx_std_20
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    hexstate_to_string 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+
+target_link_libraries(
+    hexstate_to_string
     hex-ai-core
 )
 
