@@ -41,7 +41,8 @@ def write_to_tfrecord(data: Iterable[np.ndarray], labels: Iterable[np.ndarray], 
     # data shape: (x, 363)
     # labels shape: (x, 1)
     print("hex-ai: Writing tfrecord to " + filename)
-    with tf.io.TFRecordWriter(filename) as writer:
+    options = tf.io.TFRecordOptions(compression_type="GZIP")
+    with tf.io.TFRecordWriter(filename, options=options) as writer:
         for feature_array, label_array in zip(data, labels):
             feature = {
                 "feature": tf.train.Feature(int64_list=tf.train.Int64List(value=feature_array)),
@@ -67,7 +68,7 @@ def _parse_from_proto(proto):
 
 
 def read_from_tfrecords(input_filenames: Iterable[str]):
-    ds = tf.data.TFRecordDataset(input_filenames, buffer_size=100000000, num_parallel_reads=16)
+    ds = tf.data.TFRecordDataset(input_filenames, buffer_size=100000000, num_parallel_reads=16, compression_type="GZIP")
     ds = ds.map(_parse_from_proto)
     return ds
 
