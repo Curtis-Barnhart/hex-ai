@@ -12,6 +12,8 @@ add_library(
     GameSolve/AlphaBeta.cpp
     GameSolve/HexUtil.cpp
     Util/FileIO/file_types.cpp
+    Util/FileIO/GamestateBool_1.cpp
+    Util/FileIO/info_file.cpp
     Players/util.cpp
 )
 
