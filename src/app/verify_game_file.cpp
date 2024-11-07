@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <string>
 
-#include "hex-ai/Util/FileIO/file_types.hpp"
+#include "hex-ai/Util/FileIO/info_file.hpp"
 
 int main (int argc, char *argv[]) {
     for (int x = 1; x < argc; x++) {
