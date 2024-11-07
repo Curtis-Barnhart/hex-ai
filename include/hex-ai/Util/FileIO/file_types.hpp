@@ -7,38 +7,13 @@
 #ifndef UTIL_FILE_IO_HPP
 #define UTIL_FILE_IO_HPP
 
-#include <cstdint>
 #include <ostream>
-#include <string>
+#include <istream>
 #include <vector>
 
 #include "hex-ai/GameState/HexState.hpp"
 
 namespace Util::FileIO {
-
-/**
- * HEX_FILE_TYPE is an enum listing every type of file I want to record.
- * Hopefully the first byte of every file should contain the type it is
- * but because old me was stupid and lazy and needed something quickly
- * I already know some files won't... :(
- *
- * END is a special value which marks the highest value in the enum.
- */
-enum HEX_FILE_TYPE: uint8_t {
-    UNRECOGNIZED,
-    GAMESTATE,
-    BOOL,
-    GAMESTATE_BOOL,
-    END
-};
-
-/**
- * info_gamestate_00 prints out information about a GAMESTATE
- * version 0 file to stdout.
- *
- * @param filename path to the file to analyze.
- */
-void info_file(const std::string &filename);
 
 /**
  * read_gamestate_00 reads a GAMESTATE version 0 istream
