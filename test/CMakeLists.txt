@@ -1,16 +1,10 @@
-#
 # Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
-#
 # This file is part of hex-ai.
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-#
 
 add_executable(
     test_HexState 
     test_HexState.cpp
-    "../src/GameState/HexState.cpp"
-    "../src/GameSolve/HexUtil.cpp"
 )
 
 # we want to add a compilation feature to one of our targets (test_HexState).
@@ -30,7 +24,12 @@ target_compile_options(
     -Wpedantic
 )
 
-target_link_libraries(test_HexState gtest gtest_main)
+target_link_libraries(
+    test_HexState
+    hex-ai-core
+    gtest
+    gtest_main
+)
 add_test(
     NAME test_HexState
     COMMAND test_HexState
@@ -40,8 +39,6 @@ add_test(
 add_executable(
     test_HexStateIO
     test_HexStateIO.cpp
-    "../src/GameState/HexState.cpp"
-    "../src/GameSolve/HexUtil.cpp"
 )
 
 # we want to add a compilation feature to one of our targets (test_HexStateIO).
@@ -61,7 +58,12 @@ target_compile_options(
     -Wpedantic
 )
 
-target_link_libraries(test_HexStateIO gtest gtest_main)
+target_link_libraries(
+    test_HexStateIO 
+    hex-ai-core
+    gtest 
+    gtest_main
+)
 add_test(
     NAME test_HexStateIO
     COMMAND test_HexStateIO
