@@ -23,11 +23,10 @@ using Writer = Util::FileIO::GamestateBool1Writer;
 using GameState::HexState;
 
 Reader::GamestateBool1Reader(istream &stream) : stream(stream) {
-    uint32_t size;
+    uint8_t more_left;
     try {
-        this->stream(size);
-        this->size = size;
-        if (size == 0) {
+        this->stream(more_left);
+        if (!more_left) {
             this->error_state = Reader::EMPTY;
         }
     } catch (cereal::Exception &) {
@@ -35,11 +34,8 @@ Reader::GamestateBool1Reader(istream &stream) : stream(stream) {
     }
 }
 
-unsigned int Reader::left() const {
-    return this->size;
-}
-
 unsigned int Reader::pop(HexState &state, bool &b) {
+    uint8_t more_left;
     if (this->error_state) {
         return this->error_state;
     }
@@ -47,13 +43,13 @@ unsigned int Reader::pop(HexState &state, bool &b) {
     try {
         this->stream(state);
         this->stream(b);
-        this->size--;
+        this->stream(more_left);
     } catch (cereal::Exception &) {
         this->error_state = Reader::BAD_READ;
         return this->error_state;
     }
 
-    if (this->size == 0) {
+    if (!more_left) {
         this->error_state = Reader::EMPTY;
     } 
 
@@ -64,25 +60,19 @@ unsigned int Reader::read_err() const {
     return this->error_state;
 }
 
-Writer::GamestateBool1Writer(ostream &stream, unsigned int reserved)
-    : stream(stream), size(reserved)
-{
+Writer::GamestateBool1Writer(ostream &stream) : stream(stream) {
     uint8_t file_type = Util::FileIO::GAMESTATE_BOOL, file_version = 1;
-    uint32_t size_to_write = reserved;
     try {
         this->stream(file_type);
         this->stream(file_version);
-        this->stream(size_to_write);
-        if (reserved == 0) {
-            this->error_state = Writer::FULL;
-        }
     } catch (cereal::Exception &) {
         this->error_state = Writer::BAD_WRITE;
     }
 }
 
-unsigned int Writer::left() const {
-    return this->size;
+Writer::~GamestateBool1Writer() {
+    uint8_t more_left = 0;
+    this->stream(more_left);
 }
 
 unsigned int Writer::push(const HexState &state, const bool &b) {
@@ -90,17 +80,15 @@ unsigned int Writer::push(const HexState &state, const bool &b) {
         return this->error_state;
     }
 
+    uint8_t more_left = 1;
+
     try {
+        this->stream(more_left);
         this->stream(state);
         this->stream(b);
-        this->size--;
     } catch (cereal::Exception &) {
         this->error_state = Writer::BAD_WRITE;
         return this->error_state;
-    }
-
-    if (this->size == 0) {
-        this->error_state = Writer::CLEAR;
     }
 
     return Writer::CLEAR;

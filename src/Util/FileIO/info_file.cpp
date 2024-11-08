@@ -21,10 +21,11 @@ using Util::FileIO::GamestateBool1Reader;
 unsigned int analyze_gamestatebool1(ifstream &stream) {
     HexState h;
     bool b;
+    int x = 0;
     GamestateBool1Reader reader(stream);
-    int x = reader.left();
-    while (reader.left() && !reader.read_err()) {
+    while (reader.read_err() == GamestateBool1Reader::CLEAR) {
         reader.pop(h, b);
+        x++;
     }
     // if the reader was fully emptied without any other error
     if (reader.read_err() == GamestateBool1Reader::EMPTY) {
@@ -33,6 +34,7 @@ unsigned int analyze_gamestatebool1(ifstream &stream) {
         std::printf("    data:\n");
         std::printf("        states: %d\n", x);
         std::printf("        bools: %d\n", x);
+        return 0;
     }
     return 1;
 }

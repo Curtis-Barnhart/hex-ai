@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <cstdio>
+#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -17,7 +18,7 @@
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 #include "hex-ai/GameSolve/HexUtil.hpp"
-#include "hex-ai/Util/FileIO/file_types.hpp"
+#include "hex-ai/Util/FileIO/GamestateBool_1.hpp"
 
 using State = GameState::HexState;
 using Action = GameState::HexState::Action;
@@ -27,11 +28,10 @@ int generate_examples(
     int n,
     const std::string &output_path
 ) {
-    std::vector<State> states;
-    std::vector<bool> wins;
-    states.reserve(n);
-    wins.reserve(n);
+    std::ofstream outfile(output_path);
+    Util::FileIO::GamestateBool1Writer writer(outfile);
     State s;
+    bool b;
     
     // N times, create board state, solve it, and write down result.
     for (int x = 0; x < n; x++) {
@@ -42,13 +42,10 @@ int generate_examples(
         } while (s.who_won() != GameState::HexState::PLAYERS::PLAYER_NONE);
         
         // calculate outcome and write it down
-        wins.push_back(ab.one_wins_one_turn(s));
-        states.push_back(s);
-    }
-
-    std::ofstream outfile(output_path);
-    if (Util::FileIO::write_gamestate_bools_00(outfile, states, wins)) {
-        std::cerr << "Error writing out file " << output_path << ".\n";
+        b = ab.one_wins_one_turn(s);
+        if (writer.push(s, b)) {
+            throw std::exception();
+        }
     }
 
     return 0;
