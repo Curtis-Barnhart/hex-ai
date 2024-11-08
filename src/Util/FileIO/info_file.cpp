@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -15,6 +16,26 @@ using std::string;
 using std::ifstream;
 using std::vector;
 using GameState::HexState;
+using Util::FileIO::GamestateBool1Reader;
+
+unsigned int analyze_gamestatebool1(ifstream &stream) {
+    HexState h;
+    bool b;
+    GamestateBool1Reader reader(stream);
+    int x = reader.left();
+    while (reader.left() && !reader.read_err()) {
+        reader.pop(h, b);
+    }
+    // if the reader was fully emptied without any other error
+    if (reader.read_err() == GamestateBool1Reader::EMPTY) {
+        std::printf("    type: GAMESTATE_BOOL\n");
+        std::printf("    version: 1\n");
+        std::printf("    data:\n");
+        std::printf("        states: %d\n", x);
+        std::printf("        bools: %d\n", x);
+    }
+    return 1;
+}
 
 void Util::FileIO::info_file(
     const string &filename
@@ -91,10 +112,14 @@ void Util::FileIO::info_file(
                             std::printf("        bools: %zu\n", bools.size());
                             return;
                         }
+                        break;
                     case 1:
-                        GamestateBool1Reader reader(in_stream);
-
+                        if (!analyze_gamestatebool1(in_stream)) {
+                            return;
+                        }
+                        break;
                 }
+                break;
         }
     }
 

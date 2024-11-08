@@ -31,12 +31,12 @@ public:
     
     // make sure copy constructor is indeed automatically deleted or smth
 
+    enum ERRORS { CLEAR, EMPTY, BAD_READ };
     unsigned int left() const;
-    unsigned int pop(GameState::HexState &state);
+    unsigned int pop(GameState::HexState &state, bool &b);
     unsigned int read_err() const;
 
 private:
-    enum ERRORS { CLEAR, EMPTY, BAD_READ };
     // does not have a public default ctor, must be init in ctor
     cereal::BinaryInputArchive stream;
     unsigned int size = 0;
@@ -53,12 +53,12 @@ public:
 
     // make sure copy constructor is indeed automatically deleted or smth
 
+    enum ERRORS { CLEAR, FULL, BAD_WRITE };
     unsigned int left() const;
-    unsigned int push(GameState::HexState &state);
+    unsigned int push(const GameState::HexState &state, const bool &b);
     unsigned int read_err() const;
     
 private:
-    enum ERRORS { CLEAR, FULL, BAD_WRITE };
     // does not have a public default ctor, must be init in ctor
     cereal::BinaryOutputArchive stream;
     unsigned int size = 0;
