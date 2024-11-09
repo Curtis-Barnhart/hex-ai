@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cstdint>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
+#include <format>
 
 #include "cereal/archives/binary.hpp"
 #include "hex-ai/GameState/HexState.hpp"
@@ -25,7 +28,7 @@ using Util::FileIO::GamestateBool1Writer;
 using Util::FileIO::read_gamestate_bools_00;
 using Util::FileIO::write_gamestate_bools_00;
 
-int combine_gamestate_bool_00(const vector<string> &in_paths, string &out_path) {
+int combine_gamestate_bool_00(const vector<string> &in_paths, const string &out_path) {
     bool file_errors = false;
     vector<std::ifstream> in_files;
     std::ofstream out_file(out_path);
@@ -209,6 +212,65 @@ unsigned int combine_to_gamestate_bool_1(
     return 0;
 }
 
+/*
+* @return 0 if it worked
+*         1 if it did not
+*/
+unsigned int split_gamestsate_bool_1(const string &in_path, int batch_size) {
+    int batch = 0;
+    HexState h;
+    bool b;
+    string base = in_path + "_split_{:05d}";
+    std::ifstream in_file(in_path);
+    if (!in_file.good()) {
+        std::cerr << "hex-ai: File " << in_path << " could not be opened for reading.\n";
+           return 1;
+    }
+    try {
+        uint8_t file_type, file_version;
+        cereal::BinaryInputArchive input_archive(in_file);
+        input_archive(file_type);
+        input_archive(file_version);
+        if (file_type != Util::FileIO::GAMESTATE_BOOL) {
+            std::cerr << "hex-ai: File " << in_path << " is not of type GAMESTATE_BOOL.\n";
+            return 1;
+        }
+        if (file_version != 1) {
+            std::cerr << "hex-ai: File " << in_path << " does not have version of GAMESTATE_BOOL equal to 1.\n";
+            return 1;
+        }
+    } catch (cereal::Exception &) {
+        std::cerr << "hex-ai: File " << in_path << " was corrupted and could not be interpreted.\n";
+        return 1;
+    }
+    GamestateBool1Reader reader(in_file);
+
+    while (reader.read_err() != GamestateBool1Reader::EMPTY) {
+        string fmt_fname = std::vformat(base, std::make_format_args(batch));
+        batch++;
+        std::ofstream out_stream(fmt_fname);
+        if (!out_stream.good()) {
+            std::cerr << "hex-ai: File " << fmt_fname << " could not be opened for writing.\n";
+            return 1;
+        }
+        GamestateBool1Writer writer(out_stream);
+        for (int x = 0; x < batch_size; x++) {
+            if (reader.pop(h, b)) {
+                if (reader.read_err() == GamestateBool1Reader::EMPTY) {
+                    return 0;
+                }
+                std::cerr << "hex-ai: File " << in_path << " was corrupted and could not be read.\n";
+                return 1;
+            }
+            if (writer.push(h, b)) {
+                std::cerr << "hex-ai: File " << fmt_fname << " encountered error while writing.\n";
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cerr << "hex-ai: file_combine requires at least 1 argument.\n";
@@ -230,6 +292,23 @@ int main(int argc, char *argv[]) {
                 }
                 string out_path(argv[argc - 1]);
                 return combine_to_gamestate_bool_1(in_paths, out_path);
+            }
+        case 's':
+            {
+                if (argc < 4) {
+                    std::cerr << "hex-ai: file_combine splitting requires at least 2 additional arguments.\n";
+                    return 1;
+                }
+                string in_path(argv[2]);
+                int batch_size;
+                try {
+                    batch_size = std::stoi(argv[3]);
+                } catch (std::invalid_argument &) {
+                    std::cerr << "hex-ai: 3rd argument must be a positive integer.\n";
+                } catch (std::out_of_range &) {
+                    std::cerr << "hex-ai: 3rd argument should be smaller than that...\n";
+                }
+                return split_gamestsate_bool_1(in_path, batch_size);
             }
         default:
             std::cerr << "hex-ai: file_combine does not recognize flag.\n";
