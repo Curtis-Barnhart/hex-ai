@@ -14,6 +14,8 @@ def generate_model():
     model = keras.models.Sequential([
         keras.layers.Input((363,)),
         keras.layers.Dense(1600, activation='relu'),
+        keras.layers.Dense(3200, activation='relu'),
+        keras.layers.Dense(3200, activation='relu'),
         # keras.layers.Dropout(0.1),
         keras.layers.Dense(1600, activation='relu'),
         # keras.layers.Dropout(0.1),
@@ -58,7 +60,12 @@ if __name__ == "__main__":
         callbacks=[
             keras.callbacks.ModelCheckpoint(
                 filepath=save_model,
-                save_best_only=True
+                save_best_only=True,
+                verbose=True
+            ),
+            keras.callbacks.ReduceLROnPlateau(
+                factor=0.2,
+                patience=10
             )
         ]
     )
