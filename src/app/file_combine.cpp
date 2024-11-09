@@ -305,8 +305,10 @@ int main(int argc, char *argv[]) {
                     batch_size = std::stoi(argv[3]);
                 } catch (std::invalid_argument &) {
                     std::cerr << "hex-ai: 3rd argument must be a positive integer.\n";
+                    return 1;
                 } catch (std::out_of_range &) {
                     std::cerr << "hex-ai: 3rd argument should be smaller than that...\n";
+                    return 1;
                 }
                 return split_gamestsate_bool_1(in_path, batch_size);
             }
