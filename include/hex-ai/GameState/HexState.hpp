@@ -86,24 +86,6 @@ public:
     };
 
     /**
-     * The HexActReader is an iterator over valid moves of a given HexState.
-     */
-    class HexActReader {
-    private:
-        const HexState *book;
-        Action a;
-        bool valid = false;
-    public:
-        HexActReader(const HexState &state);
-
-        const Action &get_action() const;
-
-        explicit operator bool() const;
-
-        HexActReader &operator++(int);
-    };
-
-    /**
      * The constructor with no arguments will make an empty board.
      */
     HexState();

@@ -18,52 +18,6 @@
 using GameState::HexState;
 
 /*************************************************
- * Methods for HexState::HexActReader            *
- ************************************************/
-
-HexState::HexActReader::HexActReader(const HexState &state) {
-    if (state.who_won() != HexState::PLAYER_NONE) {
-        this->valid = false;
-        this->a.x = BOARD_SIZE;
-        return;
-    }
-    this->book = &state;
-    this->a.whose = state.turn == 0 ? HexState::PLAYER_ONE : HexState::PLAYER_TWO;
-    if (state.board[0][0] == HexState::PLAYER_NONE) {
-        this->valid = true;
-    } else {
-        this->valid = true;
-        (*this)++;
-    }
-}
-
-const HexState::Action &HexState::HexActReader::get_action() const {
-    return this->a;
-}
-
-HexState::HexActReader::operator bool() const {
-    return this->valid;
-}
-
-HexState::HexActReader &HexState::HexActReader::operator++(int) {
-    do {
-        if (this->a.x >= BOARD_SIZE) {
-            this->valid = false;
-            return *this;
-        }
-        this->a.y++;
-        if (this->a.y == BOARD_SIZE) {
-            if (++(this->a.x) >= BOARD_SIZE) {
-                this->valid = false;
-                return *this;
-            }
-            this->a.y = 0;
-        }
-    } while (book->board[this->a.x][this->a.y] != HexState::PLAYERS::PLAYER_NONE);
-    return *this;
-}
-
-/*************************************************
  * Methods for HexState                          *
  ************************************************/
 
