@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -88,28 +89,31 @@ public:
 
     /*
     * Copies turn and steals board array.
+    *
+    * @param other the board to copy into this one.
     */
     HexState(HexState &&other);
 
     /*
     * Copies turn and board array.
+    *
+    * @param other the board to copy into this one.
     */
     HexState(const HexState &other);
 
     /*
     * Copies turn and board array.
+    *
+    * @param other the board to copy into this one.
     */
     HexState &operator=(const HexState &other);
 
     /*
     * Copies turn and steals board array.
+    *
+    * @param other the board to copy into this one.
     */
     HexState &operator=(HexState &&other);
-
-    /*
-     * If some data was owned, delete it
-     */
-    ~HexState();
 
     /**
      * Test for equality against another HexState instance.
@@ -154,7 +158,6 @@ public:
     /*
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
-    *
     */
     [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
     HexState *succeed(const Action &action) const;
@@ -337,7 +340,7 @@ public:
 
 private:
     PLAYERS turn = PLAYER_ONE;
-    PLAYERS (*board)[BOARD_SIZE] = nullptr;
+    std::unique_ptr<std::array<std::array<PLAYERS, BOARD_SIZE>, BOARD_SIZE>> board = nullptr;
 
     /**
      * is_connected tells whether two points in a Hex game are connected
