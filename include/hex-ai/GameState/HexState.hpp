@@ -20,7 +20,7 @@
 
 #include <cereal/cereal.hpp>
 
-#define BOARD_SIZE 11
+#define BOARD_SIZE 5
 
 namespace GameState {
 
