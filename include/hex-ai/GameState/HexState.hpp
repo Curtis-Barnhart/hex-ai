@@ -164,7 +164,7 @@ public:
      * Returns which player's turn it currently is.
      * 0 for the first player and 1 for the second.
      */
-    int whose_turn() const;
+    PLAYERS whose_turn() const;
 
     /**
      * Tell which player has won the game.

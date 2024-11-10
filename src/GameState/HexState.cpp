@@ -146,7 +146,7 @@ bool HexState::board_state_equal(const HexState &other) const {
     return true;
 }
 
-int HexState::whose_turn() const {
+HexState::PLAYERS HexState::whose_turn() const {
     return this->turn;
 }
 
