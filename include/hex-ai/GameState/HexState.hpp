@@ -19,6 +19,7 @@
 #include <vector>
 
 #include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
 
 #define BOARD_SIZE 5
 
@@ -56,11 +57,6 @@ public:
     struct Action {
         unsigned char x = 0, y = 0;
         HexState::PLAYERS whose = HexState::PLAYER_NONE;
-
-        /**
-         * The default constructor creates an action at (0, 0) by PLAYER_NONE.
-         */
-        Action() = default;
 
         /**
         * Constructor sets memeber values according to the given parameters.
@@ -237,8 +233,7 @@ public:
      *
      * @param archive the cereal archive to write to
      */
-    template<class Archive>
-    void save(Archive &archive) const {
+    void save(cereal::BinaryInputArchive &archive) const {
         uint8_t pack4 = 0;
         int packed_in = 0;
 
@@ -262,6 +257,7 @@ public:
         // WARNING: this only works assuming that the area of the board
         // is not divisible by 4????
         // hopefully I don't change it from 11 anyways?
+        // 2024-11-09 update - I did change it from 11, but it is 5 now :)
         pack4 |= (0x03 & this->turn);
         packed_in++;
         pack4 <<= (2 * (4 - packed_in));
@@ -275,8 +271,7 @@ public:
      * @param archive the cereal archive to read from.
      * @raises cereal::Exception if the gamestate read in had bad values.
      */
-    template<class Archive>
-    void load(Archive &archive){
+    void load(cereal::BinaryOutputArchive &archive){
         uint8_t pack4 = 0;
         uint8_t value;
         int packed_in = 0;
