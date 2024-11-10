@@ -147,17 +147,6 @@ HexState::PLAYERS HexState::who_won() const {
     return PLAYER_NONE;
 }
 
-double HexState::current_score_double() const {
-    switch (this->who_won()) {
-        case PLAYER_ONE:
-            return 1;
-        case PLAYER_TWO:
-            return 0;
-        default:
-            return 0.5;
-    }
-}
-
 [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
 HexState *HexState::succeed(const Action &action) const {
     auto next = new HexState(*this);

@@ -151,12 +151,6 @@ public:
      */
     HexState::PLAYERS who_won() const;
 
-    /**
-     *
-     *
-     */
-    double current_score_double() const;
-
     /*
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
