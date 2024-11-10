@@ -152,15 +152,6 @@ public:
     HexState::PLAYERS who_won() const;
 
     /**
-     * Fills in an array of doubles with the current score of the game.
-     * The nth element in the array is the score of the nth player.
-     * 0 indicates a loss, 1 a win, and 0.5 neither.
-     *
-     * @param score the array of doubles in which to write the current score.
-     */
-    void current_score_array(double score[2]) const;
-
-    /**
      *
      *
      */

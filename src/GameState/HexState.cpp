@@ -147,23 +147,6 @@ HexState::PLAYERS HexState::who_won() const {
     return PLAYER_NONE;
 }
 
-void HexState::current_score_array(double score[2]) const {
-    switch (this->who_won()) {
-        case PLAYER_NONE:
-            score[0] = 0.5l;
-            score[1] = 0.5l;
-            return;
-        case PLAYER_ONE:
-            score[0] = 1l;
-            score[1] = 0l;
-            return;
-        case PLAYER_TWO:
-            score[0] = 0l;
-            score[1] = 1l;
-            return;
-    }
-}
-
 double HexState::current_score_double() const {
     switch (this->who_won()) {
         case PLAYER_ONE:
