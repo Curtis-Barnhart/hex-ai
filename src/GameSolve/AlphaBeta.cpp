@@ -6,6 +6,8 @@
 
 #include "hex-ai/Util/LRUCache.hpp"
 #include "hex-ai/GameState/HexState.hpp"
+#include <cassert>
+#include <vector>
 
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 
@@ -29,6 +31,7 @@ AB::~AlphaBeta2PlayersCached() {
 }
 
 bool AB::one_wins_one_turn(HexState &state) {
+    assert(state.whose_turn() == GameState::HexState::PLAYER_ONE);
     // First check the transposition table to see if we've done this before
     // initialize one_wins to false because that is the default
     // (if no actions we take force a win)
@@ -38,21 +41,22 @@ bool AB::one_wins_one_turn(HexState &state) {
     }
     this->nodes_miss++;
 
-    HexState::HexActReader act_iter(state);
-    if (act_iter) {
-        HexState::Action backwards;
-        while (act_iter) {
-            state.succeed_in_place(act_iter.get_action(), backwards);
+    std::vector<HexState::Action> actions;
+    HexState::Action backwards;
+    state.get_actions(actions);
+
+    if (actions.size() == 0) {
+        one_wins = (state.who_won() == HexState::PLAYERS::PLAYER_ONE);
+    } else {
+        for (const HexState::Action &a : actions) {
+            state.succeed_in_place(a, backwards);
             if (this->one_wins_two_turn(state)) {
                 one_wins = true;
                 state.reverse_in_place(backwards);
                 break;
             }
             state.reverse_in_place(backwards);
-            act_iter++;
         }
-    } else {
-        one_wins = (state.who_won() == HexState::PLAYERS::PLAYER_ONE);
     }
 
     this->cache->insert(state, one_wins);
@@ -60,6 +64,7 @@ bool AB::one_wins_one_turn(HexState &state) {
 }
 
 bool AB::one_wins_two_turn(HexState &state) {
+    assert(state.whose_turn() == GameState::HexState::PLAYER_TWO);
     // First check the transposition table to see if we've done this before
     // initialize one_wins to true because that is the default
     // (if no actions we take force a win)
@@ -69,21 +74,22 @@ bool AB::one_wins_two_turn(HexState &state) {
     }
     this->nodes_miss++;
 
-    HexState::HexActReader act_iter(state);
-    if (act_iter) {
-        HexState::Action backwards;
-        while (act_iter) {
-            state.succeed_in_place(act_iter.get_action(), backwards);
+    std::vector<HexState::Action> actions;
+    HexState::Action backwards;
+    state.get_actions(actions);
+
+    if (actions.size() == 0) {
+        one_wins = (state.who_won() == HexState::PLAYERS::PLAYER_ONE);
+    } else {
+        for (const HexState::Action &a : actions) {
+            state.succeed_in_place(a, backwards);
             if (!this->one_wins_one_turn(state)) {
                 one_wins = false;
                 state.reverse_in_place(backwards);
                 break;
             }
             state.reverse_in_place(backwards);
-            act_iter++;
         }
-    } else {
-        one_wins = (state.who_won() == HexState::PLAYERS::PLAYER_ONE);
     }
 
     this->cache->insert(state, one_wins);

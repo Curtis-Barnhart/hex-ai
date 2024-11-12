@@ -1,8 +1,6 @@
 /*
  * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
- *
  * This file is part of hex-ai.
- *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -15,7 +13,6 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -59,6 +56,8 @@ public:
         unsigned char x = 0, y = 0;
         HexState::PLAYERS whose = HexState::PLAYER_NONE;
 
+        Action() = default;
+
         /**
         * Constructor sets memeber values according to the given parameters.
         * NO ERROR CHECKING is performed on x and y to make sure they are
@@ -68,7 +67,8 @@ public:
         * @param y the y coordinate of what tile should be claimed.
         * @param whose 0 for the first player, 1 for the second, -1 for no player.
          */
-        Action(unsigned char x, unsigned char y, HexState::PLAYERS whose): x(x), y(y), whose(whose) {}
+        Action(unsigned char x, unsigned char y, HexState::PLAYERS whose):
+            x(x), y(y), whose(whose) {}
 
         /**
          * Serializes an Action instance to a cereal archive
@@ -81,39 +81,6 @@ public:
             archive(x, y, whose);
         }
     };
-
-    /**
-     * The constructor with no arguments will make an empty board.
-     */
-    HexState();
-
-    /*
-    * Copies turn and steals board array.
-    *
-    * @param other the board to copy into this one.
-    */
-    HexState(HexState &&other);
-
-    /*
-    * Copies turn and board array.
-    *
-    * @param other the board to copy into this one.
-    */
-    HexState(const HexState &other);
-
-    /*
-    * Copies turn and board array.
-    *
-    * @param other the board to copy into this one.
-    */
-    HexState &operator=(const HexState &other);
-
-    /*
-    * Copies turn and steals board array.
-    *
-    * @param other the board to copy into this one.
-    */
-    HexState &operator=(HexState &&other);
 
     /**
      * Test for equality against another HexState instance.
@@ -159,22 +126,6 @@ public:
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
     */
-    [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-    HexState *succeed(const Action &action) const;
-
-    /*
-    * If player P has an action at (x, y), then that tile in the board array should
-    * hold their value.
-    * To tell how to undo an action, you just need to know where a player claimed
-    * a tile.
-    */
-    [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-    HexState *succeed(const Action &action, Action &baction) const;
-
-    /*
-    * If player P has an action at (x, y), then that tile in the board array should
-    * hold their value.
-    */
     HexState &succeed_in_place(const Action &action);
 
     /*
@@ -190,22 +141,7 @@ public:
     * their action.
     * Then set the current turn as belonging to that player.
     */
-    [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-    HexState *reverse(const Action &baction) const;
-
-    /*
-    * To undoe an action, remove a player's value from the tile they claimed in
-    * their action.
-    * Then set the current turn as belonging to that player.
-    */
     HexState &reverse_in_place(const Action &baction);
-
-    
-    /*
-    * Slight wrapper around get_actions(std::vector<HA<S>> &).
-    */
-    [[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-    std::vector<Action> *get_actions() const;
 
     /*
     * For every tile on the board, if that tile is empty, that's a valid location
@@ -221,7 +157,8 @@ public:
      *
      * @param archive the cereal archive to write to
      */
-    void save(cereal::BinaryInputArchive &archive) const {
+    template<class Archive>
+    void save(Archive &archive) const {
         uint8_t pack4 = 0;
         int packed_in = 0;
 
@@ -259,7 +196,8 @@ public:
      * @param archive the cereal archive to read from.
      * @raises cereal::Exception if the gamestate read in had bad values.
      */
-    void load(cereal::BinaryOutputArchive &archive){
+    template<class Archive>
+    void load(Archive &archive) {
         uint8_t pack4 = 0;
         uint8_t value;
         int packed_in = 0;
@@ -291,17 +229,6 @@ public:
             throw cereal::Exception("Bad HexState value in cereal import.");
         }
     }
-
-    /**
-     * reads a HexState in from a file (must have been put there by `pack_to_stream`).
-     * @param in the file to read the HexState in from
-     * @return 0 if the HexState was read in successfully.
-     *         1 if the eof was encountered before the entire HexState could be read.
-     *         2 if the file contained a value that should not exist in the HexState.
-     *         3 if the given ifstream was bad from the start (!in.good())
-     */
-    [[nodiscard("Return value is an error code - do not discard.")]]
-    int deserialize(std::istream &in);
 
     /**
      * `at` allows the caller to query what piece is at a given position
@@ -338,10 +265,6 @@ public:
      */
     bool verify_board_state();
 
-private:
-    PLAYERS turn = PLAYER_ONE;
-    std::unique_ptr<std::array<std::array<PLAYERS, BOARD_SIZE>, BOARD_SIZE>> board = nullptr;
-
     /**
      * is_connected tells whether two points in a Hex game are connected
      * by like colored tiles (including the two original points).
@@ -353,6 +276,10 @@ private:
      */
     // TODO: someday change these from being signed chars to ints
     bool is_connected(signed char x1, signed char y1, signed char x2, signed char y2) const;
+
+private:
+    PLAYERS turn = PLAYER_ONE;
+    std::array<std::array<PLAYERS, BOARD_SIZE>, BOARD_SIZE> board{};
 
     /**
     * get_neighbors fills an array with the coordinates of

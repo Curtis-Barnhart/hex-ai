@@ -1,8 +1,6 @@
 /*
  * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
- *
  * This file is part of hex-ai.
- *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
@@ -62,7 +60,6 @@ public:
     * @param state The state at which to evaluate whether or not player one can
     *              force a win from.
     */
-
     bool one_wins_two_turn(GameState::HexState &state);
 };
 

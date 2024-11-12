@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
@@ -15,74 +16,19 @@
 
 #include "hex-ai/GameState/HexState.hpp"
 
+using std::array;
 using GameState::HexState;
+using GameState::HexState::PLAYERS::PLAYER_ONE;
+using GameState::HexState::PLAYERS::PLAYER_TWO;
+using GameState::HexState::PLAYERS::PLAYER_NONE;
 
 /*************************************************
  * Methods for HexState                          *
  ************************************************/
 
-HexState::HexState() {
-    this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
-    std::fill<HexState::PLAYERS *, HexState::PLAYERS>(
-        &this->board[0][0],
-        &this->board[0][0] + BOARD_SIZE * BOARD_SIZE,
-        PLAYER_NONE
-    );
-}
-
-HexState::HexState(HexState &&other) {
-    this->turn = other.turn;
-    this->board = other.board;
-    other.board = nullptr;
-}
-
-HexState::HexState(const HexState &other) {
-    this->turn = other.turn;
-    if (this->board == nullptr) { // TODO: shouldn't this always be true?
-        this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
-    }
-    std::memcpy(
-        &this->board[0][0],
-        &other.board[0][0],
-        sizeof(HexState::PLAYERS) * BOARD_SIZE * BOARD_SIZE
-    );
-}
-
-HexState &HexState::operator=(const HexState &other) {
-    this->turn = other.turn;
-    if (this->board == nullptr) {
-        this->board = new HexState::PLAYERS[BOARD_SIZE][BOARD_SIZE];
-    }
-    std::memcpy(
-        &this->board[0][0],
-        &other.board[0][0],
-        sizeof(HexState::PLAYERS) * BOARD_SIZE * BOARD_SIZE
-    );
-
-    return *this;
-}
-
-HexState &HexState::operator=(HexState &&other) {
-    if (this->board != nullptr) {
-        delete[] this->board;
-    }
-    this->turn = other.turn;
-    this->board = other.board;
-    other.board = nullptr;
-    return *this;
-}
-
-HexState::~HexState() {
-    if (this->board != nullptr) {
-        delete[] this->board;
-    }
-}
-
 bool HexState::operator==(const HexState &other) const {
-    if (!this->board_state_equal(other)) {
-        return false;
-    }
-    return this->turn == other.turn;
+    return this->board == other.board &&
+           this->turn  == other.turn;
 }
 
 bool HexState::operator!=(const HexState &other) const {
@@ -90,14 +36,7 @@ bool HexState::operator!=(const HexState &other) const {
 }
 
 bool HexState::board_state_equal(const HexState &other) const {
-    for (int x = 0; x < BOARD_SIZE; x++) {
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            if (this->board[x][y] != other.board[x][y]) {
-                return false;
-            }
-        }
-    }
-    return true;
+    return this->board != other.board;
 }
 
 HexState::PLAYERS HexState::whose_turn() const {
@@ -147,62 +86,30 @@ HexState::PLAYERS HexState::who_won() const {
     return PLAYER_NONE;
 }
 
-[[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-HexState *HexState::succeed(const Action &action) const {
-    auto next = new HexState(*this);
-    next->board[action.x][action.y] = action.whose;
-    assert(next->turn != HexState::PLAYER_NONE);
-    next->turn = (next->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
-    
-    return next;
-}
-
-[[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-HexState *HexState::succeed(const Action &action, Action &baction) const {
-    auto next = new HexState(*this);
-    next->board[action.x][action.y] = action.whose;
-    assert(next->turn != HexState::PLAYER_NONE);
-    next->turn = (next->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
-
-    baction = action;
-    return next;
-}
-
 HexState &HexState::succeed_in_place(const Action &action) {
+    assert(action.x < BOARD_SIZE);
+    assert(action.y < BOARD_SIZE);
     this->board[action.x][action.y] = action.whose;
-    assert(this->turn != HexState::PLAYER_NONE);
-    this->turn = (this->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
+    this->turn = (this->turn == PLAYER_ONE) ? PLAYER_TWO : PLAYER_ONE;
     return *this;
 }
 
 HexState &HexState::succeed_in_place(const Action &action, Action &baction) {
+    assert(action.x < BOARD_SIZE);
+    assert(action.y < BOARD_SIZE);
     this->board[action.x][action.y] = action.whose;
-    assert(this->turn != HexState::PLAYER_NONE);
-    this->turn = (this->turn == HexState::PLAYER_ONE) ? HexState::PLAYER_TWO : HexState::PLAYER_ONE;
+    this->turn = (this->turn == PLAYER_ONE) ? PLAYER_TWO : PLAYER_ONE;
 
     baction = action;
     return *this;
 }
 
-[[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-HexState *HexState::reverse(const Action &baction) const {
-    auto previous = new HexState(*this);
-    previous->board[baction.x][baction.y] = PLAYER_NONE;
-    previous->turn = baction.whose;
-    return previous;
-}
-
 HexState &HexState::reverse_in_place(const Action &baction) {
+    assert(baction.x < BOARD_SIZE);
+    assert(baction.y < BOARD_SIZE);
     this->board[baction.x][baction.y] = PLAYER_NONE;
     this->turn = baction.whose;
     return *this;
-}
-
-[[nodiscard("Discarding sole pointer to allocated memory would cause a leak.")]]
-std::vector<HexState::Action> *HexState::get_actions() const {
-    std::vector<Action> *a = new std::vector<Action>();
-    this->get_actions(*a);    
-    return a;
 }
 
 void HexState::get_actions(std::vector<Action> &buffer) const {
@@ -226,13 +133,13 @@ void GameState::HexState::simple_string(std::ostream &out) const {
     for (int x = 0; x < BOARD_SIZE; x++) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             switch (this->board[x][y]) {
-                case HexState::PLAYER_ONE:
+                case PLAYER_ONE:
                     out << '1';
                     break;
-                case HexState::PLAYER_TWO:
+                case PLAYER_TWO:
                     out << '2';
                     break;
-                case HexState::PLAYER_NONE:
+                case PLAYER_NONE:
                     out << '0';
                     break;
             }
@@ -241,7 +148,75 @@ void GameState::HexState::simple_string(std::ostream &out) const {
     out << '\n';
 }
 
+// void HexState::save(cereal::BinaryInputArchive &archive) const {
+//     uint8_t pack4 = 0;
+//     int packed_in = 0;
+
+//     // pack in all the board states
+//     for (int x = 0; x < BOARD_SIZE; x++) {
+//         for (int y = 0; y < BOARD_SIZE; y++) {
+//             pack4 |= (0x03 & this->board[x][y]);
+//             packed_in++;
+
+//             if (packed_in == 4) {
+//                 packed_in = 0;
+//                 archive(pack4);
+//                 pack4 = 0;
+//             } else {
+//                 pack4 <<= 2;
+//             }
+//         }
+//     }
+
+//     // put in the current turn
+//     // WARNING: this only works assuming that the area of the board
+//     // is not divisible by 4????
+//     // hopefully I don't change it from 11 anyways?
+//     // 2024-11-09 update - I did change it from 11, but it is 5 now :)
+//     pack4 |= (0x03 & this->turn);
+//     packed_in++;
+//     pack4 <<= (2 * (4 - packed_in));
+//     archive(pack4);
+// }
+
+// void HexState::load(cereal::BinaryOutputArchive &archive){
+//     uint8_t pack4 = 0;
+//     uint8_t value;
+//     int packed_in = 0;
+
+//     // get all board states
+//     for (int x = 0; x < BOARD_SIZE; x++) {
+//         for (int y = 0; y < BOARD_SIZE; y++) {
+//             if (packed_in == 0) {
+//                 archive(pack4);
+//                 packed_in = 4;
+//             }
+
+//             value = (pack4 & 0xc0) >> 6;
+//             // okay to cast - we check correctness later
+//             this->board[x][y] = static_cast<HexState::PLAYERS>(value);
+//             pack4 <<= 2;
+//             packed_in--;
+//         }
+//     }
+
+//     // WARNING: just like in save,
+//     // load assumes that the area of a board is not divisible by four
+//     // (so that there are "remainder" spots and you don't need to get
+//     // another byte to read in the turn)
+//     value = (pack4 & 0xc0) >> 6;
+//     // okay to cast - we check correctness later
+//     this->turn = static_cast<HexState::PLAYERS>(value);
+//     if (!this->verify_board_state()) {
+//         throw cereal::Exception("Bad HexState value in cereal import.");
+//     }
+// }
+
 HexState::PLAYERS HexState::at(int x, int y) const {
+    assert(x > 0);
+    assert(y > 0);
+    assert(x < BOARD_SIZE);
+    assert(y < BOARD_SIZE);
     return this->board[x][y];
 }
 
@@ -268,26 +243,14 @@ HexState &HexState::flip(HexState::AXIS axis) {
 }
 
 bool HexState::verify_board_state() {
-    for (int x = 0; x < BOARD_SIZE; x++) {
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            HexState::PLAYERS p = this->board[x][y];
-            if (
-                p != HexState::PLAYER_ONE &&
-                p != HexState::PLAYER_TWO &&
-                p != HexState::PLAYER_NONE
-            ) {
-                return 0;
+    for (const array<HexState::PLAYERS, BOARD_SIZE> &x_row : this->board) {
+        for (HexState::PLAYERS p : x_row) {
+            if (p < PLAYER_ONE || p > PLAYER_NONE) {
+                return false;
             }
         }
     }
-    if (
-        this->turn != HexState::PLAYER_ONE &&
-        this->turn != HexState::PLAYER_TWO &&
-        this->turn != HexState::PLAYER_NONE
-    ) {
-        return 0;
-    }
-    return 1;
+    return (this->turn >= PLAYER_ONE && this->turn <= PLAYER_NONE);
 }
 
 // TODO: someday change these from being signed chars to ints
@@ -381,13 +344,13 @@ std::ostream &GameState::operator<<(std::ostream &out, const GameState::HexState
         out << "│";
         for (int x = 0; x < BOARD_SIZE; x++) {
             switch (state.board[x][y]) {
-                case HexState::PLAYER_NONE:
+                case PLAYER_NONE:
                     out << "  ";
                     break;
-                case HexState::PLAYER_ONE:
+                case PLAYER_ONE:
                     out << "1 ";
                     break;
-                case HexState::PLAYER_TWO:
+                case PLAYER_TWO:
                     out << "2 ";
                     break;
                 default:

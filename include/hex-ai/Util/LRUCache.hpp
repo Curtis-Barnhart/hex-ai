@@ -170,7 +170,15 @@ public:
     }
 
     /**
+    * Looks up a key in the cache to see if a value is associated with it.
+    * If the key is found, v is set to the value associated with it
+    * and `true` is returned.
+    * Otherwise, `false` is returned.
+    * No promises about the value of v is the key is not found.
     *
+    * @param k A key to look up in the cache.
+    * @param v An outparameter for the value of the key `k` if found.
+    * @return `true` if the key was found, else `false`.
     */
     [[nodiscard("Return value determines if value v is valid.")]]
     bool lookup(const Key &k, Value &v) {
