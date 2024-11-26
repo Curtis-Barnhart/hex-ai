@@ -8,18 +8,21 @@
 #define GAMES_HEX_HEXSTATE_HPP
 
 #include <array>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <ostream>
+#include <type_traits>
 #include <vector>
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 
-#define BOARD_SIZE 5
+#include "hex-ai/GameState/enums.hpp"
+#include "hex-ai/GameState/Action.hpp"
 
 namespace GameState {
 
@@ -28,69 +31,35 @@ namespace GameState {
  * This includes a board of pieces which belongs to two players
  * as well as a counter of whose turn it is.
  */
+template<
+    int bsize,
+    typename std::enable_if<(bsize > 0), int>::type = 0
+>
 class HexState {
     /*
      * Declaring a friend streaming operator so that a state may be printed.
      * This will probably have to be redone when this gets templated.
      */
-    friend std::ostream &operator<<(std::ostream &out, const GameState::HexState &state);
+    // friend std::ostream &operator<<(std::ostream &out, const GameState::HexState &state);
 
     /*
      * Give access to std::hash of HexState private members like the board so
      * that it can be hashed.
      */
-    friend class std::hash<GameState::HexState>;
+    friend class std::hash<GameState::HexState<bsize>>;
 
 public:
-
-    // some enums
-    enum PLAYERS : unsigned char { PLAYER_ONE, PLAYER_TWO, PLAYER_NONE };
-    enum AXIS { VERTICAL, HORIZONTAL, BOTH };
-
-    /**
-     * HexState::Action is a class for representing an action that a player
-     * can take in a game of Hex. It holds location data as well as player
-     * identification.
-     */
-    struct Action {
-        unsigned char x = 0, y = 0;
-        HexState::PLAYERS whose = HexState::PLAYER_NONE;
-
-        Action() = default;
-
-        /**
-        * Constructor sets memeber values according to the given parameters.
-        * NO ERROR CHECKING is performed on x and y to make sure they are
-        * within an allowable range [0, BOARD_SIZE).
-        *
-        * @param x the x coordinate of what tile should be claimed.
-        * @param y the y coordinate of what tile should be claimed.
-        * @param whose 0 for the first player, 1 for the second, -1 for no player.
-         */
-        Action(unsigned char x, unsigned char y, HexState::PLAYERS whose):
-            x(x), y(y), whose(whose) {}
-
-        /**
-         * Serializes an Action instance to a cereal archive
-         * using the cereal library.
-         *
-         * @param archive the cereal archive to serialize the Action to.
-         */
-        template<class Archive>
-        void serialize(Archive &archive) {
-            archive(x, y, whose);
-        }
-    };
-
     /**
      * Test for equality against another HexState instance.
      * Two states are considered equal if the contents of their internal
-     * `board` arrays are the same and if their `turn`s are the same.
+     * `board` arrays are the same.
      *
      * @param other the state to test equality against.
      * @return      true if the two states are equal, false otherwise.
      */
-    bool operator==(const HexState &other) const;
+    bool operator==(const HexState &other) const {
+        return this->board == other.board;
+    }
 
     /**
      * Test for inequality against another HexState instance.
@@ -98,35 +67,211 @@ public:
      * @param other the state to test inequality against.
      * @return      true if the states are not equal, false otherwise.
      */
-    bool operator!=(const HexState &other) const;
+    bool operator!=(const HexState &other) const {
+        return !(*this==other);
+    }
 
     /**
-     * Test for equality against another HexState instance,
-     * but only as far as the board state goes (not turn count)
+     * Allows caller to access HexState as though it were an array
+     * of player values (as if it were the internal board it holds).
      *
-     * @param other the state to test equality against.
-     * @return      true if the boards of the two states are equal, else false.
+     * @param i the x coordinate.
+     * @return the array of values at that x coordinate.
      */
-    bool board_state_equal(const HexState &other) const;
-
-    /**
-     * Returns which player's turn it currently is.
-     * 0 for the first player and 1 for the second.
-     */
-    PLAYERS whose_turn() const;
+    const std::array<PLAYERS, bsize> &operator[](size_t i) {
+        assert(i >= 0);
+        assert(i < bsize);
+        return this->board[i];
+    }
 
     /**
      * Tell which player has won the game.
      *
      * @return an element from the PLAYERS enum detailing which player has won.
      */
-    HexState::PLAYERS who_won() const;
+    GameState::PLAYERS who_won() const {
+        int xstack[bsize * bsize], ystack[bsize * bsize], stack = 0;
+        PLAYERS mask[bsize][bsize] = { PLAYER_NONE };
+
+        // for all player one positions starting at the bottom
+        for (int start = 0; start < bsize; start++) {
+            if (
+                this->board[start][0] == PLAYER_ONE &&
+                mask[start][0] == PLAYER_NONE
+            ) {
+                xstack[stack] = start;
+                ystack[stack++] = 0;
+
+                while (stack) {
+                    // get next tile and mark as visited
+                    int x = xstack[stack];
+                    int y = ystack[stack--];
+                    mask[x][y] = PLAYER_ONE;
+
+                    if (
+                        x + 1 < bsize &&
+                        mask[x + 1][y] == PLAYER_NONE &&
+                        this->board[x + 1][y] == PLAYER_ONE
+                    ) {
+                        mask[x + 1][y] = PLAYER_ONE;
+                        xstack[stack] = x + 1;
+                        ystack[stack++] = y;
+                    }
+                    if (
+                        y + 1 < bsize &&
+                        mask[x][y + 1] == PLAYER_NONE &&
+                        this->board[x][y + 1] == PLAYER_ONE
+                    ) {
+                        if (y + 1 == bsize - 1) {
+                            return PLAYER_ONE;
+                        } else {
+                            mask[x][y + 1] = PLAYER_ONE;
+                            xstack[stack] = x;
+                            ystack[stack++] = y + 1;
+                        }
+                    }
+                    if (
+                        x - 1 >= 0 &&
+                        y + 1 < bsize &&
+                        mask[x - 1][y + 1] == PLAYER_NONE &&
+                        this->board[x - 1][y + 1] == PLAYER_ONE
+                    ) {
+                        if (y + 1 == bsize - 1) {
+                            return PLAYER_ONE;
+                        } else {
+                            mask[x - 1][y + 1] = PLAYER_ONE;
+                            xstack[stack] = x - 1;
+                            ystack[stack++] = y + 1;
+                        }
+                    }
+                    if (
+                        x - 1 >= 0 &&
+                        mask[x - 1][y] == PLAYER_NONE &&
+                        this->board[x - 1][y] == PLAYER_ONE
+                    ) {
+                        mask[x - 1][y] = PLAYER_ONE;
+                        xstack[stack] = x - 1;
+                        ystack[stack++] = y;
+                    }
+                    if (
+                        y - 1 >= 0 &&
+                        mask[x][y - 1] == PLAYER_NONE &&
+                        this->board[x][y - 1] == PLAYER_ONE
+                    ) {
+                        mask[x][y - 1] = PLAYER_ONE;
+                        xstack[stack] = x;
+                        ystack[stack++] = y - 1;
+                    }
+                    if (
+                        x + 1 < bsize &&
+                        y - 1 >= 0 &&
+                        mask[x + 1][y - 1] == PLAYER_NONE &&
+                        this->board[x + 1][y - 1] == PLAYER_ONE
+                    ) {
+                        mask[x + 1][y - 1] = PLAYER_ONE;
+                        xstack[stack] = x + 1;
+                        ystack[stack++] = y - 1;
+                    }
+                }
+            }
+        }
+
+        // for all player two positions starting at the left
+        for (int start = 0; start < bsize; start++) {
+            if (
+                this->board[0][start] == PLAYER_TWO &&
+                mask[0][start] == PLAYER_NONE
+            ) {
+                xstack[stack] = 0;
+                ystack[stack++] = start;
+
+                while (stack) {
+                    // get next tile and mark as visited
+                    int x = xstack[stack];
+                    int y = ystack[stack--];
+                    mask[x][y] = PLAYER_TWO;
+
+                    if (
+                        x + 1 < bsize &&
+                        mask[x + 1][y] == PLAYER_NONE &&
+                        this->board[x + 1][y] == PLAYER_TWO
+                    ) {
+                        if (x + 1 == bsize - 1) {
+                            return PLAYER_TWO;
+                        } else {
+                            mask[x + 1][y] = PLAYER_TWO;
+                            xstack[stack] = x + 1;
+                            ystack[stack++] = y;
+                        }
+                    }
+                    if (
+                        y + 1 < bsize &&
+                        mask[x][y + 1] == PLAYER_NONE &&
+                        this->board[x][y + 1] == PLAYER_TWO
+                    ) {
+                        mask[x][y + 1] = PLAYER_TWO;
+                        xstack[stack] = x;
+                        ystack[stack++] = y + 1;
+                    }
+                    if (
+                        x - 1 >= 0 &&
+                        y + 1 < bsize &&
+                        mask[x - 1][y + 1] == PLAYER_NONE &&
+                        this->board[x - 1][y + 1] == PLAYER_TWO
+                    ) {
+                        mask[x - 1][y + 1] = PLAYER_TWO;
+                        xstack[stack] = x - 1;
+                        ystack[stack++] = y + 1;
+                    }
+                    if (
+                        x - 1 >= 0 &&
+                        mask[x - 1][y] == PLAYER_NONE &&
+                        this->board[x - 1][y] == PLAYER_TWO
+                    ) {
+                        mask[x - 1][y] = PLAYER_TWO;
+                        xstack[stack] = x - 1;
+                        ystack[stack++] = y;
+                    }
+                    if (
+                        y - 1 >= 0 &&
+                        mask[x][y - 1] == PLAYER_NONE &&
+                        this->board[x][y - 1] == PLAYER_TWO
+                    ) {
+                        mask[x][y - 1] = PLAYER_TWO;
+                        xstack[stack] = x;
+                        ystack[stack++] = y - 1;
+                    }
+                    if (
+                        x + 1 < bsize &&
+                        y - 1 >= 0 &&
+                        mask[x + 1][y - 1] == PLAYER_NONE &&
+                        this->board[x + 1][y - 1] == PLAYER_ONE
+                    ) {
+                        if (x + 1 == bsize - 1) {
+                            return PLAYER_TWO;
+                        } else {
+                            mask[x + 1][y - 1] = PLAYER_ONE;
+                            xstack[stack] = x + 1;
+                            ystack[stack++] = y - 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        return PLAYER_NONE;
+    }
 
     /*
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
     */
-    HexState &succeed_in_place(const Action &action);
+    HexState &succeed(const Action &action) {
+        assert(action.x < bsize);
+        assert(action.y < bsize);
+        this->board[action.x][action.y] = action.whose;
+        return *this;
+    }
 
     /*
     * If player P has an action at (x, y), then that tile in the board array should
@@ -134,22 +279,110 @@ public:
     * To tell how to undoe an action, you just need to know where a player claimed
     * a tile.
     */
-    HexState &succeed_in_place(const Action &action, Action &baction);
-
-    /*
-    * To undoe an action, remove a player's value from the tile they claimed in
-    * their action.
-    * Then set the current turn as belonging to that player.
-    */
-    HexState &reverse_in_place(const Action &baction);
+    HexState &succeed(const Action &action, Action &baction) {
+        assert(action.x < bsize);
+        assert(action.y < bsize);
+        baction.x = action.x;
+        baction.y = action.y;
+        baction.whose = this->board[action.x][action.y];
+        this->board[action.x][action.y] = action.whose;
+        return *this;
+    }
 
     /*
     * For every tile on the board, if that tile is empty, that's a valid location
     * a player could claim as their next move.
     */
-    void get_actions(std::vector<Action> &buffer) const;
+    void get_actions(std::vector<Action> &buffer, PLAYERS turn = PLAYER_NONE) const {
+        // If someone has already won, there are no actions
+        if (this->who_won() != PLAYER_NONE) {
+            return;
+        }
 
-    void simple_string(std::ostream &out) const;
+        buffer.reserve(bsize * bsize);
+        for (int x = 0; x < bsize; x++) {
+            for (int y = 0; y < bsize; y++) {
+                if (this->board[x][y] == PLAYER_NONE) {
+                    buffer.emplace_back(x, y, turn);
+                }
+            }
+        }
+    }
+
+    /**
+     * prints out a simple string representation of a state
+     *
+     * @param out the ostream to write the string to
+     */
+    void simple_string(std::ostream &out) const {
+        for (int x = 0; x < bsize; x++) {
+            for (int y = 0; y < bsize; y++) {
+                switch (this->board[x][y]) {
+                    case PLAYER_ONE:
+                        out << '1';
+                        break;
+                    case PLAYER_TWO:
+                        out << '2';
+                        break;
+                    case PLAYER_NONE:
+                        out << '0';
+                        break;
+                }
+            }
+        }
+        out << '\n';
+    }
+
+    /**
+     * allows you to flip a board on a certain axis
+     *
+     * @param axis the axis on which you wish to flip the board
+     * @return reference to self
+     */
+    HexState &flip(GameState::AXIS axis) {
+        switch (axis) {
+            case GameState::HORIZONTAL:
+                for (int x = 0; x < bsize / 2; x++) {
+                    for (int y = 0; y < bsize; y++) {
+                        std::swap(this->board[x][y], this->board[bsize - x - 1][y]);
+                    }
+                }
+                break;
+            case GameState::VERTICAL:
+                for (int x = 0; x < bsize; x++) {
+                    for (int y = 0; y < bsize / 2; y++) {
+                        std::swap(this->board[x][y], this->board[x][bsize - y - 1]);
+                    }
+                }
+                break;
+            case GameState::BOTH:
+                return (*this).flip(GameState::VERTICAL).flip(GameState::HORIZONTAL);
+        }
+        return *this;
+    }
+
+    /**
+     * verify_board_state makes sure that all values in the internal board
+     * are valid instances of HexState::PLAYERS.
+     * This probably shouldn't be used a ton,
+     * as it should be able to be assumed that the state is always valid.
+     * Occasionally (like when reading from files) I imagine it is helpful to
+     * check first though.
+     * That's what this function was originally intended for.
+     * 
+     * @return true if all values are valid.
+     *         false if any value is not valid.
+     */
+    bool verify_board_state() const {
+        for (const std::array<GameState::PLAYERS, bsize> &x_row : this->board) {
+            for (GameState::PLAYERS p : x_row) {
+                if (p < PLAYER_ONE || p > PLAYER_NONE) {
+                    return false;
+                }
+            }
+        }
+        return (this->turn >= PLAYER_ONE && this->turn <= PLAYER_NONE);
+    }
 
     /**
      * Serializes a HexState instance to a cereal archive
@@ -163,8 +396,8 @@ public:
         int packed_in = 0;
 
         // pack in all the board states
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < bsize; x++) {
+            for (int y = 0; y < bsize; y++) {
                 pack4 |= (0x03 & this->board[x][y]);
                 packed_in++;
 
@@ -178,15 +411,10 @@ public:
             }
         }
 
-        // put in the current turn
-        // WARNING: this only works assuming that the area of the board
-        // is not divisible by 4????
-        // hopefully I don't change it from 11 anyways?
-        // 2024-11-09 update - I did change it from 11, but it is 5 now :)
-        pack4 |= (0x03 & this->turn);
-        packed_in++;
         pack4 <<= (2 * (4 - packed_in));
-        archive(pack4);
+        if (!(packed_in == 0)) {
+            archive(pack4);
+        }
     }
 
     /**
@@ -203,8 +431,8 @@ public:
         int packed_in = 0;
 
         // get all board states
-        for (int x = 0; x < BOARD_SIZE; x++) {
-            for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < bsize; x++) {
+            for (int y = 0; y < bsize; y++) {
                 if (packed_in == 0) {
                     archive(pack4);
                     packed_in = 4;
@@ -218,94 +446,35 @@ public:
             }
         }
 
-        // WARNING: just like in save,
-        // load assumes that the area of a board is not divisible by four
-        // (so that there are "remainder" spots and you don't need to get
-        // another byte to read in the turn)
-        value = (pack4 & 0xc0) >> 6;
-        // okay to cast - we check correctness later
-        this->turn = static_cast<HexState::PLAYERS>(value);
         if (!this->verify_board_state()) {
             throw cereal::Exception("Bad HexState value in cereal import.");
         }
     }
 
-    /**
-     * `at` allows the caller to query what piece is at a given position
-     * in a HexState instance.
-     * `x` and `y` must both be integers in [0, 10].
-     * NO ERROR CHECKING is done to ensure that this is actually true of
-     * `x` and `y`...
-     *
-     * @param x x coordinate (0 <= x < 11)
-     * @param y y coordinate (0 <= y < 11)
-     * @return value of position (x, y) on current board
-     */
-    PLAYERS at(int x, int y) const;
-
-    /**
-     * allows you to flip a board on a certain axis
-     *
-     * @param axis the axis on which you wish to flip the board
-     * @return reference to self
-     */
-    GameState::HexState &flip(GameState::HexState::AXIS axis);
-
-    /**
-     * verify_board_state makes sure that all values in the internal board
-     * are valid instances of HexState::PLAYERS.
-     * This probably shouldn't be used a ton,
-     * as it should be able to be assumed that the state is always valid.
-     * Occasionally (like when reading from files) I imagine it is helpful to
-     * check first though.
-     * That's what this function was originally intended for.
-     * 
-     * @return true if all values are valid.
-     *         false if any value is not valid.
-     */
-    bool verify_board_state();
-
-    /**
-     * is_connected tells whether two points in a Hex game are connected
-     * by like colored tiles (including the two original points).
-     * @param x1 x coordinate of point 1.
-     * @param y1 y coordinate of point 1.
-     * @param x2 x coordinate of point 2.
-     * @param y2 y coordinate of point 2.
-     * @return   true if the points are connected, else false.
-     */
-    // TODO: someday change these from being signed chars to ints
-    bool is_connected(signed char x1, signed char y1, signed char x2, signed char y2) const;
-
 private:
-    PLAYERS turn = PLAYER_ONE;
-    std::array<std::array<PLAYERS, BOARD_SIZE>, BOARD_SIZE> board{};
-
-    /**
-    * get_neighbors fills an array with the coordinates of
-    * valid neighbors of any hexagon.
-    * A neighbor is invalid if its x or y coordinate lies outside
-    * [0, S - 1].
-    * @param x      x coordinate of the point whose neighbors to find.
-    * @param y      y coordinate of the point whose neighbors to find.
-    * @param buffer buffer to fill with coordinates of neighbors.
-    * @return       how many valid neighbors there were
-    */
-    void get_neighbors(signed char x, signed char y, std::vector<std::array<signed char, 2>> &output) const;
+    std::array<std::array<GameState::PLAYERS, bsize>, bsize> board{};
 };
-
-std::ostream &operator<<(std::ostream &out, const GameState::HexState &state);
 
 }
 
 /**
 * Template specialization of std::hash for HexState
 */
-template<>
-struct std::hash<GameState::HexState> {
-    size_t operator()(const GameState::HexState &state);
-};
+template<int bsize>
+struct std::hash<GameState::HexState<bsize>> {
+    size_t operator()(const GameState::HexState<bsize> &state) {
+        size_t result = 0;
+        size_t pow_three = 1;
+        for (int x = 0; x < bsize; x++) {
+            for (int y = 0; y < bsize; y++) {
+                result += ((state.board)[x][y] + 1) * pow_three;
+                pow_three *= 3;
+            }
+        }
 
+        return result;
+    }
+};
 
 #endif // !GAMES_HEX_HEXSTATE_HPP
 
