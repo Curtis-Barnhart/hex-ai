@@ -7,14 +7,14 @@
 #include <cstdio>
 
 #include <gtest/gtest.h>
+#include <type_traits>
+#include <vector>
 
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameState/enums.hpp"
 #include "hex-ai/GameState/Action.hpp"
 
 using GameState::HexState;
-using GameState::PLAYERS::PLAYER_ONE;
-using GameState::PLAYERS::PLAYER_TWO;
 using GameState::PLAYERS::PLAYER_NONE;
 
 
@@ -22,7 +22,7 @@ using GameState::PLAYERS::PLAYER_NONE;
 * Constructing                                   *
 *************************************************/
 
-TEST(HexState_1_Constructor, EmptyConstructor) {
+TEST(HexState_1_Constructor, Constructor) {
     HexState<1> state;
 
     EXPECT_EQ(state[0][0], PLAYER_NONE)
@@ -36,7 +36,17 @@ TEST(HexState_1_Constructor, EmptyWin) {
         << "Newly constructed board had a winner.";
 }
 
-TEST(HexState_4_Constructor, EmptyConstructor) {
+TEST(HexState_1_Constructor, Moves) {
+    HexState<1> empty;
+    std::vector<GameState::Action> v;
+
+    empty.get_actions(v);
+
+    EXPECT_EQ(v.size(), 1)
+        << "Newly constructed 1x1 board did not have 1 available move.";
+}
+
+TEST(HexState_4_Constructor, Constructor) {
     HexState<4> state;
 
     for (int x = 0; x < 4; x++) {
@@ -54,7 +64,17 @@ TEST(HexState_4_Constructor, EmptyWin) {
         << "Newly constructed board had a winner.";
 }
 
-TEST(HexState_9_Constructor, EmptyConstructor) {
+TEST(HexState_4_Constructor, Moves) {
+    HexState<4> empty;
+    std::vector<GameState::Action> v;
+
+    empty.get_actions(v);
+
+    EXPECT_EQ(v.size(), 16)
+        << "Newly constructed 4x4 board did not have 16 available moves.";
+}
+
+TEST(HexState_9_Constructor, Constructor) {
     HexState<9> state;
 
     for (int x = 0; x < 9; x++) {
@@ -72,59 +92,13 @@ TEST(HexState_9_Constructor, EmptyWin) {
         << "Newly constructed board had a winner.";
 }
 
-/*************************************************
-* Making Moves                                   *
-*************************************************/
+TEST(HexState_9_Constructor, Moves) {
+    HexState<9> empty;
+    std::vector<GameState::Action> v;
 
-TEST(HexState_1_Moves, NormalMovesVector) {
+    empty.get_actions(v);
 
+    EXPECT_EQ(v.size(), 81)
+        << "Newly constructed 9x9 board did not have 81 available moves.";
 }
-
-TEST(HexState_1_Moves, SillyMovesVector) {
-
-}
-
-TEST(HexState_1_Moves, NormalMovesIterator) {
-
-}
-
-TEST(HexState_1_Moves, SillyMovesIterator) {
-
-}
-
-TEST(HexState_4_Moves, NormalMovesVector) {
-
-}
-
-TEST(HexState_4_Moves, SillyMovesVector) {
-
-}
-
-TEST(HexState_4_Moves, NormalMovesIterator) {
-
-}
-
-TEST(HexState_4_Moves, SillyMovesIterator) {
-
-}
-
-TEST(HexState_9_Moves, NormalMovesVector) {
-
-}
-
-TEST(HexState_9_Moves, SillyMovesVector) {
-
-}
-
-TEST(HexState_9_Moves, NormalMovesIterator) {
-
-}
-
-TEST(HexState_9_Moves, SillyMovesIterator) {
-
-}
-
-/*************************************************
-* Checking Wins                                  *
-*************************************************/
 
