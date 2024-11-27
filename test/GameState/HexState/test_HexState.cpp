@@ -17,19 +17,6 @@ using GameState::PLAYERS::PLAYER_ONE;
 using GameState::PLAYERS::PLAYER_TWO;
 using GameState::PLAYERS::PLAYER_NONE;
 
-/*************************************************
-* Definitions                                    *
-*************************************************/
-
-/**
- * I think there are places (maybe when converting to files for Python to use)
- * where I rely on the numeric value of this enum??
- */
-TEST(HexState_Definitions, PLAYERS_Value) {
-    EXPECT_EQ(PLAYER_NONE, 0);
-    EXPECT_EQ(PLAYER_ONE, 1);
-    EXPECT_EQ(PLAYER_TWO, 2);
-}
 
 /*************************************************
 * Constructing                                   *
@@ -60,6 +47,13 @@ TEST(HexState_4_Constructor, EmptyConstructor) {
     }
 }
 
+TEST(HexState_4_Constructor, EmptyWin) {
+    HexState<4> empty;
+
+    EXPECT_EQ(empty.who_won(), PLAYER_NONE)
+        << "Newly constructed board had a winner.";
+}
+
 TEST(HexState_9_Constructor, EmptyConstructor) {
     HexState<9> state;
 
@@ -69,13 +63,6 @@ TEST(HexState_9_Constructor, EmptyConstructor) {
                 << "Newly constructed board was not empty.";
         }
     }
-}
-
-TEST(HexState_4_Constructor, EmptyWin) {
-    HexState<4> empty;
-
-    EXPECT_EQ(empty.who_won(), PLAYER_NONE)
-        << "Newly constructed board had a winner.";
 }
 
 TEST(HexState_9_Constructor, EmptyWin) {
@@ -88,6 +75,54 @@ TEST(HexState_9_Constructor, EmptyWin) {
 /*************************************************
 * Making Moves                                   *
 *************************************************/
+
+TEST(HexState_1_Moves, NormalMovesVector) {
+
+}
+
+TEST(HexState_1_Moves, SillyMovesVector) {
+
+}
+
+TEST(HexState_1_Moves, NormalMovesIterator) {
+
+}
+
+TEST(HexState_1_Moves, SillyMovesIterator) {
+
+}
+
+TEST(HexState_4_Moves, NormalMovesVector) {
+
+}
+
+TEST(HexState_4_Moves, SillyMovesVector) {
+
+}
+
+TEST(HexState_4_Moves, NormalMovesIterator) {
+
+}
+
+TEST(HexState_4_Moves, SillyMovesIterator) {
+
+}
+
+TEST(HexState_9_Moves, NormalMovesVector) {
+
+}
+
+TEST(HexState_9_Moves, SillyMovesVector) {
+
+}
+
+TEST(HexState_9_Moves, NormalMovesIterator) {
+
+}
+
+TEST(HexState_9_Moves, SillyMovesIterator) {
+
+}
 
 /*************************************************
 * Checking Wins                                  *

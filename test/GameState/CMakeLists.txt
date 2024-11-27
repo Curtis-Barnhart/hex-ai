@@ -2,5 +2,6 @@
 # This file is part of hex-ai.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-add_subdirectory(GameState)
+add_subdirectory(HexState)
+add_subdirectory(Enums)
 
