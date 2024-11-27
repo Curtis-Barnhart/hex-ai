@@ -112,3 +112,16 @@ TEST(HexState4_GetActions, NonemptyBoard) {
     }
 }
 
+TEST(HexState4_GetActions, WonBoard) {
+    HexState<4> state;
+    std::vector<Action> v;
+    state.succeed({ 0, 0, PLAYER_ONE });
+    state.succeed({ 0, 1, PLAYER_ONE });
+    state.succeed({ 0, 2, PLAYER_ONE });
+    state.succeed({ 0, 3, PLAYER_ONE });
+
+    state.get_actions(v);
+    EXPECT_EQ(v.size(), 0)
+        << "get_actions returned the wrong amount of actions.";
+}
+
