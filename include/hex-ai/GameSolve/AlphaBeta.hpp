@@ -6,6 +6,9 @@
 
 #include "hex-ai/Util/LRUCache.hpp"
 #include "hex-ai/GameState/HexState.hpp"
+#include "hex-ai/GameState/Action.hpp"
+#include "hex-ai/GameState/enums.hpp"
+#include <cassert>
 
 namespace GameSolve {
 
@@ -13,29 +16,22 @@ namespace GameSolve {
 * AlphaBeta2PlayersCached is a class that provides functions to run
 * the alpha beta algorithm on a game of Hex
 */
+template<int bsize>
 struct AlphaBeta2PlayersCached {
 public:
-    // tracks how many nodes have been calculated
-    long nodes_miss = 0, nodes_miss_total = 0;
+    // tracks how many nodes have been expanded 
+    long nodes_expanded = 0;
     // internal cache of nodes
-    Cache::LRUCache<GameState::HexState, bool> *cache = nullptr;
+    Cache::LRUCache<GameState::HexState<bsize>, bool> cache;
 
 public:
-    long get_nodes_hit() const;
-    long get_nodes_hit_total() const;
-
     /**
     * The constructor takes a single parameter to tell us how large to make
     * the internal cache for storing past gamestates.
     *
     * @param cache_size the size of the internal cache for past gamestates.
     */
-    AlphaBeta2PlayersCached(unsigned int cache_size);
-
-    /**
-    * It's a destructor.
-    */
-    ~AlphaBeta2PlayersCached();
+    AlphaBeta2PlayersCached(unsigned int cache_size) : cache(cache_size) {};
 
     /**
     * This method should be given a HexState object in which it is currently
@@ -47,7 +43,15 @@ public:
     * @param state The state at which to evaluate whether or not player one can
     *              force a win from.
     */
-    bool one_wins_one_turn(GameState::HexState &state);
+    bool one_wins_one_turn(GameState::HexState<bsize> &state) {
+        bool one_wins = false;
+        if (this->cache.lookup(state, one_wins)) {
+            return one_wins;
+        }
+        this->nodes_expanded++;
+
+
+    }
 
     /**
     * This method should be given a HexState object in which it is currently
@@ -60,7 +64,7 @@ public:
     * @param state The state at which to evaluate whether or not player one can
     *              force a win from.
     */
-    bool one_wins_two_turn(GameState::HexState &state);
+    bool one_wins_two_turn(GameState::HexState<bsize> &state);
 };
 
 }

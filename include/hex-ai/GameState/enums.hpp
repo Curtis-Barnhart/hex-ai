@@ -3,7 +3,7 @@
 
 namespace GameState {
 
-enum PLAYERS : unsigned char { PLAYER_ONE, PLAYER_TWO, PLAYER_NONE };
+enum PLAYERS : unsigned char { PLAYER_NONE, PLAYER_ONE, PLAYER_TWO };
 enum AXIS { VERTICAL, HORIZONTAL, BOTH };
 
 }

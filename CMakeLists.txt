@@ -35,25 +35,3 @@ if (HEX_AI_TESTS)
     add_subdirectory("test")
 endif()
 
-# HEX_AI_TESTING_DIR is the absolute path to a directory where unit tests for hex-ai
-# can create temporary files that are used during the testing process
-# It was being used by test/test_HexStateIO.cpp but is not any longer.
-if (NOT "${HEX_AI_TESTING_DIR}" STREQUAL "")
-    add_definitions("-DHEX_AI_TESTING_DIR=${HEX_AI_TESTING_DIR}")
-    message(STATUS "HEX_AI_TESTING_DIR set to ${HEX_AI_TESTING_DIR}.")
-else()
-    message(STATUS "HEX_AI_TESTING_DIR not set (using default directory './data').")
-endif()
-
-# HEX_AI_DATA_DIR is the absolute path to the directory where hex-ai can store
-# data that isn't part of the source code or need to be tracked.
-# It is a macro that will be used in Util/io.cpp
-# If it is not defined by the user at compile time, it will use a relative path
-# that is defined in Util/io.cpp
-if (NOT "${HEX_AI_DATA_DIR}" STREQUAL "")
-    add_definitions("-DHEX_AI_DATA_DIR=${HEX_AI_DATA_DIR}")
-    message(STATUS "HEX_AI_DATA_DIR set to ${HEX_AI_DATA_DIR}.")
-else()
-    message(STATUS "HEX_AI_DATA_DIR not set (using default directory './data').")
-endif()
-

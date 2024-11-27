@@ -31,17 +31,8 @@ namespace GameState {
  * This includes a board of pieces which belongs to two players
  * as well as a counter of whose turn it is.
  */
-template<
-    int bsize,
-    typename std::enable_if<(bsize > 0), int>::type = 0
->
+template<int bsize, typename std::enable_if<(bsize > 0), int>::type = 0>
 class HexState {
-    /*
-     * Declaring a friend streaming operator so that a state may be printed.
-     * This will probably have to be redone when this gets templated.
-     */
-    // friend std::ostream &operator<<(std::ostream &out, const GameState::HexState &state);
-
     /*
      * Give access to std::hash of HexState private members like the board so
      * that it can be hashed.
@@ -49,6 +40,49 @@ class HexState {
     friend class std::hash<GameState::HexState<bsize>>;
 
 public:
+    class ActionIterator {
+        friend class GameState::HexState<bsize>;
+
+    public:
+        const GameState::Action &operator*() const {
+            return this->a;
+        }
+
+        GameState::HexState<bsize>::ActionIterator &operator++() {
+            if (++(this->y) == bsize) {
+                this->y = 0;
+                if (++(this->x) == bsize) {
+                    return *this;
+                }
+            }
+            if (state[x][y] == PLAYER_NONE) {
+                this->a = {x, y, state[x][y]};
+            }
+        }
+
+        bool operator<(const ActionIterator &other) const {
+            return (&(this->state) == &(other.state))
+                && ((this->x < other.x) || (this->x == other.x && this->y < other.y));
+        }
+
+        bool operator==(const ActionIterator &other) const {
+            return (&(this->state) == &(other.state))
+                && (this->x == other.x)
+                && (this->y == other.y);
+        }
+
+    private:
+        const HexState<bsize> &state;
+        int x = 0, y = 0;
+        GameState::PLAYERS default_player;
+        GameState::Action a;
+
+        ActionIterator(
+            const HexState<bsize> &state,
+            GameState::PLAYERS player = PLAYER_NONE
+        ) : state(state), default_player(player) {};
+    };
+
     /**
      * Test for equality against another HexState instance.
      * Two states are considered equal if the contents of their internal
@@ -79,7 +113,6 @@ public:
      * @return the array of values at that x coordinate.
      */
     const std::array<PLAYERS, bsize> &operator[](size_t i) {
-        assert(i >= 0);
         assert(i < bsize);
         return this->board[i];
     }
@@ -440,7 +473,7 @@ public:
 
                 value = (pack4 & 0xc0) >> 6;
                 // okay to cast - we check correctness later
-                this->board[x][y] = static_cast<HexState::PLAYERS>(value);
+                this->board[x][y] = static_cast<GameState::PLAYERS>(value);
                 pack4 <<= 2;
                 packed_in--;
             }
@@ -452,7 +485,7 @@ public:
     }
 
 private:
-    std::array<std::array<GameState::PLAYERS, bsize>, bsize> board{};
+    std::array<std::array<GameState::PLAYERS, bsize>, bsize> board {};
 };
 
 }
