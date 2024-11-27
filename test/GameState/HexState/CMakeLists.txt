@@ -2,7 +2,7 @@
 # This file is part of hex-ai.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-add_executable(test_HexState_Constructor test_HexState.cpp)
+add_executable(test_HexState_Constructor test_Constructor.cpp)
 target_include_directories(
     test_HexState_Constructor
     PRIVATE
@@ -30,3 +30,30 @@ add_test(
     COMMAND test_HexState_Constructor
 )
 
+add_executable(test_HexState_get_actions test_get_actions.cpp)
+target_include_directories(
+    test_HexState_get_actions
+    PRIVATE
+    ../../../extern/cereal/include
+)
+target_compile_features(
+    test_HexState_get_actions
+    PRIVATE
+    cxx_std_20
+)
+target_compile_options(
+    test_HexState_get_actions
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+target_link_libraries(
+    test_HexState_get_actions
+    gtest
+    gtest_main
+)
+add_test(
+    NAME test_HexState_get_actions
+    COMMAND test_HexState_get_actions
+)

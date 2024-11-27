@@ -7,7 +7,6 @@
 #include <cstdio>
 
 #include <gtest/gtest.h>
-#include <type_traits>
 #include <vector>
 
 #include "hex-ai/GameState/HexState.hpp"
@@ -18,11 +17,7 @@ using GameState::HexState;
 using GameState::PLAYERS::PLAYER_NONE;
 
 
-/*************************************************
-* Constructing                                   *
-*************************************************/
-
-TEST(HexState_1_Constructor, Constructor) {
+TEST(HexState_1_Constructor, IsEmtpy) {
     HexState<1> state;
 
     EXPECT_EQ(state[0][0], PLAYER_NONE)
@@ -46,7 +41,7 @@ TEST(HexState_1_Constructor, Moves) {
         << "Newly constructed 1x1 board did not have 1 available move.";
 }
 
-TEST(HexState_4_Constructor, Constructor) {
+TEST(HexState_4_Constructor, IsEmtpy) {
     HexState<4> state;
 
     for (int x = 0; x < 4; x++) {
@@ -74,7 +69,7 @@ TEST(HexState_4_Constructor, Moves) {
         << "Newly constructed 4x4 board did not have 16 available moves.";
 }
 
-TEST(HexState_9_Constructor, Constructor) {
+TEST(HexState_9_Constructor, IsEmtpy) {
     HexState<9> state;
 
     for (int x = 0; x < 9; x++) {

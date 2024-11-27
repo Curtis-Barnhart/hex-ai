@@ -15,6 +15,8 @@ struct Action {
      */
     Action() = default;
 
+    bool operator==(const Action &other) const = default;
+
     /**
     * Constructor sets memeber values according to the given parameters.
     * NO ERROR CHECKING is performed on x and y to make sure they are

@@ -137,8 +137,8 @@ public:
 
                 while (stack) {
                     // get next tile and mark as visited
-                    int x = xstack[stack];
-                    int y = ystack[stack--];
+                    int x = xstack[--stack];
+                    int y = ystack[stack];
                     mask[x][y] = PLAYER_ONE;
 
                     if (
@@ -220,8 +220,8 @@ public:
 
                 while (stack) {
                     // get next tile and mark as visited
-                    int x = xstack[stack];
-                    int y = ystack[stack--];
+                    int x = xstack[--stack];
+                    int y = ystack[stack];
                     mask[x][y] = PLAYER_TWO;
 
                     if (
