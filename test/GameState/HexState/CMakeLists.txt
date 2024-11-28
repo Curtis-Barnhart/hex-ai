@@ -57,3 +57,31 @@ add_test(
     NAME test_HexState_get_actions
     COMMAND test_HexState_get_actions
 )
+
+add_executable(test_HexState_action_iterator test_action_iterator.cpp)
+target_include_directories(
+    test_HexState_action_iterator
+    PRIVATE
+    ../../../extern/cereal/include
+)
+target_compile_features(
+    test_HexState_action_iterator
+    PRIVATE
+    cxx_std_20
+)
+target_compile_options(
+    test_HexState_action_iterator
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+target_link_libraries(
+    test_HexState_action_iterator
+    gtest
+    gtest_main
+)
+add_test(
+    NAME test_HexState_action_iterator
+    COMMAND test_HexState_action_iterator
+)

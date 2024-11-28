@@ -92,14 +92,14 @@ TEST(HexState4_GetActions, NonemptyBoard) {
     state.succeed(Action(2, 2, PLAYER_TWO));
     state.succeed(Action(2, 3, PLAYER_TWO));
     Action expected[8] = {
-        { 0, 0, PLAYER_NONE },
-        { 0, 3, PLAYER_NONE },
-        { 1, 0, PLAYER_NONE },
-        { 1, 1, PLAYER_NONE },
-        { 3, 0, PLAYER_NONE },
-        { 3, 1, PLAYER_NONE },
-        { 3, 2, PLAYER_NONE },
-        { 3, 3, PLAYER_NONE },
+        {0, 0, PLAYER_NONE},
+        {0, 3, PLAYER_NONE},
+        {1, 0, PLAYER_NONE},
+        {1, 1, PLAYER_NONE},
+        {3, 0, PLAYER_NONE},
+        {3, 1, PLAYER_NONE},
+        {3, 2, PLAYER_NONE},
+        {3, 3, PLAYER_NONE},
     };
 
     state.get_actions(v);
@@ -115,10 +115,10 @@ TEST(HexState4_GetActions, NonemptyBoard) {
 TEST(HexState4_GetActions, WonBoard) {
     HexState<4> state;
     std::vector<Action> v;
-    state.succeed({ 0, 0, PLAYER_ONE });
-    state.succeed({ 0, 1, PLAYER_ONE });
-    state.succeed({ 0, 2, PLAYER_ONE });
-    state.succeed({ 0, 3, PLAYER_ONE });
+    state.succeed({0, 0, PLAYER_ONE});
+    state.succeed({0, 1, PLAYER_ONE});
+    state.succeed({0, 2, PLAYER_ONE});
+    state.succeed({0, 3, PLAYER_ONE});
 
     state.get_actions(v);
     EXPECT_EQ(v.size(), 0)

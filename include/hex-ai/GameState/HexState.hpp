@@ -9,6 +9,7 @@
 
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -48,7 +49,10 @@ public:
             return this->a;
         }
 
-        GameState::HexState<bsize>::ActionIterator &operator++() {
+        GameState::HexState<bsize>::ActionIterator &operator++(int) {
+            if (this->x == bsize) {
+                return *this;
+            }
             if (++(this->y) == bsize) {
                 this->y = 0;
                 if (++(this->x) == bsize) {
@@ -56,32 +60,51 @@ public:
                 }
             }
             if (state[x][y] == PLAYER_NONE) {
-                this->a = {x, y, state[x][y]};
+                this->a = {x, y, this->default_player};
+            } else {
+                (*this)++;
             }
+            return *this;
         }
 
-        bool operator<(const ActionIterator &other) const {
-            return (&(this->state) == &(other.state))
-                && ((this->x < other.x) || (this->x == other.x && this->y < other.y));
-        }
-
-        bool operator==(const ActionIterator &other) const {
-            return (&(this->state) == &(other.state))
-                && (this->x == other.x)
-                && (this->y == other.y);
+        int operator<=>(const ActionIterator &other) const {
+            if (&this->state != &other.state) {
+                return 1;
+            }
+            int this_total = this->x * bsize + this->y,
+                other_total = other.x * bsize + other.y;
+            return this_total - other_total;
         }
 
     private:
         const HexState<bsize> &state;
-        int x = 0, y = 0;
+        unsigned char x, y;
         GameState::PLAYERS default_player;
         GameState::Action a;
 
         ActionIterator(
             const HexState<bsize> &state,
-            GameState::PLAYERS player = PLAYER_NONE
-        ) : state(state), default_player(player) {};
+            GameState::PLAYERS player = PLAYER_NONE,
+            unsigned char x = 0,
+            unsigned char y = 0
+        ) : state(state), x(x), y(y), default_player(player) {
+            if (x < bsize && y < bsize) {
+                if (state[x][y] == PLAYER_NONE) {
+                    this->a = {x, y, player};
+                } else {
+                    (*this)++;
+                }
+            }
+        };
     };
+
+    ActionIterator actions_begin(PLAYERS p = PLAYER_NONE) const {
+        return { *this, p };
+    }
+
+    ActionIterator actions_end() const {
+        return { *this, PLAYER_NONE, bsize, 0 };
+    }
 
     /**
      * Test for equality against another HexState instance.
@@ -112,7 +135,7 @@ public:
      * @param i the x coordinate.
      * @return the array of values at that x coordinate.
      */
-    const std::array<PLAYERS, bsize> &operator[](size_t i) {
+    const std::array<PLAYERS, bsize> &operator[](size_t i) const {
         assert(i < bsize);
         return this->board[i];
     }
@@ -309,7 +332,7 @@ public:
     /*
     * If player P has an action at (x, y), then that tile in the board array should
     * hold their value.
-    * To tell how to undoe an action, you just need to know where a player claimed
+    * To tell how to undo an action, you just need to know where a player claimed
     * a tile.
     */
     HexState &succeed(const Action &action, Action &baction) {
