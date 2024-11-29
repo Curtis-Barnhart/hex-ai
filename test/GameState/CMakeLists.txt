@@ -3,5 +3,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 add_subdirectory(HexState)
+add_subdirectory(Action)
 add_subdirectory(Enums)
 

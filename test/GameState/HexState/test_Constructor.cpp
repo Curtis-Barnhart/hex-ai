@@ -16,7 +16,6 @@
 using GameState::HexState;
 using GameState::PLAYERS::PLAYER_NONE;
 
-
 TEST(HexState_1_Constructor, IsEmtpy) {
     HexState<1> state;
 

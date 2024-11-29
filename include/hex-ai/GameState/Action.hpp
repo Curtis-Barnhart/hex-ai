@@ -6,14 +6,8 @@
 namespace GameState {
 
 struct Action {
-    unsigned char x = 0, y = 0;
-    GameState::PLAYERS whose = GameState::PLAYERS::PLAYER_NONE;
-
-    /**
-     * The default constructor creates an action to claim the (0, 0) tile
-     * by PLAYER_NONE.
-     */
-    Action() = default;
+    unsigned char x, y;
+    GameState::PLAYERS whose;
 
     bool operator==(const Action &other) const = default;
 
@@ -26,19 +20,11 @@ struct Action {
     * @param y the y coordinate of what tile should be claimed.
     * @param whose 0 for the first player, 1 for the second, -1 for no player.
      */
-    Action(unsigned char x, unsigned char y, GameState::PLAYERS whose):
-        x(x), y(y), whose(whose) {}
-
-    /**
-     * Serializes an Action instance to a cereal archive
-     * using the cereal library.
-     *
-     * @param archive the cereal archive to serialize the Action to.
-     */
-    template<class Archive>
-    void serialize(Archive &archive) {
-        archive(x, y, whose);
-    }
+    Action(
+        unsigned char x = 0,
+        unsigned char y = 0,
+        GameState::PLAYERS whose = PLAYER_NONE
+    ): x(x), y(y), whose(whose) {}
 };
 
 }
