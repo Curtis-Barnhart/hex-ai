@@ -71,9 +71,7 @@ public:
             if (&this->state != &other.state) {
                 return 1;
             }
-            int this_total = this->x * bsize + this->y,
-                other_total = other.x * bsize + other.y;
-            return this_total - other_total;
+            return ((this->x - other.x) * bsize + this->y - other.y);
         }
 
     private:
