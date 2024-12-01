@@ -113,3 +113,31 @@ add_test(
     NAME test_HexState_who_won
     COMMAND test_HexState_who_won
 )
+
+add_executable(test_HexState_succeed test_make_moves.cpp)
+target_include_directories(
+    test_HexState_succeed
+    PRIVATE
+    ../../../extern/cereal/include
+)
+target_compile_features(
+    test_HexState_succeed
+    PRIVATE
+    cxx_std_20
+)
+target_compile_options(
+    test_HexState_succeed
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+target_link_libraries(
+    test_HexState_succeed
+    gtest
+    gtest_main
+)
+add_test(
+    NAME test_HexState_succeed
+    COMMAND test_HexState_succeed
+)
