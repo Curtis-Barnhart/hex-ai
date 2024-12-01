@@ -119,11 +119,10 @@ public:
 
         ActionIterator(
             const HexState<bsize> &state,
-            GameState::PLAYERS player = HexState<bsize>::default_iter_whose,
             unsigned char x = 0,
             unsigned char y = 0
         ) : state(state) {
-            this->a.whose = player;
+            this->a.whose = state.default_iter_whose;
             this->a.x = x;
             this->a.y = y;
             if (x < bsize && y < bsize && state[x][y] != PLAYER_NONE) {
@@ -132,12 +131,17 @@ public:
         };
     };
 
-    ActionIterator begin(PLAYERS p = PLAYER_NONE) const {
-        return { *this, p };
+    /**
+     * Okay I know this is terrible but if a Player is passed which is not
+     * PLAYER_NONE, then that will be used as the default player.
+     *
+     */
+    ActionIterator begin() const {
+        return { *this };
     }
 
     ActionIterator end() const {
-        return { *this, PLAYER_NONE, bsize, 0 };
+        return { *this, bsize, 0 };
     }
 
     /**

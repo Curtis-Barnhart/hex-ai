@@ -34,10 +34,14 @@ TEST(HexState1_ActionIterator, DefaultPlayer) {
 
 TEST(HexState1_GetActions, ExplicitPlayer) {
     HexState<1> state;
-    HexState<1>::ActionIterator start_none = state.begin(PLAYER_NONE),
-                                start_one = state.begin(PLAYER_ONE),
-                                start_two = state.begin(PLAYER_TWO),
-                                end = state.end();
+    state.default_iter_whose = PLAYER_NONE;
+    HexState<1>::ActionIterator start_none = state.begin();
+    state.default_iter_whose = PLAYER_ONE;
+    HexState<1>::ActionIterator start_one = state.begin();
+    state.default_iter_whose = PLAYER_TWO;
+    HexState<1>::ActionIterator start_two = state.begin();
+
+    HexState<1>::ActionIterator end = state.end();
     
     EXPECT_GT(std::distance(start_none, end), 0)
         << "Empty 1x1 did not have any actions.\n";
@@ -146,5 +150,22 @@ TEST(HexState4_GetActions, WonBoard) {
 
     EXPECT_GE(start, end)
         << "3/4 empty 4x4 had more than 12 moves.\n";
+}
+
+TEST(HexState4_GetActions, SetPlayerByState) {
+    HexState<4> state;
+    for (const Action &a : state) {
+        EXPECT_EQ(a.whose, PLAYER_NONE);
+    }
+
+    state.default_iter_whose = PLAYER_ONE;
+    for (const Action &a : state) {
+        EXPECT_EQ(a.whose, PLAYER_ONE);
+    }
+
+    state.default_iter_whose = PLAYER_TWO;
+    for (const Action &a : state) {
+        EXPECT_EQ(a.whose, PLAYER_TWO);
+    }
 }
 
