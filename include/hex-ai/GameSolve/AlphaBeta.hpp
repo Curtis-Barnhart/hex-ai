@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cassert>
+
 #include "hex-ai/Util/LRUCache.hpp"
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameState/Action.hpp"
 #include "hex-ai/GameState/enums.hpp"
-#include <cassert>
 
 namespace GameSolve {
 
@@ -45,12 +46,36 @@ public:
     */
     bool one_wins_one_turn(GameState::HexState<bsize> &state) {
         bool one_wins = false;
+        // First check the transposition table
         if (this->cache.lookup(state, one_wins)) {
             return one_wins;
         }
-        this->nodes_expanded++;
+        ++this->nodes_expanded;
 
+        // See if we just... actually win right here
+        switch (state.who_won()) {
+            case GameState::PLAYER_ONE:
+                return true;
+            case GameState::PLAYER_TWO:
+                return false;
+            default:
+                break;
+        }
+        // See if we win from any of our succession states
+        GameState::Action backwards;
+        state.default_iter_whose = GameState::PLAYER_ONE;
+        for (const GameState::Action &a : state) {
+            state.succeed(a, backwards);
+            if (this->one_wins_two_turn(state)) {
+                one_wins = true;
+                state.succeed(backwards);
+                break;
+            }
+            state.succeed(backwards);
+        }
 
+        this->cache.insert(state, one_wins);
+        return one_wins;
     }
 
     /**
@@ -64,7 +89,39 @@ public:
     * @param state The state at which to evaluate whether or not player one can
     *              force a win from.
     */
-    bool one_wins_two_turn(GameState::HexState<bsize> &state);
+    bool one_wins_two_turn(GameState::HexState<bsize> &state) {
+        bool one_wins = true;
+        // First check the transposition table
+        if (this->cache.lookup(state, one_wins)) {
+            return one_wins;
+        }
+        ++this->nodes_expanded;
+
+        // See if we just... actually win right here
+        switch (state.who_won()) {
+            case GameState::PLAYER_ONE:
+                return true;
+            case GameState::PLAYER_TWO:
+                return false;
+            default:
+                break;
+        }
+        // See if we win from all of our succession states
+        GameState::Action backwards;
+        state.default_iter_whose = GameState::PLAYER_TWO;
+        for (const GameState::Action &a : state) {
+            state.succeed(a, backwards);
+            if (!this->one_wins_one_turn(state)) {
+                one_wins = false;
+                state.succeed(backwards);
+                break;
+            }
+            state.succeed(backwards);
+        }
+
+        this->cache.insert(state, one_wins);
+        return one_wins;
+    }
 };
 
 }
