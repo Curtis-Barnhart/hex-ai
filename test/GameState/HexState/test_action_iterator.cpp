@@ -5,6 +5,7 @@
  */
 
 #include <cstdio>
+#include <iterator>
 
 #include <gtest/gtest.h>
 
@@ -20,30 +21,29 @@ using GameState::PLAYERS::PLAYER_TWO;
 
 TEST(HexState1_ActionIterator, DefaultPlayer) {
     HexState<1> state;
-    HexState<1>::ActionIterator start = state.actions_begin(),
-                                end = state.actions_end();
+    HexState<1>::ActionIterator start = state.begin(),
+                                end = state.end();
     
-    EXPECT_LT(start, end)
+    EXPECT_GT(std::distance(start, end), 0)
         << "Empty 1x1 did not have any actions.\n";
     EXPECT_EQ(*start, Action(0, 0, PLAYER_NONE))
         << "Empty 1x1 did not have (0, 0, NONE) as first available move.\n";
-    start++;
-    EXPECT_GE(start, end)
-        << "Empty 1x1 had more than 1 move.\n";
+    EXPECT_EQ(std::distance(start, end), 1)
+        << "Empty 1x1 did not have 1 move.\n";
 }
 
 TEST(HexState1_GetActions, ExplicitPlayer) {
     HexState<1> state;
-    HexState<1>::ActionIterator start_none = state.actions_begin(PLAYER_NONE),
-                                start_one = state.actions_begin(PLAYER_ONE),
-                                start_two = state.actions_begin(PLAYER_TWO),
-                                end = state.actions_end();
+    HexState<1>::ActionIterator start_none = state.begin(PLAYER_NONE),
+                                start_one = state.begin(PLAYER_ONE),
+                                start_two = state.begin(PLAYER_TWO),
+                                end = state.end();
     
-    EXPECT_TRUE(start_none < end)
+    EXPECT_GT(std::distance(start_none, end), 0)
         << "Empty 1x1 did not have any actions.\n";
-    EXPECT_TRUE(start_one < end)
+    EXPECT_GT(std::distance(start_one, end), 0)
         << "Empty 1x1 did not have any actions.\n";
-    EXPECT_TRUE(start_two < end)
+    EXPECT_GT(std::distance(start_two, end), 0)
         << "Empty 1x1 did not have any actions.\n";
 
     EXPECT_EQ(*start_none, Action(0, 0, PLAYER_NONE))
@@ -53,41 +53,36 @@ TEST(HexState1_GetActions, ExplicitPlayer) {
     EXPECT_EQ(*start_two, Action(0, 0, PLAYER_TWO))
         << "Empty 1x1 did not have (0, 0, TWO) as first available move.\n";
 
-    start_none++;
-    start_one++;
-    start_two++;
-
-    EXPECT_GE(start_none, end)
+    EXPECT_EQ(std::distance(start_none, end), 1)
         << "Empty 1x1 had more than 1 move.\n";
-    EXPECT_GE(start_one, end)
+    EXPECT_EQ(std::distance(start_one, end), 1)
         << "Empty 1x1 had more than 1 move.\n";
-    EXPECT_GE(start_two, end)
+    EXPECT_EQ(std::distance(start_two, end), 1)
         << "Empty 1x1 had more than 1 move.\n";
 }
 
 TEST(HexState1_ActionIterator, NoMoves) {
     HexState<1> state;
     state.succeed({0, 0, PLAYER_ONE});
-    HexState<1>::ActionIterator start = state.actions_begin(),
-                                end = state.actions_end();
+    HexState<1>::ActionIterator start = state.begin(),
+                                end = state.end();
     
-    EXPECT_TRUE(start >= end);
-    EXPECT_GE(start, end)
-        << "Full 1x1 had nonzero amount of moves.\n";
+    EXPECT_EQ(std::distance(start, end), 0)
+        << "Full 1x1 had moves available.\n";
 }
 
 TEST(HexState4_GetActions, EmptyBoard) {
     HexState<4> state;
-    HexState<4>::ActionIterator start = state.actions_begin(),
-                                end = state.actions_end();
+    HexState<4>::ActionIterator start = state.begin(),
+                                end = state.end();
 
     EXPECT_LT(start, end)
         << "Empty 4x4 did not have any actions.\n";
-    for (int x = 0; x < 4; x++) {
-        for (int y = 0; y < 4; y++) {
+    for (int x = 0; x < 4; ++x) {
+        for (int y = 0; y < 4; ++y) {
             EXPECT_EQ(*start, Action(x, y, PLAYER_NONE))
                 << "Action at (" << x << ", " << y << ") had incorrect value.\n";
-            start++;
+            ++start;
         }
     }
     EXPECT_GE(start, end)
@@ -116,14 +111,14 @@ TEST(HexState4_GetActions, NonemptyBoard) {
         {3, 3, PLAYER_NONE},
     };
 
-    HexState<4>::ActionIterator start = state.actions_begin(),
-                                end = state.actions_end();
+    HexState<4>::ActionIterator start = state.begin(),
+                                end = state.end();
     EXPECT_LT(start, end)
         << "Half empty 4x4 did not have any actions.\n";
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; ++i) {
         EXPECT_EQ(*start, expected[i])
             << "Action at " << i << " had bad value.\n";
-        start++;
+        ++start;
     }
     EXPECT_GE(start, end)
         << "Half empty 4x4 had more than 8 moves.\n";
@@ -136,16 +131,16 @@ TEST(HexState4_GetActions, WonBoard) {
     state.succeed({ 0, 2, PLAYER_ONE });
     state.succeed({ 0, 3, PLAYER_ONE });
 
-    HexState<4>::ActionIterator start = state.actions_begin(),
-                                end = state.actions_end();
+    HexState<4>::ActionIterator start = state.begin(),
+                                end = state.end();
     EXPECT_LT(start, end)
         << "3/4 empty 4x4 did not have any actions.\n";
 
-    for (int x = 1; x < 4; x++) {
-        for (int y = 0; y < 4; y++) {
+    for (int x = 1; x < 4; ++x) {
+        for (int y = 0; y < 4; ++y) {
             EXPECT_EQ(*start, Action(x, y, PLAYER_NONE))
                 << "Action at (" << x << ", " << y << ") had bad value.\n";
-            start++;
+            ++start;
         }
     }
 

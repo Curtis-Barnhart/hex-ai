@@ -6,6 +6,7 @@
 
 #ifndef GAMES_HEX_HEXSTATE_HPP
 #define GAMES_HEX_HEXSTATE_HPP
+
 #include <array>
 #include <cassert>
 #include <climits>
@@ -14,6 +15,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <iterator>
 #include <ostream>
 #include <type_traits>
 #include <vector>
@@ -39,10 +41,19 @@ class HexState {
     friend class std::hash<GameState::HexState<bsize>>;
 
 public:
+    /**
+     *
+     */
     class ActionIterator {
         friend class GameState::HexState<bsize>;
 
     public:
+        using difference_type = long;
+        using value_type = HexState<bsize>;
+        using pointer = const HexState<bsize> *;
+        using reference = const HexState<bsize> &;
+        using iterator_category = std::input_iterator_tag;
+
         const GameState::Action &operator*() const {
             return this->a;
         }
@@ -78,6 +89,14 @@ public:
             return ((this->x - other.x) * bsize + this->y - other.y);
         }
 
+        bool operator==(const ActionIterator &other) const {
+            return ((*this)<=>other) == 0;
+        }
+
+        bool operator!=(const ActionIterator &other) const {
+            return ((*this)<=>other) != 0;
+        }
+
     private:
         const HexState<bsize> &state;
         unsigned char x, y;
@@ -100,11 +119,11 @@ public:
         };
     };
 
-    ActionIterator actions_begin(PLAYERS p = PLAYER_NONE) const {
+    ActionIterator begin(PLAYERS p = PLAYER_NONE) const {
         return { *this, p };
     }
 
-    ActionIterator actions_end() const {
+    ActionIterator end() const {
         return { *this, PLAYER_NONE, bsize, 0 };
     }
 
