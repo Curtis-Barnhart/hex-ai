@@ -6,7 +6,6 @@
 
 #ifndef GAMES_HEX_HEXSTATE_HPP
 #define GAMES_HEX_HEXSTATE_HPP
-
 #include <array>
 #include <cassert>
 #include <climits>
@@ -48,7 +47,8 @@ public:
             return this->a;
         }
 
-        GameState::HexState<bsize>::ActionIterator &operator++(int) {
+        GameState::HexState<bsize>::ActionIterator operator++(int) {
+            ActionIterator copy = *this;
             if (this->x == bsize) {
                 return *this;
             }
@@ -63,7 +63,7 @@ public:
             } else {
                 (*this)++;
             }
-            return *this;
+            return copy;
         }
 
         int operator<=>(const ActionIterator &other) const {
@@ -363,7 +363,7 @@ public:
     }
 
     /**
-     * prints out a simple string representation of a state
+     * prints out a simple string representation of a state.
      *
      * @param out the ostream to write the string to
      */
