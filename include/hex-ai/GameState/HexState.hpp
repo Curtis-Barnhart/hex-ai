@@ -42,7 +42,25 @@ class HexState {
 
 public:
     /**
+     * This member gives a default whose for ActionIterators to use in their
+     * actions if no player is specified.
+     * This is necessary to use if you want to use for each loop syntax
+     * on a HexState without the whose value being PLAYER_NONE.
+     */
+    GameState::PLAYERS default_iter_whose = PLAYER_NONE;
+
+    /**
+     * The ActionIterator class allows for iteration over the actions
+     * available in a certain HexState.
+     * It is essentially a pointer to an Action object
+     * which implements the increment operator.
      *
+     * Because ::begin and ::end are defined on HexState using this class,
+     * it should be possible to use for each syntax to iterate over moves:
+     * GameState::HexState<11> state;
+     * for (const GameState::Action &a : state) {
+     *     // do something
+     * }
      */
     class ActionIterator {
         friend class GameState::HexState<bsize>;
@@ -59,18 +77,16 @@ public:
         }
 
         GameState::HexState<bsize>::ActionIterator operator++() {
-            if (this->x == bsize) {
+            if (this->a.x == bsize) {
                 return *this;
             }
-            if (++(this->y) == bsize) {
-                this->y = 0;
-                if (++(this->x) == bsize) {
+            if (++(this->a.y) == bsize) {
+                this->a.y = 0;
+                if (++(this->a.x) == bsize) {
                     return *this;
                 }
             }
-            if (state[x][y] == PLAYER_NONE) {
-                this->a = {x, y, this->default_player};
-            } else {
+            if (state[this->a.x][this->a.y] != PLAYER_NONE) {
                 (*this)++;
             }
             return *this;
@@ -86,7 +102,7 @@ public:
             if (&this->state != &other.state) {
                 return 1;
             }
-            return ((this->x - other.x) * bsize + this->y - other.y);
+            return ((this->a.x - other.a.x) * bsize + this->a.y - other.a.y);
         }
 
         bool operator==(const ActionIterator &other) const {
@@ -99,22 +115,19 @@ public:
 
     private:
         const HexState<bsize> &state;
-        unsigned char x, y;
-        GameState::PLAYERS default_player;
         GameState::Action a;
 
         ActionIterator(
             const HexState<bsize> &state,
-            GameState::PLAYERS player = PLAYER_NONE,
+            GameState::PLAYERS player = HexState<bsize>::default_iter_whose,
             unsigned char x = 0,
             unsigned char y = 0
-        ) : state(state), x(x), y(y), default_player(player) {
-            if (x < bsize && y < bsize) {
-                if (state[x][y] == PLAYER_NONE) {
-                    this->a = {x, y, player};
-                } else {
-                    ++(*this);
-                }
+        ) : state(state) {
+            this->a.whose = player;
+            this->a.x = x;
+            this->a.y = y;
+            if (x < bsize && y < bsize && state[x][y] != PLAYER_NONE) {
+                ++(*this);
             }
         };
     };
