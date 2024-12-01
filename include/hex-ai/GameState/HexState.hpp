@@ -47,8 +47,7 @@ public:
             return this->a;
         }
 
-        GameState::HexState<bsize>::ActionIterator operator++(int) {
-            ActionIterator copy = *this;
+        GameState::HexState<bsize>::ActionIterator operator++() {
             if (this->x == bsize) {
                 return *this;
             }
@@ -63,6 +62,12 @@ public:
             } else {
                 (*this)++;
             }
+            return *this;
+        }
+
+        GameState::HexState<bsize>::ActionIterator operator++(int) {
+            ActionIterator copy = *this;
+            ++(*this);
             return copy;
         }
 
@@ -89,7 +94,7 @@ public:
                 if (state[x][y] == PLAYER_NONE) {
                     this->a = {x, y, player};
                 } else {
-                    (*this)++;
+                    ++(*this);
                 }
             }
         };
