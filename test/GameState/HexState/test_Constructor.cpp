@@ -5,9 +5,9 @@
  */
 
 #include <cstdio>
+#include <vector>
 
 #include <gtest/gtest.h>
-#include <vector>
 
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameState/enums.hpp"

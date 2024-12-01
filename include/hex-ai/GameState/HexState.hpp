@@ -30,7 +30,6 @@ namespace GameState {
 /**
  * HexState represents a state of a game of Hex.
  * This includes a board of pieces which belongs to two players
- * as well as a counter of whose turn it is.
  */
 template<int bsize, typename std::enable_if<(bsize > 0), int>::type = 0>
 class HexState {
@@ -299,12 +298,12 @@ public:
                         x + 1 < bsize &&
                         y - 1 >= 0 &&
                         mask[x + 1][y - 1] == PLAYER_NONE &&
-                        this->board[x + 1][y - 1] == PLAYER_ONE
+                        this->board[x + 1][y - 1] == PLAYER_TWO
                     ) {
                         if (x + 1 == bsize - 1) {
                             return PLAYER_TWO;
                         } else {
-                            mask[x + 1][y - 1] = PLAYER_ONE;
+                            mask[x + 1][y - 1] = PLAYER_TWO;
                             xstack[stack] = x + 1;
                             ystack[stack++] = y - 1;
                         }
@@ -508,6 +507,11 @@ public:
 private:
     std::array<std::array<GameState::PLAYERS, bsize>, bsize> board {};
 };
+
+template<>
+inline GameState::PLAYERS HexState<1>::who_won() const {
+    return this->board[0][0];
+}
 
 }
 

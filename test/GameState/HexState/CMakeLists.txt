@@ -85,3 +85,31 @@ add_test(
     NAME test_HexState_action_iterator
     COMMAND test_HexState_action_iterator
 )
+
+add_executable(test_HexState_who_won test_who_won.cpp)
+target_include_directories(
+    test_HexState_who_won
+    PRIVATE
+    ../../../extern/cereal/include
+)
+target_compile_features(
+    test_HexState_who_won
+    PRIVATE
+    cxx_std_20
+)
+target_compile_options(
+    test_HexState_who_won
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+target_link_libraries(
+    test_HexState_who_won
+    gtest
+    gtest_main
+)
+add_test(
+    NAME test_HexState_who_won
+    COMMAND test_HexState_who_won
+)
