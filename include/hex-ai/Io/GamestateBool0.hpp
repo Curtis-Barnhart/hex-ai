@@ -68,7 +68,9 @@ public:
         return CLEAR;
     }
 
-    unsigned int read_err() const;
+    unsigned int read_err() const {
+        return this->error_state;
+    }
 
 private:
     // does not have a public default ctor, must be init in ctor
@@ -81,12 +83,12 @@ private:
 * object (due to the similar fact about the underlying cereal::BinaryInputArchive)
 */
 template<int bsize>
-class GamestateBool1Writer {
+class GamestateBool0Writer {
 public:
     enum ERRORS { CLEAR, BAD_WRITE };
 
-    explicit GamestateBool1Writer(std::ostream &stream) : stream(stream) {
-        uint8_t file_type = Io::GAMESTATE_BOOL, file_version = 1, board_size = bsize;
+    explicit GamestateBool0Writer(std::ostream &stream) : stream(stream) {
+        uint8_t file_type = Io::GAMESTATE_BOOL, file_version = 0, board_size = bsize;
         
         try {
             this->stream(file_type);
@@ -97,7 +99,7 @@ public:
         }
     }
 
-    ~GamestateBool1Writer() {
+    ~GamestateBool0Writer() {
         uint8_t more_left = 0;
         this->stream(more_left);
     }
@@ -126,7 +128,7 @@ public:
 private:
     // does not have a public default ctor, must be init in ctor
     cereal::BinaryOutputArchive stream;
-    unsigned int error_state = GamestateBool1Writer::CLEAR;
+    unsigned int error_state = GamestateBool0Writer::CLEAR;
 };
 
 }
