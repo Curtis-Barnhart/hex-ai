@@ -17,7 +17,7 @@ project(
 include_directories("include")
 
 # this is the subdirectory of our main executable
-add_subdirectory(src)
+# add_subdirectory(src)
 
 option(HEX_AI_TESTS "Build tests for cpp-ai" OFF)
 message(STATUS "HEX_AI_TESTS set to ${HEX_AI_TESTS}")
