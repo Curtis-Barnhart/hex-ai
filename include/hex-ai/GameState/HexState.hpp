@@ -470,12 +470,12 @@ public:
     bool verify_board_state() const {
         for (const std::array<GameState::PLAYERS, bsize> &x_row : this->board) {
             for (GameState::PLAYERS p : x_row) {
-                if (p < PLAYER_ONE || p > PLAYER_NONE) {
+                if (p < PLAYER_NONE || p > PLAYER_TWO) {
                     return false;
                 }
             }
         }
-        return (this->turn >= PLAYER_ONE && this->turn <= PLAYER_NONE);
+        return true;
     }
 
     /**
@@ -505,7 +505,7 @@ public:
             }
         }
 
-        pack4 <<= (2 * (4 - packed_in));
+        pack4 <<= (2 * (3 - packed_in));
         if (!(packed_in == 0)) {
             archive(pack4);
         }

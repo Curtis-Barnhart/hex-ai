@@ -24,7 +24,7 @@ TEST(test_hex_rand_moves, take_no_moves) {
 TEST(test_hex_rand_moves, take_moves_no_win) {
     GameState::HexState<4> state;
 
-    for (int x = 1; x-->0;) {
+    for (int x = 4096; x-->0;) {
         state = GameState::HexState<4>();
         GameSolve::hex_rand_moves(state, 7, PLAYER_ONE);
         EXPECT_EQ(std::distance(state.begin(), state.end()), 9)
@@ -35,7 +35,7 @@ TEST(test_hex_rand_moves, take_moves_no_win) {
 TEST(test_hex_rand_moves, take_moves_no_win_preexisting) {
     GameState::HexState<4> state;
 
-    for (int x = 1; x-->0;) {
+    for (int x = 4096; x-->0;) {
         state = GameState::HexState<4>();
         state.succeed({1, 0, PLAYER_ONE});
         state.succeed({2, 0, PLAYER_ONE});
