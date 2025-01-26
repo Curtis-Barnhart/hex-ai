@@ -67,9 +67,9 @@ public:
 
     public:
         using difference_type = long;
-        using value_type = HexState<bsize>;
-        using pointer = const HexState<bsize> *;
-        using reference = const HexState<bsize> &;
+        using value_type = GameState::Action;
+        using pointer = const GameState::Action *;
+        using reference = const GameState::Action &;
         using iterator_category = std::input_iterator_tag;
 
         const GameState::Action &operator*() const {
