@@ -1,5 +1,5 @@
-#ifndef HEX_AI_UTIL_FILE_IO_INFO_FILE_HPP
-#define HEX_AI_UTIL_FILE_IO_INFO_FILE_HPP
+#ifndef HEX_AI_IO_INFO_FILE_HPP
+#define HEX_AI_IO_INFO_FILE_HPP
 
 #include <string>
 
@@ -13,5 +13,5 @@ void info_file(const std::string &filename);
 
 }
 
-#endif // !HEX_AI_UTIL_FILE_IO_INFO_FILE_HPP
+#endif // !HEX_AI_IO_INFO_FILE_HPP
 
