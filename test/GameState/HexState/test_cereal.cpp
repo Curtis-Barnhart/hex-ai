@@ -41,7 +41,6 @@ TEST(test_HexState_cereal_1, nonempty_state) {
     }
 }
 
-
 TEST(test_HexState_cereal_4, empty_state) {
     GameState::HexState<4> original, read;
     std::stringstream s;
