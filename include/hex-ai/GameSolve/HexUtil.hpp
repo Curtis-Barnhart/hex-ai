@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
+ * Copyright 2025 Curtis Barnhart (cbarnhart@westmont.edu)
  * This file is part of hex-ai.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -28,11 +28,14 @@ namespace GameSolve {
 */
 template<int bsize>
 int hex_rand_moves(
-        GameState::HexState<bsize> &state,
-        int turns,
-        GameState::PLAYERS whose_turn
+    GameState::HexState<bsize> &state,
+    int turns,
+    GameState::PLAYERS whose_turn
 ) {
-    assert(whose_turn != GameState::PLAYER_NONE);
+    assert(
+        whose_turn == GameState::PLAYER_ONE
+        || whose_turn == GameState::PLAYER_TWO
+    );
     static std::minstd_rand0 rand(0);
     GameState::Action actions[bsize * bsize];
     state.default_iter_whose = whose_turn;
@@ -49,18 +52,6 @@ int hex_rand_moves(
         std::swap(state.default_iter_whose, temp);
     }
     return 0;
-
-    // std::vector<GameState::HexState<bsize>> a_list;
-    // while (turns-->0) {
-    //     state.get_actions(a_list);
-    //     if (a_list.empty()) {
-    //         return 1;
-    //     }
-    //     state.succeed_in_place(a_list.at(rand() % a_list.size()));
-    //     a_list.clear();
-    // }
-
-    // return 0;
 }
 
 }
