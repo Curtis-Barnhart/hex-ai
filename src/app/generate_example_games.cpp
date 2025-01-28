@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
+ * Copyright 2025 Curtis Barnhart (cbarnhart@westmont.edu)
  * This file is part of hex-ai.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -18,18 +18,45 @@
 #include "hex-ai/GameState/HexState.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 #include "hex-ai/GameSolve/HexUtil.hpp"
-#include "hex-ai/Util/FileIO/GamestateBool_1.hpp"
+#include "hex-ai/GameState/enums.hpp"
+#include "hex-ai/Io/GamestateBool0.hpp"
 
-using State = GameState::HexState;
-using Action = GameState::HexState::Action;
+using State = GameState::HexState<5>;
+using Action = GameState::Action;
 
-int generate_examples(
-    GameSolve::AlphaBeta2PlayersCached &ab,
+int gen_winning(
     int n,
     const std::string &output_path
 ) {
     std::ofstream outfile(output_path);
-    Util::FileIO::GamestateBool1Writer writer(outfile);
+    Io::GamestateBool0Writer<5> writer(outfile);
+    State s;
+    bool b;
+    int err;
+
+    // N times, create board state, solve it, and write down result.
+    for (int x = 0; x < n; x++) {
+        s = State();
+        GameSolve::hex_rand_moves(s, 25, GameState::PLAYER_ONE);
+
+        // calculate outcome and write it down
+        b = s.who_won() == GameState::PLAYER_ONE;
+        if ((err = writer.push(s, b))) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
+/*
+int generate_examples(
+    GameSolve::AlphaBeta2PlayersCached<5> &ab,
+    int n,
+    const std::string &output_path
+) {
+    std::ofstream outfile(output_path);
+    Io::GamestateBool0Writer<5> writer(outfile);
     State s;
     bool b;
     
@@ -38,8 +65,8 @@ int generate_examples(
         // make new game states until they don't have a winner
         do {
             s = State();
-            GameSolve::hex_rand_moves(s, 106);
-        } while (s.who_won() != GameState::HexState::PLAYERS::PLAYER_NONE);
+            GameSolve::hex_rand_moves(s, 25, GameState::PLAYER_ONE);
+        } while (s.who_won() != GameState::PLAYER_NONE);
         
         // calculate outcome and write it down
         b = ab.one_wins_one_turn(s);
@@ -50,6 +77,7 @@ int generate_examples(
 
     return 0;
 }
+*/
 
 void generate_loop(std::atomic<int> &count, int bundle, const std::string &filebase) {
     while (true) {
@@ -58,7 +86,6 @@ void generate_loop(std::atomic<int> &count, int bundle, const std::string &fileb
             return;
         }
 
-        GameSolve::AlphaBeta2PlayersCached ab(1500000);
         std::string hex_outs, bool_outs;
 
         std::stringstream s;
@@ -69,8 +96,8 @@ void generate_loop(std::atomic<int> &count, int bundle, const std::string &fileb
         s << filebase << "_bool" << std::setfill('0') << std::setw(5) << my_count;
         s >> bool_outs;
 
-        if (generate_examples(ab, bundle, hex_outs)) {
-            std::cout << "AAAAAAAAAAAAAAAAAA\n";
+        if (gen_winning(bundle, hex_outs)) {
+            std::cerr << "AAAAAAAAAAAAAAAAAA\n";
         }
         std::cout << "finishing " << my_count << "\n";
     }

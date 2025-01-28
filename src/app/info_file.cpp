@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -61,7 +63,11 @@ void info_file(const std::string &filename) {
 
 int main (int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
-        info_file(std::string(argv[1]));
+        if (std::filesystem::is_regular_file(argv[i])) {
+            info_file(argv[i]);
+        } else {
+            std::cerr << "hex-ai: " << argv[i] << " is not a file\n";
+        }
     }
     
     return 0;

@@ -22,6 +22,7 @@ namespace GameSolve {
 * Attempts to play `turns` random turns on a HexState board.
 * @param state HexState instance to make random moves on.
 * @param turns amount of random moves to make.
+* @param whose_turn who should take the first move.
 * @return 0 if the exact amount of turns were made.
 *         1 if the amount of turns that were made were less than `turns`
 *         due to the game having been won by any player.

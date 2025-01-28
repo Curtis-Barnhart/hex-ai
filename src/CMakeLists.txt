@@ -73,37 +73,44 @@ target_compile_options(
     -Wpedantic
 )
 
-#################################
-## generating games and solving #
-#################################
-#
-#add_executable(
-#    generate_example_games
-#    app/generate_example_games.cpp
-#)
-#
-## we want to add a compilation feature to one of our targets (main).
-## we add a feature that uses C++20.
-#target_compile_features(
-#    generate_example_games
-#    PRIVATE
-#    cxx_std_20
-#)
-#
-## we want to set some compilation options (for how many warnings to show).
-#target_compile_options(
-#    generate_example_games 
-#    PRIVATE 
-#    -Wall 
-#    -Wextra 
-#    -Wpedantic
-#)
-#
+################################
+# generating games and solving #
+################################
+
+add_executable(
+    generate_example_games
+    app/generate_example_games.cpp
+)
+
+# we want to add a compilation feature to one of our targets (main).
+# we add a feature that uses C++20.
+target_compile_features(
+    generate_example_games
+    PRIVATE
+    cxx_std_20
+)
+
+# We need the cereal headers to be exposed for this guy
+target_include_directories(
+    generate_example_games
+    PRIVATE
+    ../extern/cereal/include/
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    generate_example_games 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
+
 #target_link_libraries(
 #    generate_example_games
 #    hex-ai-core
 #)
-#
+
 #################################
 ## verify gamestate file valid  #
 #################################
