@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Curtis Barnhart (cbarnhart@westmont.edu)
+ * Copyright 2025 Curtis Barnhart (cbarnhart@westmont.edu)
  * This file is part of hex-ai.
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -7,20 +7,17 @@
 #include <cstdio>
 #include <fstream>
 #include <string>
-#include <vector>
 
 #include <cereal/archives/binary.hpp>
 
 #include "hex-ai/GameState/HexState.hpp"
-#include "hex-ai/Util/FileIO/file_type_enum.hpp"
-#include "hex-ai/Util/FileIO/file_types.hpp"
-#include "hex-ai/Util/FileIO/GamestateBool_1.hpp"
+#include "hex-ai/Io/io_enums.hpp"
+#include "hex-ai/Io/GamestateBool0.hpp"
 #include "hex-ai/GameSolve/AlphaBeta.hpp"
 
-using std::vector;
 using std::string;
-using GameState::HexState;
-using Util::FileIO::GamestateBool1Reader;
+using State = GameState::HexState<5>;
+using Io::GamestateBool0Reader;
 
 int main (int argc, char *argv[]) {
     if (argc != 4) {
@@ -36,38 +33,43 @@ int main (int argc, char *argv[]) {
         return 1;
     }
     if (!py_states) {
-        std::cerr << "hex-ai: File " << argv[1] << " could not be opened for writing.\n";
+        std::cerr << "hex-ai: File " << argv[2] << " could not be opened for writing.\n";
         return 1;
     }
     if (!py_bools) {
-        std::cerr << "hex-ai: File " << argv[1] << " could not be opened for writing.\n";
+        std::cerr << "hex-ai: File " << argv[3] << " could not be opened for writing.\n";
         return 1;
     }
 
-    uint8_t file_type, file_version;
+    uint8_t file_type, file_version, board_size;
     try {
         cereal::BinaryInputArchive archive(infile);
         archive(file_type);
         archive(file_version);
+        archive(board_size);
     } catch (cereal::Exception &) {
         std::cerr << "hex-ai: File " << argv[1] << " was corrupted and could not be read.\n";
         return 1;
     }
-    if (file_type != Util::FileIO::GAMESTATE_BOOL) {
+    if (file_type != Io::GAMESTATE_BOOL) {
         std::cerr << "hex-ai: File " << argv[1] << " is not of type GAMESTATE_BOOL.\n";
         return 1;
     }
-    if (file_version != 1) {
-        std::cerr << "hex-ai: File " << argv[1] << " is not of GAMESTATE_BOOL version equal to 1.\n";
+    if (file_version != 0) {
+        std::cerr << "hex-ai: File " << argv[1] << " is not of GAMESTATE_BOOL version equal to 0.\n";
+        return 1;
+    }
+    if (board_size != 5) {
+        std::cerr << "hex-ai: File " << argv[1] << " does not contain boards of size 5x5.\n";
         return 1;
     }
 
-    HexState h;
+    State h;
     bool b;
-    GamestateBool1Reader reader(infile);
+    GamestateBool0Reader<5> reader(infile);
 
-    while (reader.read_err() != GamestateBool1Reader::EMPTY) {
-        if (reader.pop(h, b) != GamestateBool1Reader::CLEAR) {
+    while (reader.read_err() != GamestateBool0Reader<5>::EMPTY) {
+        if (reader.pop(h, b) != GamestateBool0Reader<5>::CLEAR) {
             std::cerr << "hex-ai: File " << argv[1] << " was corrupted and could not be read.\n";
             return 1;
         }
