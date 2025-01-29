@@ -48,10 +48,15 @@ void info_file(const std::string &filename) {
                                     while (r.pop(state, b) == Io::GamestateBool0Reader<5>::CLEAR) {
                                         ++acc;
                                     }
-
-                                    std::cout << filename 
-                                            << ": GAMESTATE_BOOL version 0, "
-                                            << acc << std::endl;
+                                    if (r.read_err() != Io::GamestateBool0Reader<5>::EMPTY) {
+                                        std::cerr << "hex-ai: "
+                                                  << filename
+                                                  << " contained an error.\n";
+                                    } else {
+                                        std::cout << filename 
+                                                << ": GAMESTATE_BOOL version 0, "
+                                                << acc << std::endl;
+                                    }
                                 } else {
                                     std::cerr << "hex-ai: "
                                               << filename
