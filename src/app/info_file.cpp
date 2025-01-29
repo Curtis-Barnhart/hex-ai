@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include <cassert>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
@@ -16,6 +17,7 @@
 #include <cereal/details/helpers.hpp>
 
 #include "hex-ai/GameState/HexState.hpp"
+#include "hex-ai/Io/GamestateBool0.hpp"
 #include "hex-ai/Io/io_enums.hpp"
 
 /**
@@ -36,8 +38,27 @@ void info_file(const std::string &filename) {
                 case Io::GAMESTATE_BOOL:
                     switch (version) {
                         case 0:
-                            std::cout << filename 
-                                      << ": GAMESTATE_BOOL version 0\n";
+                            {
+                                int acc = 0;
+                                GameState::HexState<5> state;
+                                bool b;
+                                // TODO: this is disgusting - fix it
+                                if (board_size == 5) {
+                                    Io::GamestateBool0Reader<5> r(infile);
+                                    while (r.pop(state, b) == Io::GamestateBool0Reader<5>::CLEAR) {
+                                        ++acc;
+                                    }
+
+                                    std::cout << filename 
+                                            << ": GAMESTATE_BOOL version 0, "
+                                            << acc << std::endl;
+                                } else {
+                                    std::cerr << "hex-ai: "
+                                              << filename
+                                              << " has unreadable board size "
+                                              << board_size << std::endl;
+                                }
+                            }
                             break;
                         default:
                             // couldn't find version
