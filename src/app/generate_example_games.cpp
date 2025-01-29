@@ -6,7 +6,6 @@
 
 #include <atomic>
 #include <cstdio>
-#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
