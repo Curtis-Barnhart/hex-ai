@@ -86,3 +86,16 @@ TEST(test_hex_rand_moves, take_moves_win_preexisting) {
     }
 }
 
+TEST(test_hex_rand_moves, take_moves_win_during) {
+    GameState::HexState<4> state;
+
+    for (int x = 4096; x-->0;) {
+        state = GameState::HexState<4>();
+
+        ASSERT_EQ(GameSolve::hex_rand_moves(state, 26, PLAYER_TWO), 1)
+            << "After cutting the random moves short, hex_rand_moves did not return 1.\n";
+        ASSERT_EQ(std::distance(state.begin(), state.end()), 0)
+            << "After putting a board in a win state, there are somehow moves.\n";
+    }
+}
+
