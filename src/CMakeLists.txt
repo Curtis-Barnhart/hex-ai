@@ -106,42 +106,6 @@ target_compile_options(
     -Wpedantic
 )
 
-#target_link_libraries(
-#    generate_example_games
-#    hex-ai-core
-#)
-
-#################################
-## verify gamestate file valid  #
-#################################
-#
-#add_executable(
-#    verify_game_file
-#    app/verify_game_file.cpp
-#)
-#
-## we want to add a compilation feature to one of our targets (main).
-## we add a feature that uses C++20.
-#target_compile_features(
-#    verify_game_file
-#    PRIVATE
-#    cxx_std_20
-#)
-#
-## we want to set some compilation options (for how many warnings to show).
-#target_compile_options(
-#    verify_game_file 
-#    PRIVATE 
-#    -Wall 
-#    -Wextra 
-#    -Wpedantic
-#)
-#
-#target_link_libraries(
-#    verify_game_file
-#    hex-ai-core
-#)
-#
 #################################
 ## two player hex               #
 #################################
@@ -203,35 +167,37 @@ target_compile_options(
 #    file_combine
 #    hex-ai-core
 #)
-#
-#################################
-## output data file to text     #
-#################################
-#
-#add_executable(
-#    hexstate_to_string
-#    app/hexstate_to_string.cpp
-#)
-#
-## we want to add a compilation feature to one of our targets (main).
-## we add a feature that uses C++20.
-#target_compile_features(
-#    hexstate_to_string
-#    PRIVATE
-#    cxx_std_20
-#)
-#
-## we want to set some compilation options (for how many warnings to show).
-#target_compile_options(
-#    hexstate_to_string 
-#    PRIVATE 
-#    -Wall 
-#    -Wextra 
-#    -Wpedantic
-#)
-#
-#target_link_libraries(
-#    hexstate_to_string
-#    hex-ai-core
-#)
+
+################################
+# output data file to text     #
+################################
+
+add_executable(
+    hexstate_to_string
+    app/hexstate_to_string.cpp
+)
+
+# We need the cereal headers to be exposed for this guy
+target_include_directories(
+    hexstate_to_string
+    PRIVATE
+    ../extern/cereal/include/
+)
+
+# we want to add a compilation feature to one of our targets (main).
+# we add a feature that uses C++20.
+target_compile_features(
+    hexstate_to_string
+    PRIVATE
+    cxx_std_20
+)
+
+# we want to set some compilation options (for how many warnings to show).
+target_compile_options(
+    hexstate_to_string 
+    PRIVATE 
+    -Wall 
+    -Wextra 
+    -Wpedantic
+)
 

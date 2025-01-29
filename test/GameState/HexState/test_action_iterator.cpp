@@ -131,17 +131,17 @@ TEST(HexState4_GetActions, NonemptyBoard) {
 TEST(HexState4_GetActions, WonBoard) {
     HexState<4> state;
     state.succeed({ 0, 0, PLAYER_ONE });
-    state.succeed({ 0, 1, PLAYER_ONE });
-    state.succeed({ 0, 2, PLAYER_ONE });
-    state.succeed({ 0, 3, PLAYER_ONE });
+    state.succeed({ 1, 0, PLAYER_ONE });
+    state.succeed({ 2, 0, PLAYER_ONE });
+    state.succeed({ 3, 0, PLAYER_ONE });
 
     HexState<4>::ActionIterator start = state.begin(),
                                 end = state.end();
     EXPECT_LT(start, end)
         << "3/4 empty 4x4 did not have any actions.\n";
 
-    for (int x = 1; x < 4; ++x) {
-        for (int y = 0; y < 4; ++y) {
+    for (int x = 0; x < 4; ++x) {
+        for (int y = 1; y < 4; ++y) {
             EXPECT_EQ(*start, Action(x, y, PLAYER_NONE))
                 << "Action at (" << x << ", " << y << ") had bad value.\n";
             ++start;

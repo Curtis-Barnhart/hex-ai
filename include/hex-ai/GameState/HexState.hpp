@@ -137,6 +137,9 @@ public:
      *
      */
     ActionIterator begin() const {
+        if (this->who_won() != PLAYER_NONE) {
+            return { *this, bsize, 0 };
+        }
         return { *this };
     }
 
